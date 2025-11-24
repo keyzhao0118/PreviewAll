@@ -10,8 +10,7 @@
 			"cacheVariables": {
 				"CMAKE_C_COMPILER": "cl.exe",
 				"CMAKE_CXX_COMPILER": "cl.exe",
-				"CMAKE_TOOLCHAIN_FILE": "E:/workspace/vcpkg/scripts/buildsystems/vcpkg.cmake",
-				"CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+				"CMAKE_TOOLCHAIN_FILE": "E:/workspace/vcpkg/scripts/buildsystems/vcpkg.cmake"
 			},
 			"condition": {
 				"type": "equals",
@@ -38,20 +37,6 @@
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Release"
 			}
-		}
-	],
-	"buildPresets": [
-		{
-			"name": "x64-debug-install",
-			"configurePreset": "x64-debug",
-			"description": "Configure (if needed), build and run install target for Debug",
-			"targets": [ "install" ]
-		},
-		{
-			"name": "x64-release-install",
-			"configurePreset": "x64-release",
-			"description": "Configure (if needed), build and run install target for Release",
-			"targets": [ "install" ]
 		}
 	]
 }

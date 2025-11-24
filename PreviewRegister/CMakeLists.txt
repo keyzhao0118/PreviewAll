@@ -1,12 +1,22 @@
 ﻿cmake_minimum_required(VERSION 3.20)
 
-project(HelloWorld)
+project(PreviewRegister)
 
-find_package(fmt CONFIG REQUIRED)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 
-add_executable(HelloWorld helloworld.cpp)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
-target_link_libraries(HelloWorld
+add_executable(PreviewRegister WIN32
+	main.cpp
+	registermainpanel.h
+	registermainpanel.cpp
+	animatedswitch.h
+	animatedswitch.cpp
+)
+
+target_link_libraries(PreviewRegister
 	PRIVATE
-		fmt::fmt
+		Qt5::Widgets
 )

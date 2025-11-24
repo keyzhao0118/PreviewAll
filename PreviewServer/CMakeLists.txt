@@ -25,4 +25,5 @@ add_executable(MyQtApp WIN32
 target_link_libraries(MyQtApp 
 	PRIVATE
 		Qt5::Widgets
-		KF5::SyntaxHighlighting)
+		KF5::SyntaxHighlighting
+)

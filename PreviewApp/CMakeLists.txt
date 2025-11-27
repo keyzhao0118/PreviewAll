@@ -1,6 +1,8 @@
 ﻿cmake_minimum_required(VERSION 3.20)
 
-project(PreviewRegister)
+project(PreviewApp
+	LANGUAGES CXX
+)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -8,15 +10,14 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
-add_executable(PreviewRegister WIN32
+add_executable(PreviewApp WIN32
 	main.cpp
-	registermainpanel.h
-	registermainpanel.cpp
-	animatedswitch.h
-	animatedswitch.cpp
+	previewapppanel.h
+	previewapppanel.cpp
 )
 
-target_link_libraries(PreviewRegister
+target_link_libraries(PreviewApp
 	PRIVATE
 		Qt5::Widgets
+		KeyWidgets
 )

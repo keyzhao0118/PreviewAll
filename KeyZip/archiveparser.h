@@ -13,8 +13,10 @@ public:
 	void parseArchive(const QString& archivePath);
 
 signals:
-	void parsingFailed(const QString& errorMsg);
-	void entryFound(const QString& entryPath, bool bIsDir, quint64 entrySize);
+	void requirePassword(bool& bCancel, QString& password);
+	void updateProgress(qint64 completed, qint64 total);
+	void entryFound(const QString& entryPath, bool bIsDir, qint64 entrySize);
+	void parsingFailed();
 
 
 protected:
@@ -22,5 +24,6 @@ protected:
 
 private:
 	QString m_archivePath;
+	QString m_password;
 
 };

@@ -2,19 +2,15 @@
 #include <QWidget>
 #include <QPropertyAnimation>
 
-class AnimatedSwitch : public QWidget
+class KeySlideSwitch : public QWidget
 {
 	Q_OBJECT
-	Q_PROPERTY(qreal offset READ offset WRITE setOffset)
+		Q_PROPERTY(qreal offset READ offset WRITE setOffset)
 
 public:
-	explicit AnimatedSwitch(QWidget* parent = nullptr);
-
-	QSize sizeHint() const override {
-		return QSize(50, 25);
-	}
-
-	bool isChecked() const { return m_checked; }
+	explicit KeySlideSwitch(QWidget* parent = nullptr);
+	~KeySlideSwitch() = default;
+	void setChecked(bool checked);
 
 signals:
 	void toggled(bool checked);
@@ -25,7 +21,7 @@ protected:
 
 private:
 	// 用于动画的属性
-	qreal offset() const { return m_offset; }
+	qreal offset() const;
 	void setOffset(qreal value);
 
 private:
@@ -33,3 +29,5 @@ private:
 	qreal m_offset = 0.0;           // 滑块位置
 	QPropertyAnimation* m_anim = nullptr;
 };
+
+

@@ -1,10 +1,13 @@
-﻿#include "animatedswitch.h"
+﻿#include "keyslideswitch.h"
 #include <QPainter>
 #include <QMouseEvent>
 
-AnimatedSwitch::AnimatedSwitch(QWidget* parent)
+KeySlideSwitch::KeySlideSwitch(QWidget* parent /*= nullptr*/)
 	: QWidget(parent)
 {
+	setAttribute(Qt::WA_TranslucentBackground);
+	setAutoFillBackground(false);
+
 	m_anim = new QPropertyAnimation(this, "offset", this);
 	m_anim->setDuration(200);
 	m_anim->setEasingCurve(QEasingCurve::InOutQuad);
@@ -13,7 +16,19 @@ AnimatedSwitch::AnimatedSwitch(QWidget* parent)
 	m_offset = 0;
 }
 
-void AnimatedSwitch::mousePressEvent(QMouseEvent* event)
+void KeySlideSwitch::setChecked(bool checked)
+{
+	if (m_checked != checked)
+	{
+		m_checked = checked;
+		m_anim->stop();
+		m_anim->setStartValue(m_offset);
+		m_anim->setEndValue(m_checked ? 1.0 : 0.0);
+		m_anim->start();
+	}
+}
+
+void KeySlideSwitch::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
@@ -28,13 +43,18 @@ void AnimatedSwitch::mousePressEvent(QMouseEvent* event)
 	}
 }
 
-void AnimatedSwitch::setOffset(qreal value)
+qreal KeySlideSwitch::offset() const
+{
+	return m_offset;
+}
+
+void KeySlideSwitch::setOffset(qreal value)
 {
 	m_offset = value;
 	update();
 }
 
-void AnimatedSwitch::paintEvent(QPaintEvent*)
+void KeySlideSwitch::paintEvent(QPaintEvent*)
 {
 	QPainter p(this);
 	p.setRenderHint(QPainter::Antialiasing);

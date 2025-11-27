@@ -1,9 +1,26 @@
 ﻿#include "archiveparser.h"
 #include "commonhelper.h"
-#include <archive.h>
-#include <archive_entry.h>
-#include <QSharedPointer>
-#include <QMessageBox>
+#include "instreamwrapper.h"
+#include "archiveopencallback.h"
+
+#include <QLibrary>
+#include <Common/MyInitGuid.h>
+#include <7zip/Archive/IArchive.h>
+#include <7zip/PropID.h>
+
+// {23170F69-40C1-278A-1000-000110070000}
+DEFINE_GUID(CLSID_CFormat7z,
+	0x23170F69, 0x40C1, 0x278A, 0x10, 0x00, 0x00, 0x01, 0x10, 0x07, 0x00, 0x00);
+
+// {23170F69-40C1-278A-1000-000110010000}
+DEFINE_GUID(CLSID_CFormatZip,
+	0x23170F69, 0x40C1, 0x278A, 0x10, 0x00, 0x00, 0x01, 0x10, 0x01, 0x00, 0x00);
+
+// {23170F69-40C1-278A-1000-000110030000}
+DEFINE_GUID(CLSID_CFormatRar,
+	0x23170F69, 0x40C1, 0x278A, 0x10, 0x00, 0x00, 0x01, 0x10, 0x03, 0x00, 0x00);
+
+typedef UINT32(WINAPI* CreateObjectFunc)(const GUID* clsID, const GUID* iid, void** outObject);
 
 ArchiveParser::ArchiveParser(QObject* parent /*= nullptr*/)
 	: QThread(parent)
@@ -25,43 +42,91 @@ void ArchiveParser::parseArchive(const QString& archivePath)
 
 void ArchiveParser::run()
 {
-	QSharedPointer<struct archive> archivePtr(archive_read_new(), archive_read_free);
-	archive_read_support_format_all(archivePtr.data());
-	archive_read_support_filter_all(archivePtr.data());
-
-	if (archive_read_open_filename(archivePtr.data(), m_archivePath.toUtf8().constData(), 10240) != ARCHIVE_OK)
+	QLibrary sevenZipLib("7zip.dll");
+	if (!sevenZipLib.load())
 	{
-		CommonHelper::LogKeyZipDebugMsg(archive_error_string(archivePtr.data()));
-		emit parsingFailed(tr("ArchiveParser: Could not open archive: %1"));
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to load 7zip.dll.");
+		emit parsingFailed();
 		return;
 	}
 
-	QSharedPointer<struct archive_entry> entryPtr(archive_entry_new(), archive_entry_free);
-	do
+	CreateObjectFunc createObjectFunc = (CreateObjectFunc)sevenZipLib.resolve("CreateObject");
+	if (!createObjectFunc)
 	{
-		if (isInterruptionRequested())
-			break;
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to get CreateObject function.");
+		emit parsingFailed();
+		return;
+	}
 
-		int ret = archive_read_next_header2(archivePtr.data(), entryPtr.data());
-		if (ret == ARCHIVE_OK)
+	CMyComPtr<IInArchive> archive;
+	if (createObjectFunc(&CLSID_CFormat7z, &IID_IInArchive, (void**)&archive) != S_OK)
+	{
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to create 7z archive handler.");
+		emit parsingFailed();
+		return;
+	}
+
+	InStreamWrapper* inStreamSpec = new InStreamWrapper(m_archivePath);
+	CMyComPtr<IInStream> inStream(inStreamSpec);
+	if (!inStreamSpec->isOpen())
+	{
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to open archive file: " + m_archivePath);
+		emit parsingFailed();
+		return;
+	}
+
+	ArchiveOpenCallBack* openCallBackSpec = new ArchiveOpenCallBack();
+	CMyComPtr<IArchiveOpenCallback> openCallBack(openCallBackSpec);
+	connect(openCallBackSpec, &ArchiveOpenCallBack::requirePassword, this, &ArchiveParser::requirePassword);
+	
+	HRESULT hr = archive->Open(inStream, nullptr, openCallBack);
+	if (hr == E_ABORT)
+	{
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Operation aborted by user (e.g., password cancelled).");
+		emit parsingFailed();
+		return;
+	}
+	
+	if (hr != S_OK)
+	{
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to open archive. HRESULT: " + QString::number(hr, 16));
+		emit parsingFailed();
+		return;
+	}
+	
+	UInt32 itemCount = 0;
+	archive->GetNumberOfItems(&itemCount);
+	for (UInt32 i = 0; i < itemCount; ++i)
+	{
+		emit updateProgress(i + 1, itemCount);
+		if (isInterruptionRequested())
 		{
-			QString entryPath = QString::fromStdWString(archive_entry_pathname_w(entryPtr.data()));
-			bool bIsDir = archive_entry_filetype(entryPtr.data()) == AE_IFDIR;
-			quint64 entrySize = archive_entry_size(entryPtr.data());
-			emit entryFound(entryPath, bIsDir, entrySize);
-		}
-		else if (ret == ARCHIVE_EOF)
-		{
-			break;
-		}
-		else
-		{
-			CommonHelper::LogKeyZipDebugMsg(archive_error_string(archivePtr.data()));
-			emit parsingFailed(tr("ArchiveParser: Error while reading archive: %1"));
+			CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Parsing interrupted.");
 			return;
 		}
-	} while (true);
 
+		PROPVARIANT propPath;
+		PROPVARIANT propIsDir;
+		PROPVARIANT propSize;
+		archive->GetProperty(i, kpidPath, &propPath);
+		archive->GetProperty(i, kpidIsDir, &propIsDir);
+		archive->GetProperty(i, kpidSize, &propSize);
 
+		if (propPath.vt != VT_BSTR || propIsDir.vt != VT_BOOL || propSize.vt != VT_UI8)
+		{
+			// Invalid property types
+			CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Invalid property types for item index " + QString::number(i) + ".");
+			continue;
+		}
 
+		QString entryPath = QString::fromWCharArray(propPath.bstrVal);
+		bool bIsDir = propIsDir.boolVal != VARIANT_FALSE;
+		qint64 size = propSize.uhVal.QuadPart;
+
+		emit entryFound(entryPath, bIsDir, size);
+	}
+
+	
 }
+
+

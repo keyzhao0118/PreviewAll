@@ -3,7 +3,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QStyle>
-#include "registermainpanel.h"
+#include "previewapppanel.h"
 
 int main(int argc, char* argv[])
 {
@@ -23,11 +23,11 @@ int main(int argc, char* argv[])
 	trayIcon->show();
 
 	// 创建主面板并连接信号槽
-	RegisterMainPanel mainPanel(trayIcon);
-	QObject::connect(trayIcon, &QSystemTrayIcon::activated, &mainPanel, &RegisterMainPanel::onActivatedTrayIcon);
-	QObject::connect(showAction, &QAction::triggered, &mainPanel, &RegisterMainPanel::show);
+	PreviewAppPanel appPanel(trayIcon);
+	QObject::connect(trayIcon, &QSystemTrayIcon::activated, &appPanel, &PreviewAppPanel::onActivatedTrayIcon);
+	QObject::connect(showAction, &QAction::triggered, &appPanel, &PreviewAppPanel::show);
 	QObject::connect(exitAction, &QAction::triggered, qApp, &QApplication::quit);
-	mainPanel.show();
+	appPanel.show();
 
 	return app.exec();
 }

@@ -14,7 +14,7 @@ public:
 	~KeyZipWindow();
 
 private slots:
-	void onParsingFailed(const QString& errorMsg);
+	void onParsingFailed();
 	void onEntryFound(const QString& entryPath, bool bIsDir, quint64 entrySize);
 
 private:

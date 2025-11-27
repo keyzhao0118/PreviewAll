@@ -15,16 +15,16 @@ KeyZipWindow::KeyZipWindow(QWidget* parent /*= nullptr*/)
 	connect(m_archiveParser, &ArchiveParser::parsingFailed, this, &KeyZipWindow::onParsingFailed);
 	connect(m_archiveParser, &ArchiveParser::entryFound, this, &KeyZipWindow::onEntryFound);
 
-	m_archiveParser->parseArchive("C:\\Users\\keyzhao\\Desktop\\b b.rar");
+	m_archiveParser->parseArchive("C:\\Users\\keyzhao\\Desktop\\cc.7z");
 }
 
 KeyZipWindow::~KeyZipWindow()
 {
 }
 
-void KeyZipWindow::onParsingFailed(const QString& errorMsg)
+void KeyZipWindow::onParsingFailed()
 {
-	QMessageBox::critical(this, tr("Parsing Failed"), errorMsg);
+	QMessageBox::critical(this, "", tr("Parsing Failed"));
 	close();
 }
 

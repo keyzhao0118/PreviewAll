@@ -25,6 +25,7 @@ add_executable(KeyZip WIN32
 	instreamwrapper.cpp
 	archiveopencallback.h
 	archiveopencallback.cpp
+	guiddef.cpp
 )
 
 target_link_libraries(KeyZip

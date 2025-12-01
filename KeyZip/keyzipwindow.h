@@ -14,6 +14,7 @@ public:
 	~KeyZipWindow();
 
 private slots:
+	void onRequirePassword(bool& bCancel, QString& password);
 	void onParsingFailed();
 	void onEntryFound(const QString& entryPath, bool bIsDir, quint64 entrySize);
 

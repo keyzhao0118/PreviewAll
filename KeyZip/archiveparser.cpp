@@ -4,21 +4,12 @@
 #include "archiveopencallback.h"
 
 #include <QLibrary>
-#include <Common/MyInitGuid.h>
+#include <QFileInfo>
 #include <7zip/Archive/IArchive.h>
 #include <7zip/PropID.h>
 
-// {23170F69-40C1-278A-1000-000110070000}
-DEFINE_GUID(CLSID_CFormat7z,
-	0x23170F69, 0x40C1, 0x278A, 0x10, 0x00, 0x00, 0x01, 0x10, 0x07, 0x00, 0x00);
-
-// {23170F69-40C1-278A-1000-000110010000}
-DEFINE_GUID(CLSID_CFormatZip,
-	0x23170F69, 0x40C1, 0x278A, 0x10, 0x00, 0x00, 0x01, 0x10, 0x01, 0x00, 0x00);
-
-// {23170F69-40C1-278A-1000-000110030000}
-DEFINE_GUID(CLSID_CFormatRar,
-	0x23170F69, 0x40C1, 0x278A, 0x10, 0x00, 0x00, 0x01, 0x10, 0x03, 0x00, 0x00);
+extern "C" const GUID CLSID_CFormatZip;
+extern "C" const GUID CLSID_CFormat7z;
 
 typedef UINT32(WINAPI* CreateObjectFunc)(const GUID* clsID, const GUID* iid, void** outObject);
 
@@ -42,6 +33,19 @@ void ArchiveParser::parseArchive(const QString& archivePath)
 
 void ArchiveParser::run()
 {
+	InStreamWrapper* inStreamSpec = new InStreamWrapper(m_archivePath);
+	CMyComPtr<IInStream> inStream(inStreamSpec);
+	if (!inStreamSpec->isOpen())
+	{
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to open archive file: " + m_archivePath);
+		emit parsingFailed();
+		return;
+	}
+
+	ArchiveOpenCallBack* openCallBackSpec = new ArchiveOpenCallBack();
+	CMyComPtr<IArchiveOpenCallback> openCallBack(openCallBackSpec);
+	connect(openCallBackSpec, &ArchiveOpenCallBack::requirePassword, this, &ArchiveParser::requirePassword, Qt::DirectConnection);
+
 	QLibrary sevenZipLib("7zip.dll");
 	if (!sevenZipLib.load())
 	{
@@ -59,31 +63,17 @@ void ArchiveParser::run()
 	}
 
 	CMyComPtr<IInArchive> archive;
-	if (createObjectFunc(&CLSID_CFormat7z, &IID_IInArchive, (void**)&archive) != S_OK)
+	if (createObjectFunc(&CLSID_CFormatZip, &IID_IInArchive, (void**)&archive) != S_OK)
 	{
 		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to create 7z archive handler.");
 		emit parsingFailed();
 		return;
 	}
 
-	InStreamWrapper* inStreamSpec = new InStreamWrapper(m_archivePath);
-	CMyComPtr<IInStream> inStream(inStreamSpec);
-	if (!inStreamSpec->isOpen())
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to open archive file: " + m_archivePath);
-		emit parsingFailed();
-		return;
-	}
-
-	ArchiveOpenCallBack* openCallBackSpec = new ArchiveOpenCallBack();
-	CMyComPtr<IArchiveOpenCallback> openCallBack(openCallBackSpec);
-	connect(openCallBackSpec, &ArchiveOpenCallBack::requirePassword, this, &ArchiveParser::requirePassword);
-	
 	HRESULT hr = archive->Open(inStream, nullptr, openCallBack);
 	if (hr == E_ABORT)
 	{
 		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Operation aborted by user (e.g., password cancelled).");
-		emit parsingFailed();
 		return;
 	}
 	
@@ -105,12 +95,23 @@ void ArchiveParser::run()
 			return;
 		}
 
-		PROPVARIANT propPath;
-		PROPVARIANT propIsDir;
-		PROPVARIANT propSize;
-		archive->GetProperty(i, kpidPath, &propPath);
-		archive->GetProperty(i, kpidIsDir, &propIsDir);
-		archive->GetProperty(i, kpidSize, &propSize);
+		PROPVARIANT propPath;	PropVariantInit(&propPath);
+		PROPVARIANT propIsDir;	PropVariantInit(&propIsDir);
+		PROPVARIANT propSize;	PropVariantInit(&propSize);
+		HRESULT hrPath = archive->GetProperty(i, kpidPath, &propPath);
+		HRESULT hrIsDir = archive->GetProperty(i, kpidIsDir, &propIsDir);
+		HRESULT hrSize = archive->GetProperty(i, kpidSize, &propSize);
+		if (FAILED(hrPath) || FAILED(hrIsDir) || FAILED(hrSize))
+		{
+			CommonHelper::LogKeyZipDebugMsg("ArchiveParser: GetProperty failed at index " + QString::number(i)
+				+ " hrPath=0x" + QString::number(hrPath, 16)
+				+ " hrIsDir=0x" + QString::number(hrIsDir, 16)
+				+ " hrSize=0x" + QString::number(hrSize, 16));
+			PropVariantClear(&propPath);
+			PropVariantClear(&propIsDir);
+			PropVariantClear(&propSize);
+			continue;
+		}
 
 		if (propPath.vt != VT_BSTR || propIsDir.vt != VT_BOOL || propSize.vt != VT_UI8)
 		{
@@ -124,9 +125,13 @@ void ArchiveParser::run()
 		qint64 size = propSize.uhVal.QuadPart;
 
 		emit entryFound(entryPath, bIsDir, size);
+		PropVariantClear(&propPath);
+		PropVariantClear(&propIsDir);
+		PropVariantClear(&propSize);
 	}
 
 	
 }
+
 
 

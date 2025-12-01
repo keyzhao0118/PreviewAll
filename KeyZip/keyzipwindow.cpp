@@ -3,6 +3,8 @@
 #include "archiveparser.h"
 #include <QTreeView>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QInputDialog>
 
 KeyZipWindow::KeyZipWindow(QWidget* parent /*= nullptr*/)
 	: QMainWindow(parent)
@@ -12,14 +14,30 @@ KeyZipWindow::KeyZipWindow(QWidget* parent /*= nullptr*/)
 
 	m_archiveParser = new ArchiveParser(this);
 
+	connect(m_archiveParser, &ArchiveParser::requirePassword, this, &KeyZipWindow::onRequirePassword, Qt::BlockingQueuedConnection);
 	connect(m_archiveParser, &ArchiveParser::parsingFailed, this, &KeyZipWindow::onParsingFailed);
 	connect(m_archiveParser, &ArchiveParser::entryFound, this, &KeyZipWindow::onEntryFound);
 
-	m_archiveParser->parseArchive("C:\\Users\\keyzhao\\Desktop\\cc.7z");
+	QString archivePath = QFileDialog::getOpenFileName(this);
+	if (archivePath.isEmpty())
+	{
+		close();
+		return;
+	}
+
+	m_archiveParser->parseArchive(archivePath);
 }
 
 KeyZipWindow::~KeyZipWindow()
 {
+}
+
+void KeyZipWindow::onRequirePassword(bool& bCancel, QString& password)
+{
+	bool ok = false;
+	password = QInputDialog::getText(this, tr("Password Required"), tr("Enter Password:"), QLineEdit::Password, "", &ok);
+	if (!ok)
+		bCancel = true;
 }
 
 void KeyZipWindow::onParsingFailed()

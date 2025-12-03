@@ -31,6 +31,7 @@ add_executable(KeyZip WIN32
 target_link_libraries(KeyZip
 	PRIVATE
 		Qt5::Widgets
+		KeyWidgets
 		7zip::7zip
 )
 

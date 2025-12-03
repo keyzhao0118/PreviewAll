@@ -33,6 +33,19 @@ void ArchiveParser::parseArchive(const QString& archivePath)
 
 void ArchiveParser::run()
 {
+	QString suffix = QFileInfo(m_archivePath).suffix().toLower();
+	GUID clsid = { 0 };
+	if (suffix == "zip")
+		clsid = CLSID_CFormatZip;
+	else if(suffix == "7z")
+		clsid = CLSID_CFormat7z;
+	else
+	{
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Unsupported archive format: " + suffix);
+		emit parsingFailed();
+		return;
+	}
+
 	InStreamWrapper* inStreamSpec = new InStreamWrapper(m_archivePath);
 	CMyComPtr<IInStream> inStream(inStreamSpec);
 	if (!inStreamSpec->isOpen())
@@ -63,7 +76,7 @@ void ArchiveParser::run()
 	}
 
 	CMyComPtr<IInArchive> archive;
-	if (createObjectFunc(&CLSID_CFormatZip, &IID_IInArchive, (void**)&archive) != S_OK)
+	if (createObjectFunc(&clsid, &IID_IInArchive, (void**)&archive) != S_OK)
 	{
 		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to create 7z archive handler.");
 		emit parsingFailed();

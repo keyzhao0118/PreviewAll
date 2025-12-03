@@ -6,14 +6,11 @@ ArchiveTreeWidget::ArchiveTreeWidget(QWidget* parent /*= nullptr*/)
 	: QTreeWidget(parent)
 {
 	setHeaderLabels({ tr("Name"), tr("Compressed Size"), tr("Original Size"), tr("Type"),tr("Modified Time")});
-	setColumnWidth(0, 180);
-	setColumnWidth(1, 150);
-	setColumnWidth(2, 150);
-	setColumnWidth(3, 150);
-	setColumnWidth(4, 150);
+	setSortingEnabled(true);
+	
+	header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	header()->setSectionsMovable(false);
 	
-	setSortingEnabled(true);
 	verticalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
 	horizontalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
 }

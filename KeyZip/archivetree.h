@@ -25,6 +25,7 @@ public:
 	ArchiveTreeNode* m_parentNode = nullptr;
 	QList<QSharedPointer<ArchiveTreeNode>> m_childNodes;
 };
+Q_DECLARE_METATYPE(QSharedPointer<ArchiveTreeNode>)
 
 class ArchiveTree
 {

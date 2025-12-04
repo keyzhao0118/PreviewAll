@@ -12,4 +12,7 @@ public:
 	~ArchiveTreeWidget() = default;
 
 	void refresh(const QSharedPointer<ArchiveTreeNode>& rootNode);
+
+private:
+	QTreeWidgetItem* addNode(QTreeWidgetItem* item, const QSharedPointer<ArchiveTreeNode>& node);
 };

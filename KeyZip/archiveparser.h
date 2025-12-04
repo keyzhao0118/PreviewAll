@@ -14,9 +14,10 @@ public:
 
 signals:
 	void requirePassword(bool& bCancel, QString& password);
-	void updateProgress(qint64 completed, qint64 total);
-	void entryFound(const QString& entryPath, bool bIsDir, qint64 entrySize);
+	void updateProgress(quint64 completed, quint64 total);
+	void entryFound(const QString& path, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime);
 	void parsingFailed();
+	void parsingSucceed();
 
 
 protected:

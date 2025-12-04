@@ -1,8 +1,7 @@
 ﻿#pragma once
 
 #include <QTreeWidget>
-#include <QSharedPointer>
-//#include "archiveentrynode.h"
+#include "archivetree.h"
 
 class ArchiveTreeWidget : public QTreeWidget
 {
@@ -10,12 +9,7 @@ class ArchiveTreeWidget : public QTreeWidget
 
 public:
 	explicit ArchiveTreeWidget(QWidget* parent = nullptr);
-	~ArchiveTreeWidget();
-	
-	void clearEntry();
+	~ArchiveTreeWidget() = default;
 
-	void addEntry(const QString& entryPath, bool bIsDir, quint64 entrySize);
-
-private:
-	//QSharedPointer<ArchiveEntryNode> m_rootNode;
+	void refresh(const QSharedPointer<ArchiveTreeNode>& rootNode);
 };

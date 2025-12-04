@@ -5,6 +5,7 @@
 
 #include <QLibrary>
 #include <QFileInfo>
+#include <QDateTime>
 #include <7zip/Archive/IArchive.h>
 #include <7zip/PropID.h>
 
@@ -37,7 +38,7 @@ void ArchiveParser::run()
 	GUID clsid = { 0 };
 	if (suffix == "zip")
 		clsid = CLSID_CFormatZip;
-	else if(suffix == "7z")
+	else if (suffix == "7z")
 		clsid = CLSID_CFormat7z;
 	else
 	{
@@ -89,61 +90,84 @@ void ArchiveParser::run()
 		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Operation aborted by user (e.g., password cancelled).");
 		return;
 	}
-	
+
 	if (hr != S_OK)
 	{
 		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to open archive. HRESULT: " + QString::number(hr, 16));
 		emit parsingFailed();
 		return;
 	}
-	
+
 	UInt32 itemCount = 0;
 	archive->GetNumberOfItems(&itemCount);
+
+	QElapsedTimer progressTimer;
+	progressTimer.start();
+
 	for (UInt32 i = 0; i < itemCount; ++i)
 	{
-		emit updateProgress(i + 1, itemCount);
+		// 每500ms发送一次进度，确保首次和最后一次也发送
+		if (i == 0 || i == itemCount - 1 || progressTimer.elapsed() >= 500)
+		{
+			emit updateProgress(i + 1, itemCount);
+			progressTimer.restart();
+		}
+
 		if (isInterruptionRequested())
 		{
 			CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Parsing interrupted.");
 			return;
 		}
 
-		PROPVARIANT propPath;	PropVariantInit(&propPath);
-		PROPVARIANT propIsDir;	PropVariantInit(&propIsDir);
-		PROPVARIANT propSize;	PropVariantInit(&propSize);
+		PROPVARIANT propPath;		PropVariantInit(&propPath);
+		PROPVARIANT propIsDir;		PropVariantInit(&propIsDir);
+		PROPVARIANT propPackSize;	PropVariantInit(&propPackSize);
+		PROPVARIANT propSize;		PropVariantInit(&propSize);
+		PROPVARIANT propMTime;		PropVariantInit(&propMTime);
+
 		HRESULT hrPath = archive->GetProperty(i, kpidPath, &propPath);
 		HRESULT hrIsDir = archive->GetProperty(i, kpidIsDir, &propIsDir);
+		HRESULT hrPackSize = archive->GetProperty(i, kpidPackSize, &propPackSize);
 		HRESULT hrSize = archive->GetProperty(i, kpidSize, &propSize);
-		if (FAILED(hrPath) || FAILED(hrIsDir) || FAILED(hrSize))
+		HRESULT hrMTime = archive->GetProperty(i, kpidMTime, &propMTime);
+
+		if (FAILED(hrPath) || propPath.vt != VT_BSTR ||
+			FAILED(hrIsDir) || propIsDir.vt != VT_BOOL ||
+			FAILED(hrPackSize) || propPackSize.vt != VT_UI8 ||
+			FAILED(hrSize) || propSize.vt != VT_UI8 ||
+			FAILED(hrMTime) || propMTime.vt != VT_FILETIME)
 		{
 			CommonHelper::LogKeyZipDebugMsg("ArchiveParser: GetProperty failed at index " + QString::number(i)
 				+ " hrPath=0x" + QString::number(hrPath, 16)
 				+ " hrIsDir=0x" + QString::number(hrIsDir, 16)
-				+ " hrSize=0x" + QString::number(hrSize, 16));
+				+ " hrPackSize=0x" + QString::number(hrPackSize, 16)
+				+ " hrSize=0x" + QString::number(hrSize, 16)
+				+ " hrMTime=0x" + QString::number(hrMTime, 16));
+
 			PropVariantClear(&propPath);
 			PropVariantClear(&propIsDir);
+			PropVariantClear(&propPackSize);
 			PropVariantClear(&propSize);
-			continue;
+			PropVariantClear(&propMTime);
+
+			return;
 		}
 
-		if (propPath.vt != VT_BSTR || propIsDir.vt != VT_BOOL || propSize.vt != VT_UI8)
-		{
-			// Invalid property types
-			CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Invalid property types for item index " + QString::number(i) + ".");
-			continue;
-		}
-
-		QString entryPath = QString::fromWCharArray(propPath.bstrVal);
+		QString path = QString::fromWCharArray(propPath.bstrVal);
 		bool bIsDir = propIsDir.boolVal != VARIANT_FALSE;
+		qint64 packedSize = propPackSize.uhVal.QuadPart;
 		qint64 size = propSize.uhVal.QuadPart;
+		QDateTime mtime = CommonHelper::fileTimeToDateTime(propMTime.filetime);
+		emit entryFound(path, bIsDir, packedSize, size, mtime);
 
-		emit entryFound(entryPath, bIsDir, size);
 		PropVariantClear(&propPath);
 		PropVariantClear(&propIsDir);
+		PropVariantClear(&propPackSize);
 		PropVariantClear(&propSize);
+		PropVariantClear(&propMTime);
 	}
 
-	
+	emit parsingSucceed();
 }
 
 

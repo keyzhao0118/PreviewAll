@@ -12,20 +12,26 @@ find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(7zip CONFIG REQUIRED)
 
 add_executable(KeyZip WIN32
+	guiddef.cpp	
 	main.cpp
-	archiveparser.h
-	archiveparser.cpp
-	commonhelper.h
-	commonhelper.cpp
-	archivetreewidget.h
-	archivetreewidget.cpp
 	keyzipwindow.h
 	keyzipwindow.cpp
+
+	commonhelper.h
+	commonhelper.cpp
+
+	archiveparser.h
+	archiveparser.cpp
+	archivetreewidget.h
+	archivetreewidget.cpp
+	archivetree.h
+	archivetree.cpp
+	
 	instreamwrapper.h
 	instreamwrapper.cpp
 	archiveopencallback.h
 	archiveopencallback.cpp
-	guiddef.cpp
+
 )
 
 target_link_libraries(KeyZip

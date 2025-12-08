@@ -204,6 +204,7 @@ void KeyZipWindow::clear()
 		m_archiveTree->clear();
 
 	m_archivePath.clear();
+	setWindowTitle("KeyZip");
 }
 
 void KeyZipWindow::onRequirePassword(bool& bCancel, QString& password)
@@ -235,6 +236,7 @@ void KeyZipWindow::onParsingSucceed()
 {
 	if (m_archiveInfoLab && m_treeWidget && m_archiveTree)
 	{
+		setWindowTitle("KeyZip - " + m_archivePath);
 		m_archiveInfoLab->setText(tr("File: %1, Folder: %2, Archive file size: %3")
 			.arg(m_archiveTree->getFileCount())
 			.arg(m_archiveTree->getFolderCount())

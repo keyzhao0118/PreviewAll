@@ -13,6 +13,10 @@ public:
 
 	void refresh(const QSharedPointer<ArchiveTreeNode>& rootNode);
 
+private slots:
+	void onItemExpanded(QTreeWidgetItem* parentItem);
+
 private:
-	QTreeWidgetItem* addNode(QTreeWidgetItem* item, const QSharedPointer<ArchiveTreeNode>& node);
+	void addItem(QTreeWidgetItem* parentItem, const QSharedPointer<ArchiveTreeNode>& node);
+	void loadChildItems(QTreeWidgetItem* item);
 };

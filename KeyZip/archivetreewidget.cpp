@@ -17,18 +17,7 @@ ArchiveTreeWidget::ArchiveTreeWidget(QWidget* parent /*= nullptr*/)
 
 	setAnimated(true);
 
-	connect(this, &ArchiveTreeWidget::itemExpanded, this, [this](QTreeWidgetItem* parentItem) {
-		for(int i = 0; i < parentItem->childCount(); ++i)
-		{
-			auto* childItem = parentItem->child(i);
-			auto nodeVariant = childItem->data(0, Qt::UserRole);
-			auto node = nodeVariant.value<QSharedPointer<ArchiveTreeNode>>();
-			for (const auto& child : node->m_childNodes)
-			{
-				addNode(childItem, child);
-			}
-		}
-	});
+	connect(this, &QTreeWidget::itemExpanded, this, &ArchiveTreeWidget::onItemExpanded);
 }
 
 void ArchiveTreeWidget::refresh(const QSharedPointer<ArchiveTreeNode>& rootNode)
@@ -39,34 +28,67 @@ void ArchiveTreeWidget::refresh(const QSharedPointer<ArchiveTreeNode>& rootNode)
 	clear();
 	QTreeWidgetItem* rootItem = invisibleRootItem();
 	
-	for (const auto& child : rootNode->m_childNodes)
-	{
-		auto childItem = addNode(rootItem, child);
-		for (const auto& cchild : child->m_childNodes)
-			addNode(childItem, cchild);
-	}
-
+	// 添加顶层项
+	for (const auto& childNode : rootNode->m_childNodes)
+		addItem(rootItem, childNode);
+	
+	// 添加顶层项的子项
+	for (int i = 0; i < rootItem->childCount(); ++i)
+		loadChildItems(rootItem->child(i));
 }
 
-QTreeWidgetItem* ArchiveTreeWidget::addNode(QTreeWidgetItem* parentItem, const QSharedPointer<ArchiveTreeNode>& node)
+void ArchiveTreeWidget::onItemExpanded(QTreeWidgetItem* parentItem)
+{
+	if (!parentItem)
+		return;
+
+	for (int i = 0; i < parentItem->childCount(); ++i)
+		loadChildItems(parentItem->child(i));
+}
+
+void ArchiveTreeWidget::addItem(QTreeWidgetItem* parentItem, const QSharedPointer<ArchiveTreeNode>& node)
 {
 	if (!parentItem || !node)
-		return nullptr;
+		return;
 
 	auto* item = new QTreeWidgetItem(parentItem);
 	item->setText(0, node->m_name);
-	item->setText(1, CommonHelper::formatFileSize(node->m_compressedSize));
-	item->setText(2, CommonHelper::formatFileSize(node->m_originalSize));
-	item->setText(3, "XXX");
-	item->setText(4, node->m_mtime.toString());
+	item->setIcon(0, CommonHelper::fileIconForName(node->m_name, node->m_bIsDir));
+	item->setText(1, node->m_bIsDir ? "" : CommonHelper::formatFileSize(node->m_compressedSize));
+	item->setText(2, node->m_bIsDir ? "" : CommonHelper::formatFileSize(node->m_originalSize));
+	item->setText(3, CommonHelper::fileTypeDisplayName(node->m_name, node->m_bIsDir));
+	item->setText(4, node->m_mtime.toString("yyyy/M/d h:mm"));
+
+	item->setTextAlignment(1, Qt::AlignRight);
+	item->setTextAlignment(2, Qt::AlignRight);
 
 	item->setData(0, Qt::UserRole, QVariant::fromValue<QSharedPointer<ArchiveTreeNode>>(node));
-	item->setData(1, Qt::UserRole, QVariant::fromValue<qulonglong>(node->m_compressedSize));
-	item->setData(2, Qt::UserRole, QVariant::fromValue<qulonglong>(node->m_originalSize));
+	item->setData(0, Qt::UserRole + 1, false);// 标记子项是否已添加，默认未添加
+	item->setData(1, Qt::UserRole, node->m_bIsDir ? 0 : node->m_compressedSize);
+	item->setData(2, Qt::UserRole, node->m_bIsDir ? 0 : node->m_originalSize);
+	item->setData(3, Qt::UserRole, node->m_bIsDir);
 	item->setData(4, Qt::UserRole, node->m_mtime);
 
 	parentItem->addChild(item);
+}
 
-	return item;
+void ArchiveTreeWidget::loadChildItems(QTreeWidgetItem* item)
+{
+	if (!item)
+		return;
+
+	const bool bChildItemAdded = item->data(0, Qt::UserRole + 1).toBool();
+	if (bChildItemAdded)
+		return;
+
+	auto nodeVariant = item->data(0, Qt::UserRole);
+	auto node = nodeVariant.value<QSharedPointer<ArchiveTreeNode>>();
+	if (!node)
+		return;
+
+	for (const auto& childNode : node->m_childNodes)
+		addItem(item, childNode);
+
+	item->setData(0, Qt::UserRole + 1, true);// 标记子项已添加
 }
 

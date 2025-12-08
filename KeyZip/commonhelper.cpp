@@ -1,9 +1,10 @@
 ﻿#include "commonhelper.h"
+#include <shellapi.h>
 #include <QDebug>
+#include <QFileIconProvider>
 
 void CommonHelper::LogKeyZipDebugMsg(const QString& msg)
 {
-
 	QString logMsg = "[KeyZip]: " + msg;
 	qDebug() << logMsg;
 }
@@ -69,4 +70,75 @@ QString CommonHelper::formatFileSize(quint64 bytes)
 	}
 
 	return numberStr + QStringLiteral(" ") + QString::fromLatin1(units[unitIndex]);
+}
+
+// Helper: get Windows file type display name via SHGetFileInfo.
+// Uses name (for extension) and isDir to decide the shell attributes queried.
+QString CommonHelper::fileTypeDisplayName(const QString& name, bool bIsDir)
+{
+	if (bIsDir)
+		return QObject::tr("Folder");
+
+	const int dot = name.lastIndexOf('.');
+	if (dot <= 0 || dot == name.length() - 1)
+		return QObject::tr("File");
+
+	const QString ext = name.mid(dot); // includes dot
+	const QByteArray extData = ext.toLocal8Bit();
+
+	SHFILEINFOA sfiA = { 0 };
+	if (SHGetFileInfoA(extData.constData(), FILE_ATTRIBUTE_NORMAL, &sfiA, sizeof(sfiA), SHGFI_TYPENAME | SHGFI_USEFILEATTRIBUTES))
+		return QString::fromLocal8Bit(sfiA.szTypeName);
+	else
+		return ext;
+}
+
+QIcon CommonHelper::fileIconForName(const QString& name, bool bIsDir)
+{
+	static QHash<QString, QIcon> iconCache;
+
+	if (bIsDir)
+	{
+		if(!iconCache.contains("folder"))
+		{
+			QFileIconProvider provider;
+			QIcon folderIcon = provider.icon(QFileIconProvider::Folder);
+			iconCache.insert("folder", folderIcon);
+			return folderIcon;
+		}
+		else
+		{
+			return iconCache.value("folder");
+		}
+	}
+
+	const int dot = name.lastIndexOf('.');
+	if (dot <= 0 || dot == name.length() - 1)
+	{
+		if (!iconCache.contains("file"))
+		{
+			QFileIconProvider provider;
+			QIcon fileIcon = provider.icon(QFileIconProvider::File);
+			iconCache.insert("file", fileIcon);
+			return fileIcon;
+		}
+		else
+		{
+			return iconCache.value("folder");
+		}
+	}
+
+	const QString ext = name.mid(dot);
+	if (!iconCache.contains(ext))
+	{
+		QFileIconProvider provider;
+		QIcon extIcon = provider.icon(QFileInfo(ext));
+		iconCache.insert(ext, extIcon);
+		return extIcon;
+	}
+	else
+	{
+		return iconCache.value(ext);
+	}
+	
 }

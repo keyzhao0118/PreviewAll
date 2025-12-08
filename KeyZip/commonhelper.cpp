@@ -33,8 +33,8 @@ QDateTime CommonHelper::fileTimeToDateTime(FILETIME filetime)
 	const quint64 unixTime100ns = uli.QuadPart - WINDOWS_TO_UNIX_EPOCH_100NS;
 	const qint64 msSinceEpoch = static_cast<qint64>(unixTime100ns / 10000ULL);
 
-	// Create QDateTime in UTC
-	return QDateTime::fromMSecsSinceEpoch(msSinceEpoch, Qt::UTC);
+	// Create QDateTime in LocalTime
+	return QDateTime::fromMSecsSinceEpoch(msSinceEpoch, Qt::LocalTime);
 }
 
 QString CommonHelper::formatFileSize(quint64 bytes)

@@ -34,6 +34,9 @@ void ArchiveParser::parseArchive(const QString& archivePath)
 
 void ArchiveParser::run()
 {
+	QElapsedTimer elapsedTimer;
+	elapsedTimer.start();
+
 	QString suffix = QFileInfo(m_archivePath).suffix().toLower();
 	GUID clsid = { 0 };
 	if (suffix == "zip")
@@ -168,6 +171,7 @@ void ArchiveParser::run()
 	}
 
 	emit parsingSucceed();
+	CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Parsing completed in " + QString::number(elapsedTimer.elapsed()) + " ms.");
 }
 
 

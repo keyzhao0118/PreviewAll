@@ -4,13 +4,12 @@
 
 ArchiveTreeNode::ArchiveTreeNode(const QString& formatPath, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime)
 	: m_formatPath(formatPath)
-	, m_name(QFileInfo(formatPath).fileName())
 	, m_bIsDir(bIsDir)
 	, m_compressedSize(compressedSize)
 	, m_originalSize(originalSize)
 	, m_mtime(mtime)
 {
-
+	m_name = formatPath.mid(formatPath.lastIndexOf(QDir::separator()) + 1);
 }
 
 void ArchiveTreeNode::setParent(ArchiveTreeNode* parentNode)
@@ -48,9 +47,10 @@ void ArchiveTree::addEntry(const QString& path, bool bIsDir, quint64 compressedS
 	}
 
 	QString curFormatPath = pathStack.pop();
-	if (m_index.contains(curFormatPath))
+	auto it = m_index.find(curFormatPath);
+	if (it != m_index.end())
 	{
-		QSharedPointer<ArchiveTreeNode> existingNode = m_index.value(curFormatPath);
+		QSharedPointer<ArchiveTreeNode> existingNode = it.value();
 		existingNode->m_bIsDir = bIsDir;
 		existingNode->m_compressedSize = compressedSize;
 		existingNode->m_originalSize = originalSize;
@@ -63,9 +63,10 @@ void ArchiveTree::addEntry(const QString& path, bool bIsDir, quint64 compressedS
 	while (!pathStack.isEmpty())
 	{
 		curFormatPath = pathStack.pop();
-		if (m_index.contains(curFormatPath))
+		auto it = m_index.find(curFormatPath);
+		if (it != m_index.end())
 		{
-			QSharedPointer<ArchiveTreeNode> parentNode = m_index.value(curFormatPath);
+			QSharedPointer<ArchiveTreeNode> parentNode = it.value();
 			curNode->setParent(parentNode.data());
 			parentNode->addChild(curNode);
 			return;

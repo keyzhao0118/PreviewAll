@@ -11,11 +11,6 @@ ArchiveTreeNode::ArchiveTreeNode(const QString& formatPath, bool bIsDir, quint64
 	m_name = formatPath.mid(formatPath.lastIndexOf(QDir::separator()) + 1);
 }
 
-void ArchiveTreeNode::setParent(ArchiveTreeNode* parentNode)
-{
-	m_parentNode = parentNode;
-}
-
 void ArchiveTreeNode::addChild(const QSharedPointer<ArchiveTreeNode>& childNode)
 {
 	childNode->m_parentNode = this;
@@ -59,7 +54,6 @@ void ArchiveTree::addEntry(const QString& path, bool bIsDir, quint64 compressedS
 			newNode.reset(new ArchiveTreeNode(formatPath, bIsDir, compressedSize, originalSize, mtime));
 		
 		m_index.insert(formatPath, newNode);
-		newNode->setParent(parentNode.data());
 		parentNode->addChild(newNode);
 		
 		parentNode = newNode;

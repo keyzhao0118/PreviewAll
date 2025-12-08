@@ -11,7 +11,6 @@ public:
 	ArchiveTreeNode() = default;
 	~ArchiveTreeNode() = default;
 
-	void setParent(ArchiveTreeNode* parentNode);
 	void addChild(const QSharedPointer<ArchiveTreeNode>& childNode);
 
 public:

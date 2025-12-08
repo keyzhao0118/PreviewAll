@@ -1,6 +1,5 @@
 ﻿#include "archivetree.h"
 #include <QDir>
-#include <QStack>
 
 ArchiveTreeNode::ArchiveTreeNode(const QString& formatPath, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime)
 	: m_formatPath(formatPath)
@@ -37,52 +36,34 @@ void ArchiveTree::addEntry(const QString& path, bool bIsDir, quint64 compressedS
 	if (pathParts.isEmpty())
 		return;
 
-	QStack<QString> pathStack;
-	QString formatPath = pathParts.first();
-	pathStack.push(formatPath);
-	for (int i = 1; i < pathParts.size(); ++i)
+	QString formatPath;
+	auto parentNode = m_rootNode;
+	for (int i = 0; i < pathParts.size(); ++i)
 	{
-		formatPath += QDir::separator() + pathParts[i];
-		pathStack.push(formatPath);
-	}
-
-	QString curFormatPath = pathStack.pop();
-	auto it = m_index.find(curFormatPath);
-	if (it != m_index.end())
-	{
-		QSharedPointer<ArchiveTreeNode> existingNode = it.value();
-		existingNode->m_bIsDir = bIsDir;
-		existingNode->m_compressedSize = compressedSize;
-		existingNode->m_originalSize = originalSize;
-		existingNode->m_mtime = mtime;
-		return;
-	}
-	QSharedPointer<ArchiveTreeNode> curNode = QSharedPointer<ArchiveTreeNode>::create(curFormatPath, bIsDir, compressedSize, originalSize, mtime);
-	m_index.insert(curFormatPath, curNode);
-
-	while (!pathStack.isEmpty())
-	{
-		curFormatPath = pathStack.pop();
-		auto it = m_index.find(curFormatPath);
+		if (i == 0)
+			formatPath = pathParts[i];
+		else
+			formatPath += QDir::separator() + pathParts[i];
+		
+		auto it = m_index.find(formatPath);
 		if (it != m_index.end())
 		{
-			QSharedPointer<ArchiveTreeNode> parentNode = it.value();
-			curNode->setParent(parentNode.data());
-			parentNode->addChild(curNode);
-			return;
+			parentNode = it.value();
+			continue;
 		}
-		else
-		{
-			QSharedPointer<ArchiveTreeNode> parentNode = QSharedPointer<ArchiveTreeNode>::create(curFormatPath, true, 0, 0, QDateTime());
-			m_index.insert(curFormatPath, parentNode);
-			curNode->setParent(parentNode.data());
-			parentNode->addChild(curNode);
-			curNode = parentNode;
-		}
-	}
 
-	curNode->setParent(m_rootNode.data());
-	m_rootNode->addChild(curNode);
+		QSharedPointer<ArchiveTreeNode> newNode;
+		if (i != pathParts.size() - 1)
+			newNode.reset(new ArchiveTreeNode(formatPath, true, 0, 0, QDateTime()));
+		else
+			newNode.reset(new ArchiveTreeNode(formatPath, bIsDir, compressedSize, originalSize, mtime));
+		
+		m_index.insert(formatPath, newNode);
+		newNode->setParent(parentNode.data());
+		parentNode->addChild(newNode);
+		
+		parentNode = newNode;
+	}
 }
 
 const QSharedPointer<ArchiveTreeNode>& ArchiveTree::getRootNode() const

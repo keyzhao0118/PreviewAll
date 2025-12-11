@@ -11,7 +11,7 @@ public:
 	ArchiveTreeNode() = default;
 	~ArchiveTreeNode() = default;
 
-	void addChild(const QSharedPointer<ArchiveTreeNode>& childNode);
+	void addChild(const QString&name, const QSharedPointer<ArchiveTreeNode>& childNode);
 
 public:
 	QString m_name;
@@ -21,7 +21,7 @@ public:
 	QDateTime m_mtime;
 
 	ArchiveTreeNode* m_parentNode = nullptr;
-	QList<QSharedPointer<ArchiveTreeNode>> m_childNodes;
+	QHash<QString, QSharedPointer<ArchiveTreeNode>> m_childNodes;
 };
 Q_DECLARE_METATYPE(QSharedPointer<ArchiveTreeNode>)
 
@@ -42,5 +42,4 @@ public:
 
 private:
 	QSharedPointer<ArchiveTreeNode> m_rootNode;
-	QHash<QString, QSharedPointer<ArchiveTreeNode>> m_index;
 };

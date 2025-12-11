@@ -11,15 +11,33 @@ ArchiveTreeNode::ArchiveTreeNode(const QString& name, bool bIsDir, quint64 compr
 
 }
 
-void ArchiveTreeNode::addChild(const QString& name, const QSharedPointer<ArchiveTreeNode>& childNode)
+ArchiveTreeNode::~ArchiveTreeNode()
 {
+	qDeleteAll(m_childNodes);
+	m_childNodes.clear();
+}
+
+void ArchiveTreeNode::addChild(const QString& name, ArchiveTreeNode* childNode)
+{
+	if (!childNode)
+		return;
+
 	childNode->m_parentNode = this;
 	m_childNodes.insert(name, childNode);
 }
 
+//---------------------------------------
+
 ArchiveTree::ArchiveTree()
 {
-	m_rootNode = QSharedPointer<ArchiveTreeNode>::create();
+	m_rootNode = new ArchiveTreeNode();
+}
+
+ArchiveTree::~ArchiveTree()
+{
+	if (m_rootNode)
+		delete m_rootNode;
+	m_rootNode = nullptr;
 }
 
 void ArchiveTree::addEntry(const QString& path, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime)
@@ -31,11 +49,11 @@ void ArchiveTree::addEntry(const QString& path, bool bIsDir, quint64 compressedS
 	if (pathParts.isEmpty())
 		return;
 
-	auto parentNode = m_rootNode;
+	ArchiveTreeNode* parentNode = m_rootNode;
 	for (int i = 0; i < pathParts.size(); ++i)
 	{
 		const QString& name = pathParts[i];
-		const auto& childNodes = parentNode->m_childNodes;
+		QHash<QString, ArchiveTreeNode*>& childNodes = parentNode->m_childNodes;
 		auto it = childNodes.find(name);
 		if (it != childNodes.end())
 		{
@@ -43,29 +61,25 @@ void ArchiveTree::addEntry(const QString& path, bool bIsDir, quint64 compressedS
 			continue;
 		}
 
-		QSharedPointer<ArchiveTreeNode> newNode;
-		if (i != pathParts.size() - 1)
-			newNode.reset(new ArchiveTreeNode(name, true, 0, 0, QDateTime()));
-		else
-			newNode.reset(new ArchiveTreeNode(name, bIsDir, compressedSize, originalSize, mtime));
+		bool bIsLastPart = (i == pathParts.size() - 1);
+		ArchiveTreeNode* newNode = bIsLastPart ?
+			new ArchiveTreeNode(name, bIsDir, compressedSize, originalSize, mtime) :
+			new ArchiveTreeNode(name, true, 0, 0, QDateTime());
 		
 		parentNode->addChild(name, newNode);
-		
 		parentNode = newNode;
 	}
 }
 
-const QSharedPointer<ArchiveTreeNode>& ArchiveTree::getRootNode() const
+const ArchiveTreeNode* ArchiveTree::getRootNode() const
 {
 	return m_rootNode;
 }
 
 quint64 ArchiveTree::getFileCount() const
 {
-	quint64 fileCount = 0;
-
-	std::function<void(const QSharedPointer<ArchiveTreeNode>&, quint64&)> queryFileCount =
-		[&](const QSharedPointer<ArchiveTreeNode>& node, quint64& count)
+	std::function<void(const ArchiveTreeNode*, quint64&)> queryFileCount =
+		[&](const ArchiveTreeNode* node, quint64& fileCount)
 		{
 			if (!node)
 				return;
@@ -73,12 +87,13 @@ quint64 ArchiveTree::getFileCount() const
 			{
 				const auto& childNode = it.value();
 				if (childNode->m_bIsDir)
-					queryFileCount(childNode, count);
+					queryFileCount(childNode, fileCount);
 				else
-					++count;
+					++fileCount;
 			}
 		};
 
+	quint64 fileCount = 0;
 	queryFileCount(m_rootNode, fileCount);
 
 	return fileCount;
@@ -86,10 +101,8 @@ quint64 ArchiveTree::getFileCount() const
 
 quint64 ArchiveTree::getFolderCount() const
 {
-	quint64 folderCount = 0;
-
-	std::function<void(const QSharedPointer<ArchiveTreeNode>&)> queryFolderCount =
-		[&](const QSharedPointer<ArchiveTreeNode>& node)
+	std::function<void(const ArchiveTreeNode*, quint64&)> queryFolderCount =
+		[&](const ArchiveTreeNode* node, quint64& folderCount)
 		{
 			if (!node)
 				return;
@@ -97,19 +110,21 @@ quint64 ArchiveTree::getFolderCount() const
 			{
 				const auto& childNode = it.value();
 				if (childNode->m_bIsDir)
-				{
+					queryFolderCount(childNode, folderCount);
+				else
 					++folderCount;
-					queryFolderCount(childNode);
-				}
 			}
 		};
 
-	queryFolderCount(m_rootNode);
+	quint64 folderCount = 0;
+	queryFolderCount(m_rootNode, folderCount);
 
 	return folderCount;
 }
 
 void ArchiveTree::clear()
 {
-	m_rootNode = QSharedPointer<ArchiveTreeNode>::create();
+	if (m_rootNode)
+		delete m_rootNode;
+	m_rootNode = new ArchiveTreeNode();
 }

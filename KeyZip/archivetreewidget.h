@@ -11,12 +11,12 @@ public:
 	explicit ArchiveTreeWidget(QWidget* parent = nullptr);
 	~ArchiveTreeWidget() = default;
 
-	void refresh(const QSharedPointer<ArchiveTreeNode>& rootNode);
+	void refresh(const ArchiveTreeNode* rootNode);
 
 private slots:
 	void onItemExpanded(QTreeWidgetItem* parentItem);
 
 private:
-	void addItem(QTreeWidgetItem* parentItem, const QSharedPointer<ArchiveTreeNode>& node);
+	void addItem(QTreeWidgetItem* parentItem, const ArchiveTreeNode* node);
 	void loadChildItems(QTreeWidgetItem* item);
 };

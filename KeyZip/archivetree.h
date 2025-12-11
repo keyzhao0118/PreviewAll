@@ -9,9 +9,9 @@ public:
 	
 	ArchiveTreeNode(const QString& name, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime);
 	ArchiveTreeNode() = default;
-	~ArchiveTreeNode() = default;
+	~ArchiveTreeNode();
 
-	void addChild(const QString&name, const QSharedPointer<ArchiveTreeNode>& childNode);
+	void addChild(const QString& name, ArchiveTreeNode* childNode);
 
 public:
 	QString m_name;
@@ -21,19 +21,19 @@ public:
 	QDateTime m_mtime;
 
 	ArchiveTreeNode* m_parentNode = nullptr;
-	QHash<QString, QSharedPointer<ArchiveTreeNode>> m_childNodes;
+	QHash<QString, ArchiveTreeNode*> m_childNodes;
 };
-Q_DECLARE_METATYPE(QSharedPointer<ArchiveTreeNode>)
+Q_DECLARE_METATYPE(const ArchiveTreeNode*)
 
 class ArchiveTree
 {
 public:
 	ArchiveTree();
-	~ArchiveTree() = default;
+	~ArchiveTree();
 
 	void addEntry(const QString& path, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime);
 
-	const QSharedPointer<ArchiveTreeNode>& getRootNode() const;
+	const ArchiveTreeNode* getRootNode() const;
 	quint64 getFileCount() const;
 	quint64 getFolderCount() const;
 
@@ -41,5 +41,5 @@ public:
 
 
 private:
-	QSharedPointer<ArchiveTreeNode> m_rootNode;
+	ArchiveTreeNode* m_rootNode = nullptr;
 };

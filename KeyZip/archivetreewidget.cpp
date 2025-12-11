@@ -6,7 +6,6 @@
 ArchiveTreeWidget::ArchiveTreeWidget(QWidget* parent /*= nullptr*/)
 	: QTreeWidget(parent)
 {
-	qRegisterMetaType<QSharedPointer<ArchiveTreeNode>>("QSharedPointer<ArchiveTreeNode>");
 	setHeaderLabels({ tr("Name"), tr("Compressed Size"), tr("Original Size"), tr("Type"),tr("Modified Time")});
 	setSortingEnabled(true);
 	
@@ -20,7 +19,7 @@ ArchiveTreeWidget::ArchiveTreeWidget(QWidget* parent /*= nullptr*/)
 	connect(this, &QTreeWidget::itemExpanded, this, &ArchiveTreeWidget::onItemExpanded);
 }
 
-void ArchiveTreeWidget::refresh(const QSharedPointer<ArchiveTreeNode>& rootNode)
+void ArchiveTreeWidget::refresh(const ArchiveTreeNode* rootNode)
 {
 	if (!rootNode)
 		return;
@@ -29,7 +28,7 @@ void ArchiveTreeWidget::refresh(const QSharedPointer<ArchiveTreeNode>& rootNode)
 	QTreeWidgetItem* rootItem = invisibleRootItem();
 	
 	// 添加顶层项
-	for (const auto& childNode : rootNode->m_childNodes)
+	for (const ArchiveTreeNode* childNode : rootNode->m_childNodes)
 		addItem(rootItem, childNode);
 	
 	// 添加顶层项的子项
@@ -46,7 +45,7 @@ void ArchiveTreeWidget::onItemExpanded(QTreeWidgetItem* parentItem)
 		loadChildItems(parentItem->child(i));
 }
 
-void ArchiveTreeWidget::addItem(QTreeWidgetItem* parentItem, const QSharedPointer<ArchiveTreeNode>& node)
+void ArchiveTreeWidget::addItem(QTreeWidgetItem* parentItem, const ArchiveTreeNode* node)
 {
 	if (!parentItem || !node)
 		return;
@@ -62,7 +61,7 @@ void ArchiveTreeWidget::addItem(QTreeWidgetItem* parentItem, const QSharedPointe
 	item->setTextAlignment(1, Qt::AlignRight);
 	item->setTextAlignment(2, Qt::AlignRight);
 
-	item->setData(0, Qt::UserRole, QVariant::fromValue<QSharedPointer<ArchiveTreeNode>>(node));
+	item->setData(0, Qt::UserRole, QVariant::fromValue<const ArchiveTreeNode*>(node));
 	item->setData(0, Qt::UserRole + 1, false);// 标记子项是否已添加，默认未添加
 	item->setData(1, Qt::UserRole, node->m_bIsDir ? 0 : node->m_compressedSize);
 	item->setData(2, Qt::UserRole, node->m_bIsDir ? 0 : node->m_originalSize);
@@ -82,11 +81,11 @@ void ArchiveTreeWidget::loadChildItems(QTreeWidgetItem* item)
 		return;
 
 	auto nodeVariant = item->data(0, Qt::UserRole);
-	auto node = nodeVariant.value<QSharedPointer<ArchiveTreeNode>>();
+	auto node = nodeVariant.value<const ArchiveTreeNode*>();
 	if (!node)
 		return;
 
-	for (const auto& childNode : node->m_childNodes)
+	for (const ArchiveTreeNode* childNode : node->m_childNodes)
 		addItem(item, childNode);
 
 	item->setData(0, Qt::UserRole + 1, true);// 标记子项已添加

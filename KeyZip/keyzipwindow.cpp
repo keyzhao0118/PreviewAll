@@ -236,7 +236,7 @@ void KeyZipWindow::onParsingSucceed()
 {
 	if (m_archiveInfoLab && m_treeWidget && m_archiveTree)
 	{
-		setWindowTitle("KeyZip - " + m_archivePath);
+		setWindowTitle(m_archivePath + " - KeyZip");
 		m_archiveInfoLab->setText(tr("File: %1, Folder: %2, Archive file size: %3")
 			.arg(m_archiveTree->getFileCount())
 			.arg(m_archiveTree->getFolderCount())

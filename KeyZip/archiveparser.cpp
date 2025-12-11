@@ -32,6 +32,11 @@ void ArchiveParser::parseArchive(const QString& archivePath)
 	this->start();
 }
 
+const QVector<ArchiveEntry>& ArchiveParser::getEntryCache() const
+{
+	return m_entryCache;
+}
+
 void ArchiveParser::run()
 {
 	QElapsedTimer elapsedTimer;
@@ -158,16 +163,28 @@ void ArchiveParser::run()
 
 		QString path = QString::fromWCharArray(propPath.bstrVal);
 		bool bIsDir = propIsDir.boolVal != VARIANT_FALSE;
-		qint64 packedSize = propPackSize.uhVal.QuadPart;
-		qint64 size = propSize.uhVal.QuadPart;
+		quint64 packedSize = propPackSize.uhVal.QuadPart;
+		quint64 size = propSize.uhVal.QuadPart;
 		QDateTime mtime = CommonHelper::fileTimeToDateTime(propMTime.filetime);
-		emit entryFound(path, bIsDir, packedSize, size, mtime);
+		m_entryCache.append({ path, bIsDir, packedSize, size, mtime });
 
 		PropVariantClear(&propPath);
 		PropVariantClear(&propIsDir);
 		PropVariantClear(&propPackSize);
 		PropVariantClear(&propSize);
 		PropVariantClear(&propMTime);
+
+		if (m_entryCache.size() >= 1)
+		{
+			emit entryFound();
+			m_entryCache.clear();
+		}
+	}
+
+	if (!m_entryCache.isEmpty())
+	{
+		emit entryFound();
+		m_entryCache.clear();
 	}
 
 	emit parsingSucceed();

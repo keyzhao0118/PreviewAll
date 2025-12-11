@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include <QSharedPointer>
 #include <QDateTime>
+#include "archiveparser.h"
 
 class ArchiveTreeNode
 {
@@ -31,6 +31,7 @@ public:
 	ArchiveTree();
 	~ArchiveTree();
 
+	void addEntry(const QVector<ArchiveEntry>& entryCache);
 	void addEntry(const QString& path, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime);
 
 	const ArchiveTreeNode* getRootNode() const;

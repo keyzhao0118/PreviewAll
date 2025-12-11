@@ -221,10 +221,10 @@ void KeyZipWindow::onUpdateProgress(quint64 completed, quint64 total)
 		m_archiveInfoLab->setText(tr("Parsing Archive: %1 / %2").arg(completed).arg(total));
 }
 
-void KeyZipWindow::onEntryFound(const QString& path, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime)
+void KeyZipWindow::onEntryFound()
 {
-	if(m_archiveTree)
-		m_archiveTree->addEntry(path, bIsDir, compressedSize, originalSize, mtime);
+	if (m_archiveTree && m_archiveParser)
+		m_archiveTree->addEntry(m_archiveParser->getEntryCache());
 }
 
 void KeyZipWindow::onParsingFailed()

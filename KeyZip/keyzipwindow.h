@@ -27,7 +27,7 @@ private:
 private slots:
 	void onRequirePassword(bool& bCancel, QString& password);
 	void onUpdateProgress(quint64 completed, quint64 total);
-	void onEntryFound(const QString& path, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime);
+	void onEntryFound();
 	void onParsingFailed();
 	void onParsingSucceed();
 

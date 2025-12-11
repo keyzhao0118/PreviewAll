@@ -85,7 +85,7 @@ quint64 ArchiveTree::getFileCount() const
 				return;
 			for (auto it = node->m_childNodes.constBegin(); it != node->m_childNodes.constEnd(); ++it)
 			{
-				const auto& childNode = it.value();
+				const ArchiveTreeNode* childNode = it.value();
 				if (childNode->m_bIsDir)
 					queryFileCount(childNode, fileCount);
 				else
@@ -108,11 +108,12 @@ quint64 ArchiveTree::getFolderCount() const
 				return;
 			for (auto it = node->m_childNodes.constBegin(); it != node->m_childNodes.constEnd(); ++it)
 			{
-				const auto& childNode = it.value();
+				const ArchiveTreeNode* childNode = it.value();
 				if (childNode->m_bIsDir)
-					queryFolderCount(childNode, folderCount);
-				else
+				{
 					++folderCount;
+					queryFolderCount(childNode, folderCount);
+				}
 			}
 		};
 

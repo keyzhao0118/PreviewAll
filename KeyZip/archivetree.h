@@ -7,14 +7,13 @@ class ArchiveTreeNode
 {
 public:
 	
-	ArchiveTreeNode(const QString& formatPath, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime);
+	ArchiveTreeNode(const QString& name, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime);
 	ArchiveTreeNode() = default;
 	~ArchiveTreeNode() = default;
 
 	void addChild(const QSharedPointer<ArchiveTreeNode>& childNode);
 
 public:
-	QString m_formatPath;
 	QString m_name;
 	bool m_bIsDir = false;
 	quint64 m_compressedSize = 0;

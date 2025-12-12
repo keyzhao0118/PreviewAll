@@ -7,6 +7,7 @@ class ArchiveTreeWidget;
 class ArchiveParser;
 class KeyCardWidget;
 class QLabel;
+class QStackedLayout;
 
 class KeyZipWindow : public QMainWindow
 {
@@ -22,7 +23,7 @@ private:
 	void initStatusBar();
 	void initArchiveParser();
 
-	void clear();
+	void clearTreeInfo();
 
 private slots:
 	void onRequirePassword(bool& bCancel, QString& password);
@@ -32,6 +33,10 @@ private slots:
 	void onParsingSucceed();
 
 private:
+	QAction* m_actOpen = nullptr;
+	QAction* m_actNew = nullptr;
+
+	QStackedLayout* m_centralStackedLayout = nullptr;
 	ArchiveTreeWidget* m_treeWidget = nullptr;
 	KeyCardWidget* m_previewPanel = nullptr;
 	QLabel* m_archiveInfoLab = nullptr;

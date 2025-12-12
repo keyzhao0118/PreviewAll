@@ -4,7 +4,9 @@
 #include "keyslideswitch.h"
 #include "archiveparser.h"
 #include "commonhelper.h"
-#include <QHBoxLayout>
+#include <QLayout>
+#include <QStackedLayout>
+#include <QPushButton>
 #include <QTreeView>
 #include <QStatusBar>
 #include <QMessageBox>
@@ -24,7 +26,7 @@ KeyZipWindow::KeyZipWindow(QWidget* parent /*= nullptr*/)
 	initCentralWidget();
 	initStatusBar();
 	initArchiveParser();
-	resize(1200, 600);
+	resize(900, 600);
 }
 
 KeyZipWindow::~KeyZipWindow()
@@ -40,8 +42,8 @@ void KeyZipWindow::initMenuAction()
 	QMenu* helpMenu = menuBar()->addMenu(tr("&Help(H)"));
 
 	// 文件动作
-	QAction* actOpen = new QAction(tr("Open Archive"), this);
-	QAction* actNew = new QAction(tr("New Archive"), this);
+	m_actOpen = new QAction(tr("Open Archive"), this);
+	m_actNew = new QAction(tr("New Archive"), this);
 	QAction* actClose = new QAction(tr("Close Archive"), this);
 	QAction* actExit = new QAction(tr("Exit"), this);
 
@@ -55,21 +57,21 @@ void KeyZipWindow::initMenuAction()
 	QAction* actStatusBar = new QAction(tr("Status Bar"), this);
 	actPreview->setCheckable(true);
 	actStatusBar->setCheckable(true);
-	actPreview->setChecked(true);
+	actPreview->setChecked(false);
 	actStatusBar->setChecked(true);
 
 	// 关于动作
 	QAction* actAbout = new QAction(tr("About"), this);
 
 	// 设置快捷键
-	actOpen->setShortcut(QKeySequence::Open);
-	actNew->setShortcut(QKeySequence::New);
+	m_actOpen->setShortcut(QKeySequence::Open);
+	m_actNew->setShortcut(QKeySequence::New);
 	actClose->setShortcut(QKeySequence("Ctrl+W"));
 	actExit->setShortcut(QKeySequence("Ctrl+Q"));
 
 	// 添加到菜单
-	fileMenu->addAction(actOpen);
-	fileMenu->addAction(actNew);
+	fileMenu->addAction(m_actOpen);
+	fileMenu->addAction(m_actNew);
 	fileMenu->addSeparator();
 	fileMenu->addAction(actClose);
 	fileMenu->addSeparator();
@@ -82,10 +84,9 @@ void KeyZipWindow::initMenuAction()
 	helpMenu->addAction(actAbout);
 
 	// 连接动作
-	connect(actOpen, &QAction::triggered, this, [this]() {
+	connect(m_actOpen, &QAction::triggered, this, [this]() {
 		if (!m_archiveParser)
 			return;
-
 		m_archiveParser->requestInterruption();
 		if (!m_archiveParser->wait(1000))
 		{
@@ -96,34 +97,32 @@ void KeyZipWindow::initMenuAction()
 		const QString filePath = QFileDialog::getOpenFileName(this, tr("Open Archive"), QString(), tr("Archives (*.zip *.7z *.rar);;All Files (*.*)"));
 		if (filePath.isEmpty())
 			return;
-
-		clear();
-
-		m_archivePath = filePath;
-		m_archiveParser->parseArchive(m_archivePath);
+		clearTreeInfo();
+		if (m_centralStackedLayout && m_centralStackedLayout->count() >= 2)
+		{
+			m_centralStackedLayout->setCurrentIndex(1);
+			m_archivePath = filePath;
+			m_archiveParser->parseArchive(m_archivePath);
+		}
 	});
 
-	connect(actNew, &QAction::triggered, this, [this]() {
+	connect(m_actNew, &QAction::triggered, this, [this]() {
 		QMessageBox::information(this, "", tr("Not Implemented Yet"));
 	});
 
 	connect(actClose, &QAction::triggered, this, [this]() {
-		if (!m_archiveParser)
-			return;
-
-		m_archiveParser->requestInterruption();
-		if (!m_archiveParser->wait(1000))
+		if (m_archiveParser)
 		{
-			CommonHelper::LogKeyZipDebugMsg("KeyZipWindow: Failed to stop ArchiveParser thread within 1 second.");
-			return;
+			m_archiveParser->requestInterruption();
+			if (!m_archiveParser->wait(1000))
+				CommonHelper::LogKeyZipDebugMsg("KeyZipWindow: Failed to stop ArchiveParser thread within 1 second.");
 		}
-
-		clear();
+		clearTreeInfo();
+		if(m_centralStackedLayout && m_centralStackedLayout->count() >= 1)
+			m_centralStackedLayout->setCurrentIndex(0);
 	});
 
-	connect(actExit, &QAction::triggered, this, [this]() {
-		close();
-	});
+	connect(actExit, &QAction::triggered, this, &KeyZipWindow::close);
 
 	connect(actExtractAll, &QAction::triggered, this, [this]() {
 		QMessageBox::information(this, "", tr("Not Implemented Yet"));
@@ -153,7 +152,25 @@ void KeyZipWindow::initMenuAction()
 
 void KeyZipWindow::initCentralWidget()
 {
-	QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
+	QWidget* centralWidget = new QWidget(this);
+	m_centralStackedLayout = new QStackedLayout(centralWidget);
+	setCentralWidget(centralWidget);
+
+	QWidget* homePage = new QWidget(centralWidget);
+	QHBoxLayout* homeLayout = new QHBoxLayout(homePage);
+	QPushButton* openBtn = new QPushButton(tr("Open Archive"), homePage);
+	QPushButton* newBtn = new QPushButton(tr("New Archive"), homePage);
+	openBtn->setFixedSize(150, 150);
+	newBtn->setFixedSize(150, 150);
+	connect(openBtn, &QPushButton::clicked, m_actOpen, &QAction::trigger);
+	connect(newBtn, &QPushButton::clicked, m_actNew, &QAction::trigger);
+	homeLayout->addStretch();
+	homeLayout->addWidget(openBtn);
+	homeLayout->addWidget(newBtn);
+	homeLayout->addStretch();
+	m_centralStackedLayout->addWidget(homePage);
+
+	QSplitter* splitter = new QSplitter(Qt::Horizontal, centralWidget);
 	splitter->setChildrenCollapsible(false);
 	splitter->setOpaqueResize(true);
 	splitter->setHandleWidth(6);
@@ -163,7 +180,8 @@ void KeyZipWindow::initCentralWidget()
 
 	m_previewPanel = new KeyCardWidget(splitter);
 	m_previewPanel->setMinimumWidth(300);
-	m_previewPanel->setBackgroundColor(Qt::red);
+	m_previewPanel->setBackgroundColor(Qt::gray);
+	m_previewPanel->setVisible(false);
 
 	splitter->addWidget(m_treeWidget);
 	splitter->addWidget(m_previewPanel);
@@ -172,7 +190,7 @@ void KeyZipWindow::initCentralWidget()
 	splitter->setStretchFactor(1, 1);
 	splitter->setSizes({ 800,400 });
 
-	setCentralWidget(splitter);
+	m_centralStackedLayout->addWidget(splitter);
 }
 
 void KeyZipWindow::initStatusBar()
@@ -192,7 +210,7 @@ void KeyZipWindow::initArchiveParser()
 	connect(m_archiveParser, &ArchiveParser::parsingSucceed, this, &KeyZipWindow::onParsingSucceed);
 }
 
-void KeyZipWindow::clear()
+void KeyZipWindow::clearTreeInfo()
 {
 	if (m_treeWidget)
 		m_treeWidget->clear();

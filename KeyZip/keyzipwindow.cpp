@@ -17,6 +17,7 @@
 #include <QToolBar>
 #include <QSplitter>
 #include <QLabel>
+#include <QProcess>
 
 KeyZipWindow::KeyZipWindow(QWidget* parent /*= nullptr*/)
 	: QMainWindow(parent)
@@ -44,110 +45,52 @@ void KeyZipWindow::initMenuAction()
 	// 文件动作
 	m_actOpen = new QAction(tr("Open Archive"), this);
 	m_actNew = new QAction(tr("New Archive"), this);
-	QAction* actClose = new QAction(tr("Close Archive"), this);
-	QAction* actExit = new QAction(tr("Exit"), this);
-
-	// 编辑动作
-	QAction* actExtractAll = new QAction(tr("Extract All"), this);
-	QAction* actExtractSelected = new QAction(tr("Extract Selected"), this);
-	QAction* actOpenSelected = new QAction(tr("Open Selected"), this);
+	m_actExtract = new QAction(tr("Extract Archive"), this);
+	m_actLocation = new QAction(tr("Open Archive Location"));
+	m_actClose = new QAction(tr("Close Archive"), this);
+	m_actExit = new QAction(tr("Exit"), this);
 
 	// 视图动作
-	QAction* actPreview = new QAction(tr("Preview Panel"), this);
-	QAction* actStatusBar = new QAction(tr("Status Bar"), this);
-	actPreview->setCheckable(true);
-	actStatusBar->setCheckable(true);
-	actPreview->setChecked(false);
-	actStatusBar->setChecked(true);
+	m_actPreview = new QAction(tr("Preview Panel"), this);
+	m_actPreview->setCheckable(true);
+	m_actPreview->setChecked(false);
+	m_actStatusBar = new QAction(tr("Status Bar"), this);
+	m_actStatusBar->setCheckable(true);
+	m_actStatusBar->setChecked(true);
 
 	// 关于动作
-	QAction* actAbout = new QAction(tr("About"), this);
+	m_actAbout = new QAction(tr("About"), this);
 
 	// 设置快捷键
 	m_actOpen->setShortcut(QKeySequence::Open);
 	m_actNew->setShortcut(QKeySequence::New);
-	actClose->setShortcut(QKeySequence("Ctrl+W"));
-	actExit->setShortcut(QKeySequence("Ctrl+Q"));
+	m_actExtract->setShortcut(QKeySequence("Ctrl+E"));
+	m_actClose->setShortcut(QKeySequence("Ctrl+W"));
+	m_actExit->setShortcut(QKeySequence("Ctrl+Q"));
 
 	// 添加到菜单
 	fileMenu->addAction(m_actOpen);
 	fileMenu->addAction(m_actNew);
 	fileMenu->addSeparator();
-	fileMenu->addAction(actClose);
+	fileMenu->addAction(m_actExtract);
+	fileMenu->addAction(m_actLocation);
+	fileMenu->addAction(m_actClose);
 	fileMenu->addSeparator();
-	fileMenu->addAction(actExit);
-	editMenu->addAction(actExtractAll);
-	editMenu->addAction(actExtractSelected);
-	editMenu->addAction(actOpenSelected);
-	viewMenu->addAction(actPreview);
-	viewMenu->addAction(actStatusBar);
-	helpMenu->addAction(actAbout);
+	fileMenu->addAction(m_actExit);
+	viewMenu->addAction(m_actPreview);
+	viewMenu->addAction(m_actStatusBar);
+	helpMenu->addAction(m_actAbout);
 
 	// 连接动作
-	connect(m_actOpen, &QAction::triggered, this, [this]() {
-		if (!m_archiveParser)
-			return;
-		m_archiveParser->requestInterruption();
-		if (!m_archiveParser->wait(1000))
-		{
-			CommonHelper::LogKeyZipDebugMsg("KeyZipWindow: Failed to stop ArchiveParser thread within 1 second.");
-			return;
-		}
-
-		const QString filePath = QFileDialog::getOpenFileName(this, tr("Open Archive"), QString(), tr("Archives (*.zip *.7z *.rar);;All Files (*.*)"));
-		if (filePath.isEmpty())
-			return;
-		clearTreeInfo();
-		if (m_centralStackedLayout && m_centralStackedLayout->count() >= 2)
-		{
-			m_centralStackedLayout->setCurrentIndex(1);
-			m_archivePath = filePath;
-			m_archiveParser->parseArchive(m_archivePath);
-		}
-	});
-
-	connect(m_actNew, &QAction::triggered, this, [this]() {
-		QMessageBox::information(this, "", tr("Not Implemented Yet"));
-	});
-
-	connect(actClose, &QAction::triggered, this, [this]() {
-		if (m_archiveParser)
-		{
-			m_archiveParser->requestInterruption();
-			if (!m_archiveParser->wait(1000))
-				CommonHelper::LogKeyZipDebugMsg("KeyZipWindow: Failed to stop ArchiveParser thread within 1 second.");
-		}
-		clearTreeInfo();
-		if(m_centralStackedLayout && m_centralStackedLayout->count() >= 1)
-			m_centralStackedLayout->setCurrentIndex(0);
-	});
-
-	connect(actExit, &QAction::triggered, this, &KeyZipWindow::close);
-
-	connect(actExtractAll, &QAction::triggered, this, [this]() {
-		QMessageBox::information(this, "", tr("Not Implemented Yet"));
-	});
-
-	connect(actExtractSelected, &QAction::triggered, this, [this]() {
-		QMessageBox::information(this, "", tr("Not Implemented Yet"));
-	});
-
-	connect(actOpenSelected, &QAction::triggered, this, [this]() {
-		QMessageBox::information(this, "", tr("Not Implemented Yet"));
-	});
-
-	connect(actPreview, &QAction::triggered, this, [this](bool checked) {
-		if (m_previewPanel)
-			m_previewPanel->setVisible(checked);
-	});
-
-	connect(actStatusBar, &QAction::triggered, this, [this](bool checked) {
-		statusBar()->setVisible(checked);
-	});
-
-	connect(actAbout, &QAction::triggered, this, [this]() {
-		QMessageBox::about(this, tr("About"), tr("KeyZip\nSimple archive viewer."));
-	});
+	connect(m_actOpen, &QAction::triggered, this, &KeyZipWindow::onOpenTriggered);
+	connect(m_actNew, &QAction::triggered, this, &KeyZipWindow::onNewTriggered);
+	connect(m_actExtract, &QAction::triggered, this, &KeyZipWindow::onExtractTriggered);
+	connect(m_actLocation, &QAction::triggered, this, &KeyZipWindow::onLocationTriggered);
+	connect(m_actClose, &QAction::triggered, this, &KeyZipWindow::onCloseTriggered);
+	connect(m_actExit, &QAction::triggered, this, &KeyZipWindow::onExitTriggered);
+	connect(m_actPreview, &QAction::toggled, this, &KeyZipWindow::onPreviewToggled);
+	connect(m_actStatusBar, &QAction::toggled, this, &KeyZipWindow::onStatusBarToggled);
+	connect(m_actAbout, &QAction::triggered, this, &KeyZipWindow::onAboutTriggered);
 }
 
 void KeyZipWindow::initCentralWidget()
@@ -223,6 +166,81 @@ void KeyZipWindow::clearTreeInfo()
 
 	m_archivePath.clear();
 	setWindowTitle("KeyZip");
+}
+
+void KeyZipWindow::onOpenTriggered()
+{
+	if (!m_archiveParser)
+		return;
+	m_archiveParser->requestInterruption();
+	if (!m_archiveParser->wait(1000))
+	{
+		CommonHelper::LogKeyZipDebugMsg("KeyZipWindow: Failed to stop ArchiveParser thread within 1 second.");
+		return;
+	}
+
+	const QString filePath = QFileDialog::getOpenFileName(this, tr("Open Archive"), QString(), tr("Archives (*.zip *.7z *.rar);;All Files (*.*)"));
+	if (filePath.isEmpty())
+		return;
+	clearTreeInfo();
+	if (m_centralStackedLayout && m_centralStackedLayout->count() >= 2)
+	{
+		m_centralStackedLayout->setCurrentIndex(1);
+		m_archivePath = filePath;
+		m_archiveParser->parseArchive(m_archivePath);
+	}
+}
+
+void KeyZipWindow::onNewTriggered()
+{
+	QMessageBox::information(this, "", tr("Not Implemented Yet"));
+}
+
+void KeyZipWindow::onExtractTriggered()
+{
+}
+
+void KeyZipWindow::onLocationTriggered()
+{
+	if (!m_archivePath.isEmpty() && QFile::exists(m_archivePath))
+	{
+		QString nativePath = QDir::toNativeSeparators(m_archivePath);
+		QProcess::startDetached("explorer.exe", { "/select,", nativePath });
+	}
+}
+
+void KeyZipWindow::onCloseTriggered()
+{
+	if (m_archiveParser)
+	{
+		m_archiveParser->requestInterruption();
+		if (!m_archiveParser->wait(1000))
+			CommonHelper::LogKeyZipDebugMsg("KeyZipWindow: Failed to stop ArchiveParser thread within 1 second.");
+	}
+	clearTreeInfo();
+	if (m_centralStackedLayout && m_centralStackedLayout->count() >= 1)
+		m_centralStackedLayout->setCurrentIndex(0);
+}
+
+void KeyZipWindow::onExitTriggered()
+{
+	close();
+}
+
+void KeyZipWindow::onPreviewToggled(bool checked)
+{
+	if (m_previewPanel)
+		m_previewPanel->setVisible(checked);
+}
+
+void KeyZipWindow::onStatusBarToggled(bool checked)
+{
+	statusBar()->setVisible(checked);
+}
+
+void KeyZipWindow::onAboutTriggered()
+{
+	QMessageBox::information(this, tr("About KeyZip"), tr("KeyZip\nA simple archive manager.\n\n© 2024 KeySoft"));
 }
 
 void KeyZipWindow::onRequirePassword(bool& bCancel, QString& password)

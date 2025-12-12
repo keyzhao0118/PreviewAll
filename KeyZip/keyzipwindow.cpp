@@ -182,7 +182,7 @@ void KeyZipWindow::onOpenTriggered()
 	if (filePath.isEmpty())
 		return;
 	clearTreeInfo();
-	if (m_centralStackedLayout && m_centralStackedLayout->count() >= 2)
+	if (m_centralStackedLayout)
 	{
 		m_centralStackedLayout->setCurrentIndex(1);
 		m_archivePath = filePath;
@@ -218,7 +218,7 @@ void KeyZipWindow::onCloseTriggered()
 			CommonHelper::LogKeyZipDebugMsg("KeyZipWindow: Failed to stop ArchiveParser thread within 1 second.");
 	}
 	clearTreeInfo();
-	if (m_centralStackedLayout && m_centralStackedLayout->count() >= 1)
+	if (m_centralStackedLayout)
 		m_centralStackedLayout->setCurrentIndex(0);
 }
 
@@ -240,14 +240,14 @@ void KeyZipWindow::onAboutTriggered()
 
 void KeyZipWindow::onCentralStackedChanged(int index)
 {
-	if (index == 0)
+	if (index == 0)// 首页
 	{
 		m_actExtract->setEnabled(false);
 		m_actLocation->setEnabled(false);
 		m_actClose->setEnabled(false);
 		m_actPreview->setEnabled(false);
 	}
-	else if (index == 1)
+	else if (index == 1)// 归档浏览页
 	{
 		m_actExtract->setEnabled(true);
 		m_actLocation->setEnabled(true);

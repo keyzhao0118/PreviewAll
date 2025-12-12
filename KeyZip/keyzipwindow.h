@@ -60,7 +60,7 @@ private:
 	KeyCardWidget* m_previewPanel = nullptr;
 	QLabel* m_archiveInfoLab = nullptr;
 
-	ArchiveParser* m_archiveParser = nullptr;
+	QSharedPointer<ArchiveParser> m_archiveParser;
 	QSharedPointer<ArchiveTree> m_archiveTree;
 
 	QString m_archivePath;

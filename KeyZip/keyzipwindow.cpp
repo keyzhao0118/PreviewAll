@@ -26,7 +26,6 @@ KeyZipWindow::KeyZipWindow(QWidget* parent /*= nullptr*/)
 	initMenuAction();
 	initCentralWidget();
 	initStatusBar();
-	initArchiveParser();
 	resize(900, 600);
 }
 
@@ -144,12 +143,12 @@ void KeyZipWindow::initStatusBar()
 
 void KeyZipWindow::initArchiveParser()
 {
-	m_archiveParser = new ArchiveParser(this);
-	connect(m_archiveParser, &ArchiveParser::requirePassword, this, &KeyZipWindow::onRequirePassword, Qt::BlockingQueuedConnection);
-	connect(m_archiveParser, &ArchiveParser::updateProgress, this, &KeyZipWindow::onUpdateProgress, Qt::BlockingQueuedConnection);
-	connect(m_archiveParser, &ArchiveParser::entryFound, this, &KeyZipWindow::onEntryFound, Qt::DirectConnection);
-	connect(m_archiveParser, &ArchiveParser::parsingFailed, this, &KeyZipWindow::onParsingFailed);
-	connect(m_archiveParser, &ArchiveParser::parsingSucceed, this, &KeyZipWindow::onParsingSucceed);
+	m_archiveParser.reset(new ArchiveParser());
+	connect(m_archiveParser.data(), &ArchiveParser::requirePassword, this, &KeyZipWindow::onRequirePassword, Qt::BlockingQueuedConnection);
+	connect(m_archiveParser.data(), &ArchiveParser::updateProgress, this, &KeyZipWindow::onUpdateProgress, Qt::BlockingQueuedConnection);
+	connect(m_archiveParser.data(), &ArchiveParser::entryFound, this, &KeyZipWindow::onEntryFound, Qt::DirectConnection);
+	connect(m_archiveParser.data(), &ArchiveParser::parsingFailed, this, &KeyZipWindow::onParsingFailed);
+	connect(m_archiveParser.data(), &ArchiveParser::parsingSucceed, this, &KeyZipWindow::onParsingSucceed);
 }
 
 void KeyZipWindow::clearTreeInfo()
@@ -169,25 +168,16 @@ void KeyZipWindow::clearTreeInfo()
 
 void KeyZipWindow::onOpenTriggered()
 {
-	if (!m_archiveParser)
-		return;
-	m_archiveParser->requestInterruption();
-	if (!m_archiveParser->wait(1000))
-	{
-		CommonHelper::LogKeyZipDebugMsg("KeyZipWindow: Failed to stop ArchiveParser thread within 1 second.");
-		return;
-	}
+	initArchiveParser();
 
 	const QString filePath = QFileDialog::getOpenFileName(this, tr("Open Archive"), QString(), tr("Archives (*.zip *.7z *.rar);;All Files (*.*)"));
 	if (filePath.isEmpty())
 		return;
+
 	clearTreeInfo();
-	if (m_centralStackedLayout)
-	{
-		m_centralStackedLayout->setCurrentIndex(1);
-		m_archivePath = filePath;
-		m_archiveParser->parseArchive(m_archivePath);
-	}
+	m_centralStackedLayout->setCurrentIndex(1);
+	m_archivePath = filePath;
+	m_archiveParser->parseArchive(m_archivePath);
 }
 
 void KeyZipWindow::onNewTriggered()
@@ -197,7 +187,9 @@ void KeyZipWindow::onNewTriggered()
 
 void KeyZipWindow::onExtractTriggered()
 {
-	QMessageBox::information(this, "", tr("Not Implemented Yet"));
+	if (m_archivePath.isEmpty())
+		return;
+
 }
 
 void KeyZipWindow::onLocationTriggered()
@@ -211,15 +203,9 @@ void KeyZipWindow::onLocationTriggered()
 
 void KeyZipWindow::onCloseTriggered()
 {
-	if (m_archiveParser)
-	{
-		m_archiveParser->requestInterruption();
-		if (!m_archiveParser->wait(1000))
-			CommonHelper::LogKeyZipDebugMsg("KeyZipWindow: Failed to stop ArchiveParser thread within 1 second.");
-	}
+	m_archiveParser.reset(nullptr);
 	clearTreeInfo();
-	if (m_centralStackedLayout)
-		m_centralStackedLayout->setCurrentIndex(0);
+	m_centralStackedLayout->setCurrentIndex(0);
 }
 
 void KeyZipWindow::onExitTriggered()

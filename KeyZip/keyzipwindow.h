@@ -34,7 +34,7 @@ private slots:
 	void onExitTriggered();
 
 	void onPreviewToggled(bool checked);
-	void onStatusBarToggled(bool checked);
+
 	void onAboutTriggered();
 
 	void onRequirePassword(bool& bCancel, QString& password);
@@ -52,7 +52,6 @@ private:
 	QAction* m_actExit = nullptr;
 
 	QAction* m_actPreview = nullptr;
-	QAction* m_actStatusBar = nullptr;
 
 	QAction* m_actAbout = nullptr;
 

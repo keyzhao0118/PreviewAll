@@ -46,17 +46,17 @@ void KeyZipWindow::initMenuAction()
 	m_actOpen = new QAction(tr("Open Archive"), this);
 	m_actNew = new QAction(tr("New Archive"), this);
 	m_actExtract = new QAction(tr("Extract Archive"), this);
+	m_actExtract->setEnabled(false);
 	m_actLocation = new QAction(tr("Open Archive Location"));
+	m_actLocation->setEnabled(false);
 	m_actClose = new QAction(tr("Close Archive"), this);
+	m_actClose->setEnabled(false);
 	m_actExit = new QAction(tr("Exit"), this);
 
 	// 视图动作
 	m_actPreview = new QAction(tr("Preview Panel"), this);
+	m_actPreview->setEnabled(false);
 	m_actPreview->setCheckable(true);
-	m_actPreview->setChecked(false);
-	m_actStatusBar = new QAction(tr("Status Bar"), this);
-	m_actStatusBar->setCheckable(true);
-	m_actStatusBar->setChecked(true);
 
 	// 关于动作
 	m_actAbout = new QAction(tr("About"), this);
@@ -78,7 +78,6 @@ void KeyZipWindow::initMenuAction()
 	fileMenu->addSeparator();
 	fileMenu->addAction(m_actExit);
 	viewMenu->addAction(m_actPreview);
-	viewMenu->addAction(m_actStatusBar);
 	helpMenu->addAction(m_actAbout);
 
 	// 连接动作
@@ -89,7 +88,6 @@ void KeyZipWindow::initMenuAction()
 	connect(m_actClose, &QAction::triggered, this, &KeyZipWindow::onCloseTriggered);
 	connect(m_actExit, &QAction::triggered, this, &KeyZipWindow::onExitTriggered);
 	connect(m_actPreview, &QAction::toggled, this, &KeyZipWindow::onPreviewToggled);
-	connect(m_actStatusBar, &QAction::toggled, this, &KeyZipWindow::onStatusBarToggled);
 	connect(m_actAbout, &QAction::triggered, this, &KeyZipWindow::onAboutTriggered);
 }
 
@@ -138,7 +136,6 @@ void KeyZipWindow::initCentralWidget()
 
 void KeyZipWindow::initStatusBar()
 {
-	statusBar()->setVisible(true);
 	m_archiveInfoLab = new QLabel(this);
 	statusBar()->addPermanentWidget(m_archiveInfoLab);
 }
@@ -198,6 +195,7 @@ void KeyZipWindow::onNewTriggered()
 
 void KeyZipWindow::onExtractTriggered()
 {
+	QMessageBox::information(this, "", tr("Not Implemented Yet"));
 }
 
 void KeyZipWindow::onLocationTriggered()
@@ -233,14 +231,9 @@ void KeyZipWindow::onPreviewToggled(bool checked)
 		m_previewPanel->setVisible(checked);
 }
 
-void KeyZipWindow::onStatusBarToggled(bool checked)
-{
-	statusBar()->setVisible(checked);
-}
-
 void KeyZipWindow::onAboutTriggered()
 {
-	QMessageBox::information(this, tr("About KeyZip"), tr("KeyZip\nA simple archive manager.\n\n© 2024 KeySoft"));
+	QMessageBox::information(this, tr("About KeyZip"), tr("KeyZip\nA simple archive manager."));
 }
 
 void KeyZipWindow::onRequirePassword(bool& bCancel, QString& password)
@@ -266,6 +259,9 @@ void KeyZipWindow::onEntryFound()
 void KeyZipWindow::onParsingFailed()
 {
 	QMessageBox::critical(this, "", tr("Parsing Failed"));
+	clearTreeInfo();
+	if (m_centralStackedLayout)
+		m_centralStackedLayout->setCurrentIndex(0);
 }
 
 void KeyZipWindow::onParsingSucceed()
@@ -277,7 +273,11 @@ void KeyZipWindow::onParsingSucceed()
 			.arg(m_archiveTree->getFileCount())
 			.arg(m_archiveTree->getFolderCount())
 			.arg(CommonHelper::formatFileSize(QFileInfo(m_archivePath).size())));
-
 		m_treeWidget->refresh(m_archiveTree->getRootNode());
 	}
+
+	m_actExtract->setEnabled(true);
+	m_actLocation->setEnabled(true);
+	m_actPreview->setEnabled(true);
+	m_actPreview->setChecked(true);
 }

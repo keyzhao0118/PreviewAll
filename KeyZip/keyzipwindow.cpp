@@ -46,16 +46,12 @@ void KeyZipWindow::initMenuAction()
 	m_actOpen = new QAction(tr("Open Archive"), this);
 	m_actNew = new QAction(tr("New Archive"), this);
 	m_actExtract = new QAction(tr("Extract Archive"), this);
-	m_actExtract->setEnabled(false);
 	m_actLocation = new QAction(tr("Open Archive Location"));
-	m_actLocation->setEnabled(false);
 	m_actClose = new QAction(tr("Close Archive"), this);
-	m_actClose->setEnabled(false);
 	m_actExit = new QAction(tr("Exit"), this);
 
 	// 视图动作
 	m_actPreview = new QAction(tr("Preview Panel"), this);
-	m_actPreview->setEnabled(false);
 	m_actPreview->setCheckable(true);
 
 	// 关于动作
@@ -79,6 +75,12 @@ void KeyZipWindow::initMenuAction()
 	fileMenu->addAction(m_actExit);
 	viewMenu->addAction(m_actPreview);
 	helpMenu->addAction(m_actAbout);
+
+	// 初始化可用性
+	m_actExtract->setEnabled(false);
+	m_actLocation->setEnabled(false);
+	m_actClose->setEnabled(false);
+	m_actPreview->setEnabled(false);
 
 	// 连接动作
 	connect(m_actOpen, &QAction::triggered, this, &KeyZipWindow::onOpenTriggered);
@@ -127,11 +129,11 @@ void KeyZipWindow::initCentralWidget()
 	splitter->addWidget(m_treeWidget);
 	splitter->addWidget(m_previewPanel);
 
-	splitter->setStretchFactor(0, 0);
-	splitter->setStretchFactor(1, 1);
-	splitter->setSizes({ 800,400 });
+	splitter->setStretchFactor(0, 1);
+	splitter->setStretchFactor(1, 0);
 
 	m_centralStackedLayout->addWidget(splitter);
+	connect(m_centralStackedLayout, &QStackedLayout::currentChanged, this, &KeyZipWindow::onCentralStackedChanged);
 }
 
 void KeyZipWindow::initStatusBar()
@@ -236,6 +238,24 @@ void KeyZipWindow::onAboutTriggered()
 	QMessageBox::information(this, tr("About KeyZip"), tr("KeyZip\nA simple archive manager."));
 }
 
+void KeyZipWindow::onCentralStackedChanged(int index)
+{
+	if (index == 0)
+	{
+		m_actExtract->setEnabled(false);
+		m_actLocation->setEnabled(false);
+		m_actClose->setEnabled(false);
+		m_actPreview->setEnabled(false);
+	}
+	else if (index == 1)
+	{
+		m_actExtract->setEnabled(true);
+		m_actLocation->setEnabled(true);
+		m_actClose->setEnabled(true);
+		m_actPreview->setEnabled(true);
+	}
+}
+
 void KeyZipWindow::onRequirePassword(bool& bCancel, QString& password)
 {
 	bool ok = false;
@@ -275,9 +295,4 @@ void KeyZipWindow::onParsingSucceed()
 			.arg(CommonHelper::formatFileSize(QFileInfo(m_archivePath).size())));
 		m_treeWidget->refresh(m_archiveTree->getRootNode());
 	}
-
-	m_actExtract->setEnabled(true);
-	m_actLocation->setEnabled(true);
-	m_actPreview->setEnabled(true);
-	m_actPreview->setChecked(true);
 }

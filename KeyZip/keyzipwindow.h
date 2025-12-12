@@ -32,10 +32,10 @@ private slots:
 	void onLocationTriggered();
 	void onCloseTriggered();
 	void onExitTriggered();
-
 	void onPreviewToggled(bool checked);
-
 	void onAboutTriggered();
+
+	void onCentralStackedChanged(int index);
 
 	void onRequirePassword(bool& bCancel, QString& password);
 	void onUpdateProgress(quint64 completed, quint64 total);

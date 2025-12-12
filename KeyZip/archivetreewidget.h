@@ -15,6 +15,7 @@ public:
 
 private slots:
 	void onItemExpanded(QTreeWidgetItem* parentItem);
+	void onItemCollapsed(QTreeWidgetItem* parentItem);
 
 private:
 	void addItem(QTreeWidgetItem* parentItem, const ArchiveTreeNode* node);

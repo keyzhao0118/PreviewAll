@@ -7,11 +7,6 @@ ArchiveTreeWidget::ArchiveTreeWidget(QWidget* parent /*= nullptr*/)
 	: QTreeWidget(parent)
 {
 	setHeaderLabels({ tr("Name"), tr("Compressed Size"), tr("Original Size"), tr("Type"),tr("Modified Time")});
-	header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-	header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-	header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-	header()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
-	header()->setSectionResizeMode(4, QHeaderView::ResizeToContents);
 	setSortingEnabled(true);
 	
 	verticalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
@@ -20,6 +15,7 @@ ArchiveTreeWidget::ArchiveTreeWidget(QWidget* parent /*= nullptr*/)
 	setAnimated(true);
 
 	connect(this, &QTreeWidget::itemExpanded, this, &ArchiveTreeWidget::onItemExpanded);
+	connect(this, &QTreeWidget::itemCollapsed, this, &ArchiveTreeWidget::onItemCollapsed);
 }
 
 void ArchiveTreeWidget::refresh(const ArchiveTreeNode* rootNode)
@@ -37,6 +33,8 @@ void ArchiveTreeWidget::refresh(const ArchiveTreeNode* rootNode)
 	// 添加顶层项的子项，以便正确显示扩展箭头
 	for (int i = 0; i < rootItem->childCount(); ++i)
 		loadChildItems(rootItem->child(i));
+
+	resizeColumnToContents(0);
 }
 
 void ArchiveTreeWidget::onItemExpanded(QTreeWidgetItem* parentItem)
@@ -46,6 +44,13 @@ void ArchiveTreeWidget::onItemExpanded(QTreeWidgetItem* parentItem)
 
 	for (int i = 0; i < parentItem->childCount(); ++i)
 		loadChildItems(parentItem->child(i));
+
+	resizeColumnToContents(0);
+}
+
+void ArchiveTreeWidget::onItemCollapsed(QTreeWidgetItem* parentItem)
+{
+	resizeColumnToContents(0);
 }
 
 void ArchiveTreeWidget::addItem(QTreeWidgetItem* parentItem, const ArchiveTreeNode* node)

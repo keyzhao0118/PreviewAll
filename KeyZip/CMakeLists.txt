@@ -22,6 +22,9 @@ add_executable(KeyZip WIN32
 
 	archiveparser.h
 	archiveparser.cpp
+	archiveextractor.h
+	archiveextractor.cpp
+
 	archivetreewidget.h
 	archivetreewidget.cpp
 	archivetree.h
@@ -29,9 +32,12 @@ add_executable(KeyZip WIN32
 	
 	instreamwrapper.h
 	instreamwrapper.cpp
+	outstreamwrapper.h
+	outstreamwrapper.cpp
 	archiveopencallback.h
 	archiveopencallback.cpp
-
+	archiveextractcallback.cpp
+	archiveextractcallback.h
 )
 
 target_link_libraries(KeyZip

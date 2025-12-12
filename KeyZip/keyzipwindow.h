@@ -5,6 +5,7 @@
 
 class ArchiveTreeWidget;
 class ArchiveParser;
+class ArchiveExtractor;
 class KeyCardWidget;
 class QLabel;
 class QStackedLayout;
@@ -21,9 +22,11 @@ private:
 	void initMenuAction();
 	void initCentralWidget();
 	void initStatusBar();
-	void initArchiveParser();
-
+	
 	void clearTreeInfo();
+
+	void initArchiveParser();
+	void initArchiveExtractor();
 
 private slots:
 	void onOpenTriggered();
@@ -40,8 +43,8 @@ private slots:
 	void onRequirePassword(bool& bCancel, QString& password);
 	void onUpdateProgress(quint64 completed, quint64 total);
 	void onEntryFound();
-	void onParsingFailed();
-	void onParsingSucceed();
+	void onParseFailed();
+	void onParseSucceed();
 
 private:
 	QAction* m_actOpen = nullptr;
@@ -60,8 +63,9 @@ private:
 	KeyCardWidget* m_previewPanel = nullptr;
 	QLabel* m_archiveInfoLab = nullptr;
 
-	QSharedPointer<ArchiveParser> m_archiveParser;
 	QSharedPointer<ArchiveTree> m_archiveTree;
+	QSharedPointer<ArchiveParser> m_archiveParser;
+	QSharedPointer<ArchiveExtractor> m_archiveExtractor;
 
 	QString m_archivePath;
 

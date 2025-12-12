@@ -36,8 +36,8 @@ signals:
 	void requirePassword(bool& bCancel, QString& password);
 	void updateProgress(quint64 completed, quint64 total);
 	void entryFound();
-	void parsingFailed();
-	void parsingSucceed();
+	void parseFailed();
+	void parseSucceed();
 
 
 protected:

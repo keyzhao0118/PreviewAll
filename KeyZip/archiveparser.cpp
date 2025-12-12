@@ -11,7 +11,6 @@
 
 extern "C" const GUID CLSID_CFormatZip;
 extern "C" const GUID CLSID_CFormat7z;
-
 typedef UINT32(WINAPI* CreateObjectFunc)(const GUID* clsID, const GUID* iid, void** outObject);
 
 ArchiveParser::ArchiveParser(QObject* parent /*= nullptr*/)
@@ -51,7 +50,31 @@ void ArchiveParser::run()
 	else
 	{
 		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Unsupported archive format: " + suffix);
-		emit parsingFailed();
+		emit parseFailed();
+		return;
+	}
+
+	QLibrary sevenZipLib("7zip.dll");
+	if (!sevenZipLib.load())
+	{
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to load 7zip.dll.");
+		emit parseFailed();
+		return;
+	}
+
+	CreateObjectFunc createObjectFunc = (CreateObjectFunc)sevenZipLib.resolve("CreateObject");
+	if (!createObjectFunc)
+	{
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to get CreateObject function.");
+		emit parseFailed();
+		return;
+	}
+
+	CMyComPtr<IInArchive> archive;
+	if (createObjectFunc(&clsid, &IID_IInArchive, (void**)&archive) != S_OK)
+	{
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to create 7z archive handler.");
+		emit parseFailed();
 		return;
 	}
 
@@ -60,37 +83,13 @@ void ArchiveParser::run()
 	if (!inStreamSpec->isOpen())
 	{
 		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to open archive file: " + m_archivePath);
-		emit parsingFailed();
+		emit parseFailed();
 		return;
 	}
 
 	ArchiveOpenCallBack* openCallBackSpec = new ArchiveOpenCallBack();
 	CMyComPtr<IArchiveOpenCallback> openCallBack(openCallBackSpec);
 	connect(openCallBackSpec, &ArchiveOpenCallBack::requirePassword, this, &ArchiveParser::requirePassword, Qt::DirectConnection);
-
-	QLibrary sevenZipLib("7zip.dll");
-	if (!sevenZipLib.load())
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to load 7zip.dll.");
-		emit parsingFailed();
-		return;
-	}
-
-	CreateObjectFunc createObjectFunc = (CreateObjectFunc)sevenZipLib.resolve("CreateObject");
-	if (!createObjectFunc)
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to get CreateObject function.");
-		emit parsingFailed();
-		return;
-	}
-
-	CMyComPtr<IInArchive> archive;
-	if (createObjectFunc(&clsid, &IID_IInArchive, (void**)&archive) != S_OK)
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to create 7z archive handler.");
-		emit parsingFailed();
-		return;
-	}
 
 	HRESULT hr = archive->Open(inStream, nullptr, openCallBack);
 	if (hr == E_ABORT)
@@ -102,7 +101,7 @@ void ArchiveParser::run()
 	if (hr != S_OK)
 	{
 		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to open archive. HRESULT: " + QString::number(hr, 16));
-		emit parsingFailed();
+		emit parseFailed();
 		return;
 	}
 
@@ -187,7 +186,7 @@ void ArchiveParser::run()
 		m_entryCache.clear();
 	}
 
-	emit parsingSucceed();
+	emit parseSucceed();
 	CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Parsing completed in " + QString::number(elapsedTimer.elapsed()) + " ms.");
 }
 

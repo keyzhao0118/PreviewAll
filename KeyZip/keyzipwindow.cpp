@@ -1,8 +1,8 @@
 ﻿#include "keyzipwindow.h"
 #include "archivetreewidget.h"
 #include "keycardwidget.h"
-#include "keyslideswitch.h"
 #include "archiveparser.h"
+#include "archiveextractor.h"
 #include "commonhelper.h"
 #include <QLayout>
 #include <QStackedLayout>
@@ -141,16 +141,6 @@ void KeyZipWindow::initStatusBar()
 	statusBar()->addPermanentWidget(m_archiveInfoLab);
 }
 
-void KeyZipWindow::initArchiveParser()
-{
-	m_archiveParser.reset(new ArchiveParser());
-	connect(m_archiveParser.data(), &ArchiveParser::requirePassword, this, &KeyZipWindow::onRequirePassword, Qt::BlockingQueuedConnection);
-	connect(m_archiveParser.data(), &ArchiveParser::updateProgress, this, &KeyZipWindow::onUpdateProgress, Qt::BlockingQueuedConnection);
-	connect(m_archiveParser.data(), &ArchiveParser::entryFound, this, &KeyZipWindow::onEntryFound, Qt::DirectConnection);
-	connect(m_archiveParser.data(), &ArchiveParser::parsingFailed, this, &KeyZipWindow::onParsingFailed);
-	connect(m_archiveParser.data(), &ArchiveParser::parsingSucceed, this, &KeyZipWindow::onParsingSucceed);
-}
-
 void KeyZipWindow::clearTreeInfo()
 {
 	if (m_treeWidget)
@@ -166,17 +156,32 @@ void KeyZipWindow::clearTreeInfo()
 	setWindowTitle("KeyZip");
 }
 
+void KeyZipWindow::initArchiveParser()
+{
+	m_archiveParser.reset(new ArchiveParser());
+	connect(m_archiveParser.data(), &ArchiveParser::requirePassword, this, &KeyZipWindow::onRequirePassword, Qt::BlockingQueuedConnection);
+	connect(m_archiveParser.data(), &ArchiveParser::updateProgress, this, &KeyZipWindow::onUpdateProgress, Qt::BlockingQueuedConnection);
+	connect(m_archiveParser.data(), &ArchiveParser::entryFound, this, &KeyZipWindow::onEntryFound, Qt::DirectConnection);
+	connect(m_archiveParser.data(), &ArchiveParser::parseFailed, this, &KeyZipWindow::onParseFailed);
+	connect(m_archiveParser.data(), &ArchiveParser::parseSucceed, this, &KeyZipWindow::onParseSucceed);
+}
+
+void KeyZipWindow::initArchiveExtractor()
+{
+	m_archiveExtractor.reset(new ArchiveExtractor());
+
+}
+
 void KeyZipWindow::onOpenTriggered()
 {
-	initArchiveParser();
-
 	const QString filePath = QFileDialog::getOpenFileName(this, tr("Open Archive"), QString(), tr("Archives (*.zip *.7z *.rar);;All Files (*.*)"));
 	if (filePath.isEmpty())
 		return;
 
 	clearTreeInfo();
-	m_centralStackedLayout->setCurrentIndex(1);
 	m_archivePath = filePath;
+	m_centralStackedLayout->setCurrentIndex(1);
+	initArchiveParser();
 	m_archiveParser->parseArchive(m_archivePath);
 }
 
@@ -190,6 +195,16 @@ void KeyZipWindow::onExtractTriggered()
 	if (m_archivePath.isEmpty())
 		return;
 
+	const QString destDir = QFileDialog::getExistingDirectory(this, tr("Select Extraction Directory"), QString());
+	if (destDir.isEmpty())
+		return;
+
+	if (QMessageBox::question(this, tr("Confirm Extraction"), tr("Extract archive to:\n%1").arg(destDir),
+		QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
+		return;
+
+	initArchiveExtractor();
+	m_archiveExtractor->extractArchive(m_archivePath, destDir);
 }
 
 void KeyZipWindow::onLocationTriggered()
@@ -262,7 +277,7 @@ void KeyZipWindow::onEntryFound()
 		m_archiveTree->addEntry(m_archiveParser->getEntryCache());
 }
 
-void KeyZipWindow::onParsingFailed()
+void KeyZipWindow::onParseFailed()
 {
 	QMessageBox::critical(this, "", tr("Parsing Failed"));
 	clearTreeInfo();
@@ -270,7 +285,7 @@ void KeyZipWindow::onParsingFailed()
 		m_centralStackedLayout->setCurrentIndex(0);
 }
 
-void KeyZipWindow::onParsingSucceed()
+void KeyZipWindow::onParseSucceed()
 {
 	if (m_archiveInfoLab && m_treeWidget && m_archiveTree)
 	{

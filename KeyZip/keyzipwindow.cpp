@@ -168,6 +168,7 @@ void KeyZipWindow::initArchiveExtractor()
 {
 	m_archiveExtractor.reset(new ArchiveExtractor());
 
+
 }
 
 void KeyZipWindow::onOpenTriggered()

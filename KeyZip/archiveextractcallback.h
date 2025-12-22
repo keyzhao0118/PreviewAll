@@ -15,7 +15,7 @@ class ArchiveExtractCallBack
 	Z7_COM_UNKNOWN_IMP_2(IArchiveExtractCallback, ICryptoGetTextPassword)
 
 public:
-	void Init(IInArchive* archive, const QString& destDirPath);
+	void init(IInArchive* archive, const QString& destDirPath);
 
 	// IArchiveExtractCallback
 	STDMETHOD(SetTotal)(const UInt64 size) override;

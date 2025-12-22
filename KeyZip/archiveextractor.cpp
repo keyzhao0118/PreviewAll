@@ -101,7 +101,7 @@ void ArchiveExtractor::run()
 
 	ArchiveExtractCallBack* extractCallBackSpec = new ArchiveExtractCallBack();
 	CMyComPtr<IArchiveExtractCallback> extractCallBack(extractCallBackSpec);
-	extractCallBackSpec->Init(archive, m_destDirPath);
+	extractCallBackSpec->init(archive, m_destDirPath);
 	HRESULT hrExtract = archive->Extract(nullptr, static_cast<UInt32>(-1), false, extractCallBack);
 	if (hrExtract != S_OK)
 	{

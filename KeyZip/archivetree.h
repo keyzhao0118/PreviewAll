@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <QDateTime>
-#include "archiveparser.h"
+#include <QObject>
 
 class ArchiveTreeNode
 {
@@ -25,22 +25,21 @@ public:
 };
 Q_DECLARE_METATYPE(const ArchiveTreeNode*)
 
+class ArchiveParser;
 class ArchiveTree
 {
 public:
 	ArchiveTree();
 	~ArchiveTree();
 
-	void addEntry(const QVector<ArchiveEntry>& entryCache);
 	void addEntry(const QString& path, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime);
 
 	const ArchiveTreeNode* getRootNode() const;
 	quint64 getFileCount() const;
 	quint64 getFolderCount() const;
 
-	void clear();
-
-
 private:
 	ArchiveTreeNode* m_rootNode = nullptr;
+
+	friend class ArchiveParser;// 友元声明
 };

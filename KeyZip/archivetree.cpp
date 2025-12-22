@@ -40,14 +40,6 @@ ArchiveTree::~ArchiveTree()
 	m_rootNode = nullptr;
 }
 
-void ArchiveTree::addEntry(const QVector<ArchiveEntry>& entryCache)
-{
-	for (const ArchiveEntry& entry : entryCache)
-	{
-		addEntry(entry.m_path, entry.m_bIsDir, entry.m_compressedSize, entry.m_originalSize, entry.m_mtime);
-	}
-}
-
 void ArchiveTree::addEntry(const QString& path, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime)
 {
 	if (path.isEmpty())
@@ -129,11 +121,4 @@ quint64 ArchiveTree::getFolderCount() const
 	queryFolderCount(m_rootNode, folderCount);
 
 	return folderCount;
-}
-
-void ArchiveTree::clear()
-{
-	if (m_rootNode)
-		delete m_rootNode;
-	m_rootNode = new ArchiveTreeNode();
 }

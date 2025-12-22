@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <QMainWindow>
-#include "archivetree.h"
 
 class ArchiveTreeWidget;
 class ArchiveParser;
@@ -23,7 +22,7 @@ private:
 	void initCentralWidget();
 	void initStatusBar();
 	
-	void clearTreeInfo();
+	void clearOld();
 
 	void initArchiveParser();
 	void initArchiveExtractor();
@@ -42,7 +41,6 @@ private slots:
 
 	void onRequirePassword(bool& bCancel, QString& password);
 	void onUpdateProgress(quint64 completed, quint64 total);
-	void onEntryFound();
 	void onParseFailed();
 	void onParseSucceed();
 
@@ -63,7 +61,6 @@ private:
 	KeyCardWidget* m_previewPanel = nullptr;
 	QLabel* m_archiveInfoLab = nullptr;
 
-	QSharedPointer<ArchiveTree> m_archiveTree;
 	QSharedPointer<ArchiveParser> m_archiveParser;
 	QSharedPointer<ArchiveExtractor> m_archiveExtractor;
 

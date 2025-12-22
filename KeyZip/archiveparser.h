@@ -2,6 +2,7 @@
 
 #include <QThread>
 #include <QDateTime>
+#include <QSharedPointer>
 
 struct ArchiveEntry
 {
@@ -20,6 +21,9 @@ struct ArchiveEntry
 	QDateTime m_mtime;
 };
 
+class ArchiveTree;
+class ArchiveTreeNode;
+
 class ArchiveParser : public QThread
 {
 	Q_OBJECT
@@ -30,15 +34,15 @@ public:
 
 	void parseArchive(const QString& archivePath);
 
-	const QVector<ArchiveEntry>& getEntryCache() const;
+	const ArchiveTreeNode* getRootNode() const;
+	quint64 getFileCount() const;
+	quint64 getFolderCount() const;
 
 signals:
 	void requirePassword(bool& bCancel, QString& password);
 	void updateProgress(quint64 completed, quint64 total);
-	void entryFound();
 	void parseFailed();
 	void parseSucceed();
-
 
 protected:
 	void run() override;
@@ -47,6 +51,6 @@ private:
 	QString m_archivePath;
 	QString m_password;
 
-	QVector<ArchiveEntry> m_entryCache;
+	QSharedPointer<ArchiveTree> m_archiveTree;
 
 };

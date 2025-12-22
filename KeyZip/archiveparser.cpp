@@ -1,4 +1,5 @@
 ﻿#include "archiveparser.h"
+#include "archivetree.h"
 #include "commonhelper.h"
 #include "instreamwrapper.h"
 #include "archiveopencallback.h"
@@ -15,6 +16,7 @@ typedef UINT32(WINAPI* CreateObjectFunc)(const GUID* clsID, const GUID* iid, voi
 
 ArchiveParser::ArchiveParser(QObject* parent /*= nullptr*/)
 	: QThread(parent)
+	, m_archiveTree(new ArchiveTree())
 {
 }
 
@@ -31,9 +33,25 @@ void ArchiveParser::parseArchive(const QString& archivePath)
 	this->start();
 }
 
-const QVector<ArchiveEntry>& ArchiveParser::getEntryCache() const
+const ArchiveTreeNode* ArchiveParser::getRootNode() const
 {
-	return m_entryCache;
+	if (m_archiveTree)
+		return m_archiveTree->getRootNode();
+	return nullptr;
+}
+
+quint64 ArchiveParser::getFileCount() const
+{
+	if (m_archiveTree)
+		return m_archiveTree->getFileCount();
+	return 0;
+}
+
+quint64 ArchiveParser::getFolderCount() const
+{
+	if (m_archiveTree)
+		return m_archiveTree->getFolderCount();
+	return 0;
 }
 
 void ArchiveParser::run()
@@ -165,25 +183,14 @@ void ArchiveParser::run()
 		quint64 packedSize = propPackSize.uhVal.QuadPart;
 		quint64 size = propSize.uhVal.QuadPart;
 		QDateTime mtime = CommonHelper::fileTimeToDateTime(propMTime.filetime);
-		m_entryCache.append({ path, bIsDir, packedSize, size, mtime });
+		if (m_archiveTree)
+			m_archiveTree->addEntry(path, bIsDir, packedSize, size, mtime);
 
 		PropVariantClear(&propPath);
 		PropVariantClear(&propIsDir);
 		PropVariantClear(&propPackSize);
 		PropVariantClear(&propSize);
 		PropVariantClear(&propMTime);
-
-		if (m_entryCache.size() >= 1)
-		{
-			emit entryFound();
-			m_entryCache.clear();
-		}
-	}
-
-	if (!m_entryCache.isEmpty())
-	{
-		emit entryFound();
-		m_entryCache.clear();
 	}
 
 	emit parseSucceed();

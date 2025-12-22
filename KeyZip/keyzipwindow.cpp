@@ -21,7 +21,6 @@
 
 KeyZipWindow::KeyZipWindow(QWidget* parent /*= nullptr*/)
 	: QMainWindow(parent)
-	, m_archiveTree(QSharedPointer<ArchiveTree>::create())
 {
 	initMenuAction();
 	initCentralWidget();
@@ -141,19 +140,19 @@ void KeyZipWindow::initStatusBar()
 	statusBar()->addPermanentWidget(m_archiveInfoLab);
 }
 
-void KeyZipWindow::clearTreeInfo()
+void KeyZipWindow::clearOld()
 {
+	setWindowTitle("KeyZip");
 	if (m_treeWidget)
 		m_treeWidget->clear();
 	if (m_previewPanel)
 		;//
 	if (m_archiveInfoLab)
 		m_archiveInfoLab->clear();
-	if (m_archiveTree)
-		m_archiveTree->clear();
 
 	m_archivePath.clear();
-	setWindowTitle("KeyZip");
+	
+	m_archiveParser.reset(nullptr);
 }
 
 void KeyZipWindow::initArchiveParser()
@@ -161,7 +160,6 @@ void KeyZipWindow::initArchiveParser()
 	m_archiveParser.reset(new ArchiveParser());
 	connect(m_archiveParser.data(), &ArchiveParser::requirePassword, this, &KeyZipWindow::onRequirePassword, Qt::BlockingQueuedConnection);
 	connect(m_archiveParser.data(), &ArchiveParser::updateProgress, this, &KeyZipWindow::onUpdateProgress, Qt::BlockingQueuedConnection);
-	connect(m_archiveParser.data(), &ArchiveParser::entryFound, this, &KeyZipWindow::onEntryFound, Qt::DirectConnection);
 	connect(m_archiveParser.data(), &ArchiveParser::parseFailed, this, &KeyZipWindow::onParseFailed);
 	connect(m_archiveParser.data(), &ArchiveParser::parseSucceed, this, &KeyZipWindow::onParseSucceed);
 }
@@ -178,9 +176,10 @@ void KeyZipWindow::onOpenTriggered()
 	if (filePath.isEmpty())
 		return;
 
-	clearTreeInfo();
+	clearOld();
 	m_archivePath = filePath;
 	m_centralStackedLayout->setCurrentIndex(1);
+
 	initArchiveParser();
 	m_archiveParser->parseArchive(m_archivePath);
 }
@@ -217,9 +216,8 @@ void KeyZipWindow::onLocationTriggered()
 }
 
 void KeyZipWindow::onCloseTriggered()
-{
-	m_archiveParser.reset(nullptr);
-	clearTreeInfo();
+{	
+	clearOld();
 	m_centralStackedLayout->setCurrentIndex(0);
 }
 
@@ -271,29 +269,31 @@ void KeyZipWindow::onUpdateProgress(quint64 completed, quint64 total)
 		m_archiveInfoLab->setText(tr("Parsing Archive: %1 / %2").arg(completed).arg(total));
 }
 
-void KeyZipWindow::onEntryFound()
-{
-	if (m_archiveTree && m_archiveParser)
-		m_archiveTree->addEntry(m_archiveParser->getEntryCache());
-}
-
 void KeyZipWindow::onParseFailed()
 {
+	clearOld();
+
 	QMessageBox::critical(this, "", tr("Parsing Failed"));
-	clearTreeInfo();
+
 	if (m_centralStackedLayout)
 		m_centralStackedLayout->setCurrentIndex(0);
 }
 
 void KeyZipWindow::onParseSucceed()
 {
-	if (m_archiveInfoLab && m_treeWidget && m_archiveTree)
+	setWindowTitle(m_archivePath + " - KeyZip");
+	if (!m_archiveParser)
+		return;
+
+	if (m_archiveInfoLab)
 	{
-		setWindowTitle(m_archivePath + " - KeyZip");
 		m_archiveInfoLab->setText(tr("File: %1, Folder: %2, Archive file size: %3")
-			.arg(m_archiveTree->getFileCount())
-			.arg(m_archiveTree->getFolderCount())
+			.arg(m_archiveParser->getFileCount())
+			.arg(m_archiveParser->getFolderCount())
 			.arg(CommonHelper::formatFileSize(QFileInfo(m_archivePath).size())));
-		m_treeWidget->refresh(m_archiveTree->getRootNode());
+	}
+	if (m_treeWidget)
+	{
+		m_treeWidget->refresh(m_archiveParser->getRootNode());
 	}
 }

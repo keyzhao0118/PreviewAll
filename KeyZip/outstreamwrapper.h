@@ -14,6 +14,8 @@ public:
 	OutStreamWrapper(const QString& filePath);
 	~OutStreamWrapper();
 
+	bool isOpen() const;
+
 	// ISequentialOutStream
 	STDMETHOD(Write)(const void* data, UInt32 size, UInt32* processedSize) override;
 

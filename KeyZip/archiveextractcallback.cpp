@@ -2,6 +2,8 @@
 #include "outstreamwrapper.h"
 #include "commonhelper.h"
 #include <QDir>
+#include <QFileInfo>
+#include <QDebug>
 
 void ArchiveExtractCallBack::init(IInArchive* archive, const QString& destDirPath)
 {
@@ -56,11 +58,22 @@ STDMETHODIMP ArchiveExtractCallBack::GetStream(UInt32 index, ISequentialOutStrea
 	QString fullPath = QDir::cleanPath(m_destDirPath + QDir::separator() + path);
 	if (bIsDir)
 	{
-		QDir().mkpath(fullPath);
-		return S_OK;
+		if(!QDir().mkpath(fullPath))
+			return E_FAIL;
+		else
+			return S_OK;
 	}
 
+	const QString parentDir = QFileInfo(fullPath).absolutePath();
+	if (!QDir().mkpath(parentDir))
+		return E_FAIL;
+
 	OutStreamWrapper* outStreamSpec = new OutStreamWrapper(fullPath);
+	CMyComPtr<ISequentialOutStream> sequentialOutStream(outStreamSpec);
+	if (!outStreamSpec->isOpen())
+		return E_FAIL;
+
+	*outStream = sequentialOutStream.Detach();
 	return S_OK;
 }
 

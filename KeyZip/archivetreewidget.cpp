@@ -59,22 +59,22 @@ void ArchiveTreeWidget::addItem(QTreeWidgetItem* parentItem, const ArchiveTreeNo
 		return;
 
 	auto* item = new QTreeWidgetItem(parentItem);
-	item->setText(0, node->m_name);
-	item->setIcon(0, CommonHelper::fileIconForName(node->m_name, node->m_bIsDir));
-	item->setText(1, node->m_bIsDir ? "" : CommonHelper::formatFileSize(node->m_compressedSize));
-	item->setText(2, node->m_bIsDir ? "" : CommonHelper::formatFileSize(node->m_originalSize));
-	item->setText(3, CommonHelper::fileTypeDisplayName(node->m_name, node->m_bIsDir));
-	item->setText(4, node->m_mtime.toString("yyyy/M/d h:mm"));
+	item->setText(COLUMN_NAME, node->m_name);
+	item->setIcon(COLUMN_NAME, CommonHelper::fileIconForName(node->m_name, node->m_bIsDir));
+	item->setText(COLUMN_COMPRESSED_SIZE, node->m_bIsDir ? "" : CommonHelper::formatFileSize(node->m_compressedSize));
+	item->setText(COLUMN_ORIGINAL_SIZE, node->m_bIsDir ? "" : CommonHelper::formatFileSize(node->m_originalSize));
+	item->setText(COLUMN_TYPE, CommonHelper::fileTypeDisplayName(node->m_name, node->m_bIsDir));
+	item->setText(COLUMN_MODIFIED_TIME, node->m_mtime.toString("yyyy/M/d h:mm"));
 
 	item->setTextAlignment(1, Qt::AlignRight);
 	item->setTextAlignment(2, Qt::AlignRight);
 
-	item->setData(0, Qt::UserRole, QVariant::fromValue<const ArchiveTreeNode*>(node));
-	item->setData(0, Qt::UserRole + 1, false);// 标记子项是否已添加，默认未添加
-	item->setData(1, Qt::UserRole, node->m_bIsDir ? 0 : node->m_compressedSize);
-	item->setData(2, Qt::UserRole, node->m_bIsDir ? 0 : node->m_originalSize);
-	item->setData(3, Qt::UserRole, node->m_bIsDir);
-	item->setData(4, Qt::UserRole, node->m_mtime);
+	item->setData(COLUMN_NAME, Qt::UserRole, QVariant::fromValue<const ArchiveTreeNode*>(node));
+	item->setData(COLUMN_NAME, Qt::UserRole + 1, false);// 标记子项是否已添加，默认未添加
+	item->setData(COLUMN_COMPRESSED_SIZE, Qt::UserRole, node->m_bIsDir ? 0 : node->m_compressedSize);
+	item->setData(COLUMN_ORIGINAL_SIZE, Qt::UserRole, node->m_bIsDir ? 0 : node->m_originalSize);
+	item->setData(COLUMN_TYPE, Qt::UserRole, node->m_bIsDir);
+	item->setData(COLUMN_MODIFIED_TIME, Qt::UserRole, node->m_mtime);
 
 	parentItem->addChild(item);
 }

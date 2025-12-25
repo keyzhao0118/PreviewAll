@@ -38,4 +38,10 @@ private:
 	CMyComPtr<IInArchive> m_archive;
 	CMyComPtr<ISequentialOutStream> m_outStream;
 	QString m_destDirPath;
+
+	// state for current item
+	UInt32 m_currentIndex = (UInt32)-1;
+	QString m_currentFullPath;
+	bool m_currentIsDir = false;
 };
+

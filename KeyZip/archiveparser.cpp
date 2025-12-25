@@ -150,33 +150,11 @@ void ArchiveParser::run()
 		PROPVARIANT propSize;		PropVariantInit(&propSize);
 		PROPVARIANT propMTime;		PropVariantInit(&propMTime);
 
-		HRESULT hrPath = archive->GetProperty(i, kpidPath, &propPath);
-		HRESULT hrIsDir = archive->GetProperty(i, kpidIsDir, &propIsDir);
-		HRESULT hrPackSize = archive->GetProperty(i, kpidPackSize, &propPackSize);
-		HRESULT hrSize = archive->GetProperty(i, kpidSize, &propSize);
-		HRESULT hrMTime = archive->GetProperty(i, kpidMTime, &propMTime);
-
-		if (FAILED(hrPath) || propPath.vt != VT_BSTR ||
-			FAILED(hrIsDir) || propIsDir.vt != VT_BOOL ||
-			FAILED(hrPackSize) || propPackSize.vt != VT_UI8 ||
-			FAILED(hrSize) || propSize.vt != VT_UI8 ||
-			FAILED(hrMTime) || propMTime.vt != VT_FILETIME)
-		{
-			CommonHelper::LogKeyZipDebugMsg("ArchiveParser: GetProperty failed at index " + QString::number(i)
-				+ " hrPath=0x" + QString::number(hrPath, 16)
-				+ " hrIsDir=0x" + QString::number(hrIsDir, 16)
-				+ " hrPackSize=0x" + QString::number(hrPackSize, 16)
-				+ " hrSize=0x" + QString::number(hrSize, 16)
-				+ " hrMTime=0x" + QString::number(hrMTime, 16));
-
-			PropVariantClear(&propPath);
-			PropVariantClear(&propIsDir);
-			PropVariantClear(&propPackSize);
-			PropVariantClear(&propSize);
-			PropVariantClear(&propMTime);
-
-			return;
-		}
+		archive->GetProperty(i, kpidPath, &propPath);
+		archive->GetProperty(i, kpidIsDir, &propIsDir);
+		archive->GetProperty(i, kpidPackSize, &propPackSize);
+		archive->GetProperty(i, kpidSize, &propSize);
+		archive->GetProperty(i, kpidMTime, &propMTime);
 
 		QString path = QString::fromWCharArray(propPath.bstrVal);
 		bool bIsDir = propIsDir.boolVal != VARIANT_FALSE;

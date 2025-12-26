@@ -22,7 +22,9 @@
 KeyZipWindow::KeyZipWindow(QWidget* parent /*= nullptr*/)
 	: QMainWindow(parent)
 {
-	initMenuAction();
+	initAction();
+	initMenu();
+	initToolBar();
 	initCentralWidget();
 	initStatusBar();
 	resize(900, 600);
@@ -32,21 +34,20 @@ KeyZipWindow::~KeyZipWindow()
 {
 }
 
-void KeyZipWindow::initMenuAction()
+void KeyZipWindow::initAction()
 {
-	// 文件、编辑、帮助菜单
-	QMenu* fileMenu = menuBar()->addMenu(tr("&File(F)"));
-	QMenu* editMenu = menuBar()->addMenu(tr("&Edit(E)"));
-	QMenu* viewMenu = menuBar()->addMenu(tr("&View(V)"));
-	QMenu* helpMenu = menuBar()->addMenu(tr("&Help(H)"));
-
 	// 文件动作
 	m_actOpen = new QAction(tr("Open Archive"), this);
 	m_actNew = new QAction(tr("New Archive"), this);
-	m_actExtract = new QAction(tr("Extract Archive"), this);
+	m_actExtractAll = new QAction(tr("Extract All"), this);
+	m_actExtractSelect = new QAction(tr("Extract Select"), this);
 	m_actLocation = new QAction(tr("Open Archive Location"));
 	m_actClose = new QAction(tr("Close Archive"), this);
 	m_actExit = new QAction(tr("Exit"), this);
+
+	// 编辑动作
+	m_actAdd = new QAction(tr("Add Files"), this);
+	m_actDelete = new QAction(tr("Delete Files"), this);
 
 	// 视图动作
 	m_actPreview = new QAction(tr("Preview Panel"), this);
@@ -58,37 +59,72 @@ void KeyZipWindow::initMenuAction()
 	// 设置快捷键
 	m_actOpen->setShortcut(QKeySequence::Open);
 	m_actNew->setShortcut(QKeySequence::New);
-	m_actExtract->setShortcut(QKeySequence("Ctrl+E"));
+	m_actExtractAll->setShortcut(QKeySequence("Ctrl+E"));
 	m_actClose->setShortcut(QKeySequence("Ctrl+W"));
 	m_actExit->setShortcut(QKeySequence("Ctrl+Q"));
 
-	// 添加到菜单
-	fileMenu->addAction(m_actOpen);
-	fileMenu->addAction(m_actNew);
-	fileMenu->addSeparator();
-	fileMenu->addAction(m_actExtract);
-	fileMenu->addAction(m_actLocation);
-	fileMenu->addAction(m_actClose);
-	fileMenu->addSeparator();
-	fileMenu->addAction(m_actExit);
-	viewMenu->addAction(m_actPreview);
-	helpMenu->addAction(m_actAbout);
-
 	// 初始化可用性
-	m_actExtract->setEnabled(false);
+	m_actExtractAll->setEnabled(false);
+	m_actExtractSelect->setEnabled(false);
 	m_actLocation->setEnabled(false);
 	m_actClose->setEnabled(false);
+	m_actAdd->setEnabled(false);
+	m_actDelete->setEnabled(false);
 	m_actPreview->setEnabled(false);
 
 	// 连接动作
 	connect(m_actOpen, &QAction::triggered, this, &KeyZipWindow::onOpenTriggered);
 	connect(m_actNew, &QAction::triggered, this, &KeyZipWindow::onNewTriggered);
-	connect(m_actExtract, &QAction::triggered, this, &KeyZipWindow::onExtractTriggered);
+	connect(m_actExtractAll, &QAction::triggered, this, &KeyZipWindow::onExtractAllTriggered);
+	connect(m_actExtractSelect, &QAction::triggered, this, &KeyZipWindow::onExtractSelectTriggered);
 	connect(m_actLocation, &QAction::triggered, this, &KeyZipWindow::onLocationTriggered);
 	connect(m_actClose, &QAction::triggered, this, &KeyZipWindow::onCloseTriggered);
 	connect(m_actExit, &QAction::triggered, this, &KeyZipWindow::onExitTriggered);
+
+	connect(m_actAdd, &QAction::triggered, this, &KeyZipWindow::onAddTriggered);
+	connect(m_actDelete, &QAction::triggered, this, &KeyZipWindow::onDeleteTriggered);
+
 	connect(m_actPreview, &QAction::toggled, this, &KeyZipWindow::onPreviewToggled);
 	connect(m_actAbout, &QAction::triggered, this, &KeyZipWindow::onAboutTriggered);
+}
+
+void KeyZipWindow::initMenu()
+{
+	// 文件、编辑、视图、帮助菜单
+	QMenu* fileMenu = menuBar()->addMenu(tr("&File(F)"));
+	QMenu* editMenu = menuBar()->addMenu(tr("&Edit(E)"));
+	QMenu* viewMenu = menuBar()->addMenu(tr("&View(V)"));
+	QMenu* helpMenu = menuBar()->addMenu(tr("&Help(H)"));
+
+	fileMenu->addAction(m_actOpen);
+	fileMenu->addAction(m_actNew);
+	fileMenu->addSeparator();
+	fileMenu->addAction(m_actExtractAll);
+	fileMenu->addAction(m_actExtractSelect);
+	fileMenu->addSeparator();
+	fileMenu->addAction(m_actLocation);
+	fileMenu->addAction(m_actClose);
+	fileMenu->addSeparator();
+	fileMenu->addAction(m_actExit);
+
+	editMenu->addAction(m_actAdd);
+	editMenu->addAction(m_actDelete);
+
+	viewMenu->addAction(m_actPreview);
+	helpMenu->addAction(m_actAbout);
+}
+
+void KeyZipWindow::initToolBar()
+{
+	m_toolBar = addToolBar(tr("Tool Bar"));
+	m_toolBar->addAction(m_actExtractAll);
+	m_toolBar->addAction(m_actExtractSelect);
+	m_toolBar->addSeparator();
+	m_toolBar->addAction(m_actAdd);
+	m_toolBar->addAction(m_actDelete);
+
+	m_toolBar->setVisible(false);
+	m_toolBar->setMovable(false);
 }
 
 void KeyZipWindow::initCentralWidget()
@@ -118,11 +154,16 @@ void KeyZipWindow::initCentralWidget()
 
 	m_treeWidget = new ArchiveTreeWidget(splitter);
 	m_treeWidget->setMinimumWidth(500);
+	connect(m_treeWidget, &QTreeWidget::itemSelectionChanged, this, [this]() {
+		const bool bHasSelection = !m_treeWidget->selectedItems().isEmpty();
+		m_actExtractSelect->setEnabled(bHasSelection);
+		m_actDelete->setEnabled(bHasSelection);
+	});
 
 	m_previewPanel = new KeyCardWidget(splitter);
 	m_previewPanel->setMinimumWidth(300);
 	m_previewPanel->setBackgroundColor(Qt::gray);
-	m_previewPanel->setVisible(false);
+	m_previewPanel->setVisible(false);//ToDo:使用配置文件控制
 
 	splitter->addWidget(m_treeWidget);
 	splitter->addWidget(m_previewPanel);
@@ -190,7 +231,7 @@ void KeyZipWindow::onNewTriggered()
 	QMessageBox::information(this, "", tr("Not Implemented Yet"));
 }
 
-void KeyZipWindow::onExtractTriggered()
+void KeyZipWindow::onExtractAllTriggered()
 {
 	if (m_archivePath.isEmpty())
 		return;
@@ -205,6 +246,11 @@ void KeyZipWindow::onExtractTriggered()
 
 	initArchiveExtractor();
 	m_archiveExtractor->extractArchive(m_archivePath, destDir);
+}
+
+void KeyZipWindow::onExtractSelectTriggered()
+{
+	QMessageBox::information(this, "", tr("Not Implemented Yet"));
 }
 
 void KeyZipWindow::onLocationTriggered()
@@ -227,6 +273,16 @@ void KeyZipWindow::onExitTriggered()
 	close();
 }
 
+void KeyZipWindow::onAddTriggered()
+{
+	QMessageBox::information(this, "", tr("Not Implemented Yet"));
+}
+
+void KeyZipWindow::onDeleteTriggered()
+{
+	QMessageBox::information(this, "", tr("Not Implemented Yet"));
+}
+
 void KeyZipWindow::onPreviewToggled(bool checked)
 {
 	if (m_previewPanel)
@@ -242,16 +298,22 @@ void KeyZipWindow::onCentralStackedChanged(int index)
 {
 	if (index == 0)// 首页
 	{
-		m_actExtract->setEnabled(false);
+		m_toolBar->setVisible(false);
+		m_actExtractAll->setEnabled(false);
+		m_actExtractSelect->setEnabled(false);
 		m_actLocation->setEnabled(false);
 		m_actClose->setEnabled(false);
+		m_actAdd->setEnabled(false);
+		m_actDelete->setEnabled(false);
 		m_actPreview->setEnabled(false);
 	}
-	else if (index == 1)// 归档浏览页
+	else if (index == 1)
 	{
-		m_actExtract->setEnabled(true);
+		m_toolBar->setVisible(true);
+		m_actExtractAll->setEnabled(true);
 		m_actLocation->setEnabled(true);
 		m_actClose->setEnabled(true);
+		m_actAdd->setEnabled(true);
 		m_actPreview->setEnabled(true);
 	}
 }
@@ -283,18 +345,11 @@ void KeyZipWindow::onParseFailed()
 void KeyZipWindow::onParseSucceed()
 {
 	setWindowTitle(m_archivePath + " - KeyZip");
-	if (!m_archiveParser)
-		return;
 
-	if (m_archiveInfoLab)
-	{
-		m_archiveInfoLab->setText(tr("File: %1, Folder: %2, Archive file size: %3")
-			.arg(m_archiveParser->getFileCount())
-			.arg(m_archiveParser->getFolderCount())
-			.arg(CommonHelper::formatFileSize(QFileInfo(m_archivePath).size())));
-	}
-	if (m_treeWidget)
-	{
-		m_treeWidget->refresh(m_archiveParser->getRootNode());
-	}
+	m_archiveInfoLab->setText(tr("File: %1, Folder: %2, Archive file size: %3")
+		.arg(m_archiveParser->getFileCount())
+		.arg(m_archiveParser->getFolderCount())
+		.arg(CommonHelper::formatFileSize(QFileInfo(m_archivePath).size())));
+
+	m_treeWidget->refresh(m_archiveParser->getRootNode());
 }

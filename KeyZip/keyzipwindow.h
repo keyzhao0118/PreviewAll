@@ -18,7 +18,9 @@ public:
 	~KeyZipWindow();
 
 private:
-	void initMenuAction();
+	void initAction();
+	void initMenu();
+	void initToolBar();
 	void initCentralWidget();
 	void initStatusBar();
 	
@@ -30,10 +32,13 @@ private:
 private slots:
 	void onOpenTriggered();
 	void onNewTriggered();
-	void onExtractTriggered();
+	void onExtractAllTriggered();
+	void onExtractSelectTriggered();
 	void onLocationTriggered();
 	void onCloseTriggered();
 	void onExitTriggered();
+	void onAddTriggered();
+	void onDeleteTriggered();
 	void onPreviewToggled(bool checked);
 	void onAboutTriggered();
 
@@ -47,14 +52,19 @@ private slots:
 private:
 	QAction* m_actOpen = nullptr;
 	QAction* m_actNew = nullptr;
-	QAction* m_actExtract = nullptr;
+	QAction* m_actExtractAll = nullptr;
+	QAction* m_actExtractSelect = nullptr;
 	QAction* m_actLocation = nullptr;
 	QAction* m_actClose = nullptr;
 	QAction* m_actExit = nullptr;
 
-	QAction* m_actPreview = nullptr;
+	QAction* m_actAdd = nullptr;
+	QAction* m_actDelete = nullptr;
 
+	QAction* m_actPreview = nullptr;
 	QAction* m_actAbout = nullptr;
+
+	QToolBar* m_toolBar = nullptr;
 
 	QStackedLayout* m_centralStackedLayout = nullptr;
 	ArchiveTreeWidget* m_treeWidget = nullptr;

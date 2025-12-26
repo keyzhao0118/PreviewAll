@@ -12,7 +12,9 @@ find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(7zip CONFIG REQUIRED)
 
 add_executable(KeyZip WIN32
-	guiddef.cpp	
+	resources/resource.qrc
+
+	guiddef.cpp
 	main.cpp
 	keyzipwindow.h
 	keyzipwindow.cpp

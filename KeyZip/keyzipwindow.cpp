@@ -27,6 +27,8 @@ KeyZipWindow::KeyZipWindow(QWidget* parent /*= nullptr*/)
 	initToolBar();
 	initCentralWidget();
 	initStatusBar();
+	setContextMenuPolicy(Qt::NoContextMenu);
+	setWindowIcon(QIcon(":/icons/extract_all.svg"));
 	resize(900, 600);
 }
 
@@ -117,6 +119,7 @@ void KeyZipWindow::initMenu()
 void KeyZipWindow::initToolBar()
 {
 	m_toolBar = addToolBar(tr("Tool Bar"));
+	m_toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 	m_toolBar->addAction(m_actExtractAll);
 	m_toolBar->addAction(m_actExtractSelect);
 	m_toolBar->addSeparator();
@@ -125,6 +128,13 @@ void KeyZipWindow::initToolBar()
 
 	m_toolBar->setVisible(false);
 	m_toolBar->setMovable(false);
+
+	m_actExtractAll->setIcon(QIcon(":/icons/extract_all.svg"));
+	m_actExtractSelect->setIcon(QIcon(":/icons/extract_select.svg"));
+	m_actAdd->setIcon(QIcon(":/icons/add.svg"));
+	m_actDelete->setIcon(QIcon(":/icons/delete.svg"));
+
+	m_toolBar->setIconSize(QSize(48, 48));
 }
 
 void KeyZipWindow::initCentralWidget()

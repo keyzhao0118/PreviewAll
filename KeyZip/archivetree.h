@@ -23,7 +23,6 @@ public:
 	ArchiveTreeNode* m_parentNode = nullptr;
 	QHash<QString, ArchiveTreeNode*> m_childNodes;
 };
-Q_DECLARE_METATYPE(const ArchiveTreeNode*)
 
 class ArchiveParser;
 class ArchiveTree

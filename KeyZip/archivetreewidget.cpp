@@ -1,4 +1,5 @@
 ﻿#include "archivetreewidget.h"
+#include "archivetreewidgetitem.h"
 #include "commonhelper.h"
 #include <QScrollBar>
 #include <QHeaderView>
@@ -15,7 +16,6 @@ ArchiveTreeWidget::ArchiveTreeWidget(QWidget* parent /*= nullptr*/)
 	setAnimated(true);
 
 	connect(this, &QTreeWidget::itemExpanded, this, &ArchiveTreeWidget::onItemExpanded);
-	connect(this, &QTreeWidget::itemCollapsed, this, &ArchiveTreeWidget::onItemCollapsed);
 }
 
 void ArchiveTreeWidget::refresh(const ArchiveTreeNode* rootNode)
@@ -33,8 +33,6 @@ void ArchiveTreeWidget::refresh(const ArchiveTreeNode* rootNode)
 	// 添加顶层项的子项，以便正确显示扩展箭头
 	for (int i = 0; i < rootItem->childCount(); ++i)
 		loadChildItems(rootItem->child(i));
-
-	resizeColumnToContents(0);
 }
 
 void ArchiveTreeWidget::onItemExpanded(QTreeWidgetItem* parentItem)
@@ -44,13 +42,6 @@ void ArchiveTreeWidget::onItemExpanded(QTreeWidgetItem* parentItem)
 
 	for (int i = 0; i < parentItem->childCount(); ++i)
 		loadChildItems(parentItem->child(i));
-
-	resizeColumnToContents(0);
-}
-
-void ArchiveTreeWidget::onItemCollapsed(QTreeWidgetItem* parentItem)
-{
-	resizeColumnToContents(0);
 }
 
 void ArchiveTreeWidget::addItem(QTreeWidgetItem* parentItem, const ArchiveTreeNode* node)
@@ -58,23 +49,23 @@ void ArchiveTreeWidget::addItem(QTreeWidgetItem* parentItem, const ArchiveTreeNo
 	if (!parentItem || !node)
 		return;
 
-	auto* item = new QTreeWidgetItem(parentItem);
-	item->setText(COLUMN_NAME, node->m_name);
-	item->setIcon(COLUMN_NAME, CommonHelper::fileIconForName(node->m_name, node->m_bIsDir));
-	item->setText(COLUMN_COMPRESSED_SIZE, node->m_bIsDir ? "" : CommonHelper::formatFileSize(node->m_compressedSize));
-	item->setText(COLUMN_ORIGINAL_SIZE, node->m_bIsDir ? "" : CommonHelper::formatFileSize(node->m_originalSize));
-	item->setText(COLUMN_TYPE, CommonHelper::fileTypeDisplayName(node->m_name, node->m_bIsDir));
-	item->setText(COLUMN_MODIFIED_TIME, node->m_mtime.toString("yyyy/M/d h:mm"));
+	auto* item = new ArchiveTreeWidgetItem(parentItem);
+	item->setText(ArchiveTreeWidgetItem::Column_Name, node->m_name);
+	item->setIcon(ArchiveTreeWidgetItem::Column_Name, CommonHelper::fileIconForName(node->m_name, node->m_bIsDir));
+	item->setText(ArchiveTreeWidgetItem::Column_CompressedSize, node->m_bIsDir ? "" : CommonHelper::formatFileSize(node->m_compressedSize));
+	item->setText(ArchiveTreeWidgetItem::Column_OriginalSize, node->m_bIsDir ? "" : CommonHelper::formatFileSize(node->m_originalSize));
+	item->setText(ArchiveTreeWidgetItem::Column_Type, CommonHelper::fileTypeDisplayName(node->m_name, node->m_bIsDir));
+	item->setText(ArchiveTreeWidgetItem::Column_ModifiedTime, node->m_mtime.toString("yyyy/M/d h:mm"));
 
 	item->setTextAlignment(1, Qt::AlignRight);
 	item->setTextAlignment(2, Qt::AlignRight);
-
-	item->setData(COLUMN_NAME, Qt::UserRole, QVariant::fromValue<const ArchiveTreeNode*>(node));
-	item->setData(COLUMN_NAME, Qt::UserRole + 1, false);// 标记子项是否已添加，默认未添加
-	item->setData(COLUMN_COMPRESSED_SIZE, Qt::UserRole, node->m_bIsDir ? 0 : node->m_compressedSize);
-	item->setData(COLUMN_ORIGINAL_SIZE, Qt::UserRole, node->m_bIsDir ? 0 : node->m_originalSize);
-	item->setData(COLUMN_TYPE, Qt::UserRole, node->m_bIsDir);
-	item->setData(COLUMN_MODIFIED_TIME, Qt::UserRole, node->m_mtime);
+	
+	item->setData(ArchiveTreeWidgetItem::Column_Name, Qt::UserRole, QVariant::fromValue<quintptr>(reinterpret_cast<quintptr>(node)));
+	item->setData(ArchiveTreeWidgetItem::Column_Name, Qt::UserRole + 1, false);// 标记子项是否已添加，默认未添加
+	item->setData(ArchiveTreeWidgetItem::Column_CompressedSize, Qt::UserRole, node->m_bIsDir ? 0 : node->m_compressedSize);
+	item->setData(ArchiveTreeWidgetItem::Column_OriginalSize, Qt::UserRole, node->m_bIsDir ? 0 : node->m_originalSize);
+	item->setData(ArchiveTreeWidgetItem::Column_Type, Qt::UserRole, node->m_bIsDir);
+	item->setData(ArchiveTreeWidgetItem::Column_ModifiedTime, Qt::UserRole, node->m_mtime);
 
 	parentItem->addChild(item);
 }
@@ -88,8 +79,9 @@ void ArchiveTreeWidget::loadChildItems(QTreeWidgetItem* item)
 	if (bChildItemAdded)
 		return;
 
-	auto nodeVariant = item->data(0, Qt::UserRole);
-	auto node = nodeVariant.value<const ArchiveTreeNode*>();
+	QVariant nodeVariant = item->data(0, Qt::UserRole);
+	quintptr ptr = nodeVariant.value<quintptr>();
+	const ArchiveTreeNode* node = reinterpret_cast<const ArchiveTreeNode*>(ptr);
 	if (!node)
 		return;
 

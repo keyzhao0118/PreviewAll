@@ -4,7 +4,6 @@
 
 int main(int argc, char* argv[])
 {
-	qRegisterMetaType<const ArchiveTreeNode*>("const ArchiveTreeNode*");
 	QApplication app(argc, argv);
 
 	KeyZipWindow w;

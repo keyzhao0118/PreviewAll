@@ -15,17 +15,8 @@ public:
 
 private slots:
 	void onItemExpanded(QTreeWidgetItem* parentItem);
-	void onItemCollapsed(QTreeWidgetItem* parentItem);
 
 private:
-	enum
-	{
-		COLUMN_NAME = 0,
-		COLUMN_COMPRESSED_SIZE,
-		COLUMN_ORIGINAL_SIZE,
-		COLUMN_TYPE,
-		COLUMN_MODIFIED_TIME
-	};
 	void addItem(QTreeWidgetItem* parentItem, const ArchiveTreeNode* node);
 	void loadChildItems(QTreeWidgetItem* item);
 };

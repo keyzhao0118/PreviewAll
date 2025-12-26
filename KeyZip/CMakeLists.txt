@@ -27,6 +27,8 @@ add_executable(KeyZip WIN32
 
 	archivetreewidget.h
 	archivetreewidget.cpp
+	archivetreewidgetitem.h
+	archivetreewidgetitem.cpp
 	archivetree.h
 	archivetree.cpp
 	

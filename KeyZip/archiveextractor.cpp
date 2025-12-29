@@ -1,11 +1,7 @@
 ﻿#include "archiveextractor.h"
 #include "commonhelper.h"
-#include "instreamwrapper.h"
 #include "archiveopencallback.h"
 #include "archiveextractcallback.h"
-
-#include <QLibrary>
-#include <QFileInfo>
 
 extern "C" const GUID CLSID_CFormatZip;
 extern "C" const GUID CLSID_CFormat7z;
@@ -35,66 +31,14 @@ void ArchiveExtractor::run()
 	QElapsedTimer elapsedTimer;
 	elapsedTimer.start();
 
-	QString suffix = QFileInfo(m_archivePath).suffix().toLower();
-	GUID clsid = { 0 };
-	if (suffix == "zip")
-		clsid = CLSID_CFormatZip;
-	else if (suffix == "7z")
-		clsid = CLSID_CFormat7z;
-	else
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Unsupported archive format: " + suffix);
-		emit extractFailed();
-		return;
-	}
-
-	QLibrary sevenZipLib("7zip.dll");
-	if (!sevenZipLib.load())
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Failed to load 7zip.dll.");
-		emit extractFailed();
-		return;
-	}
-
-	CreateObjectFunc createObjectFunc = (CreateObjectFunc)sevenZipLib.resolve("CreateObject");
-	if (!createObjectFunc)
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Failed to get CreateObject function.");
-		emit extractFailed();
-		return;
-	}
-
-	CMyComPtr<IInArchive> archive;
-	if (createObjectFunc(&clsid, &IID_IInArchive, (void**)&archive) != S_OK)
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Failed to create 7z archive handler.");
-		emit extractFailed();
-		return;
-	}
-
-	InStreamWrapper* inStreamSpec = new InStreamWrapper(m_archivePath);
-	CMyComPtr<IInStream> inStream(inStreamSpec);
-	if (!inStreamSpec->isOpen())
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Failed to open archive file: " + m_archivePath);
-		emit extractFailed();
-		return;
-	}
-
 	ArchiveOpenCallBack* openCallBackSpec = new ArchiveOpenCallBack();
 	CMyComPtr<IArchiveOpenCallback> openCallBack(openCallBackSpec);
 	connect(openCallBackSpec, &ArchiveOpenCallBack::requirePassword, this, &ArchiveExtractor::requirePassword, Qt::DirectConnection);
 
-	HRESULT hrOpen = archive->Open(inStream, nullptr, openCallBack);
-	if (hrOpen == E_ABORT)
+	CMyComPtr<IInArchive> archive;
+	if (!CommonHelper::tryOpenArchive(m_archivePath, openCallBack, archive))
 	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Operation aborted by user (e.g., password cancelled).");
-		return;
-	}
-
-	if (hrOpen != S_OK)
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Failed to open archive. HRESULT: " + QString::number(hrOpen, 16));
+		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Failed to open archive: " + m_archivePath);
 		emit extractFailed();
 		return;
 	}

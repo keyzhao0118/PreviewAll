@@ -10,6 +10,7 @@
 namespace CommonHelper
 {
 	void LogKeyZipDebugMsg(const QString& msg);
+
 	QDateTime fileTimeToDateTime(FILETIME filetime);
 	QString formatFileSize(quint64 bytes);
 	QString fileTypeDisplayName(const QString& name, bool bIsDir);

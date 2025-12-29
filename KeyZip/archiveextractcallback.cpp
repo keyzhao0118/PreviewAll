@@ -14,7 +14,7 @@ void ArchiveExtractCallBack::init(IInArchive* archive, const QString& destDirPat
 STDMETHODIMP ArchiveExtractCallBack::SetTotal(const UInt64 size)
 {
 	m_totalSize = static_cast<quint64>(size);
-	qDebug() << "Total size to extract:" << m_totalSize;
+	CommonHelper::LogKeyZipDebugMsg("ArchiveExtractCallBack: Total size to extract: " + QString::number(m_totalSize));
 	return S_OK;
 }
 
@@ -23,7 +23,7 @@ STDMETHODIMP ArchiveExtractCallBack::SetCompleted(const UInt64* completedSize)
 	if (completedSize)
 	{
 		m_completedSize = static_cast<quint64>(*completedSize);
-		qDebug() << "Completed size:" << m_completedSize;
+		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractCallBack: Completed size: " + QString::number(m_completedSize));
 		emit updateProgress(m_completedSize, m_totalSize);
 	}
 	return S_OK;

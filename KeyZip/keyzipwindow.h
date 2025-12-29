@@ -45,9 +45,13 @@ private slots:
 	void onCentralStackedChanged(int index);
 
 	void onRequirePassword(bool& bCancel, QString& password);
-	void onUpdateProgress(quint64 completed, quint64 total);
+	void onUpdateParseProgress(quint64 completed, quint64 total);
 	void onParseFailed();
 	void onParseSucceed();
+
+	void onUpdateExtractProgress(quint64 completed, quint64 total);
+	void onExtractFailed();
+	void onExtractSucceed();
 
 private:
 	QAction* m_actOpen = nullptr;

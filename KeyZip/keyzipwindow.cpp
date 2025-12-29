@@ -210,7 +210,7 @@ void KeyZipWindow::initArchiveParser()
 {
 	m_archiveParser.reset(new ArchiveParser());
 	connect(m_archiveParser.data(), &ArchiveParser::requirePassword, this, &KeyZipWindow::onRequirePassword, Qt::BlockingQueuedConnection);
-	connect(m_archiveParser.data(), &ArchiveParser::updateProgress, this, &KeyZipWindow::onUpdateProgress, Qt::BlockingQueuedConnection);
+	connect(m_archiveParser.data(), &ArchiveParser::updateProgress, this, &KeyZipWindow::onUpdateParseProgress, Qt::BlockingQueuedConnection);
 	connect(m_archiveParser.data(), &ArchiveParser::parseFailed, this, &KeyZipWindow::onParseFailed);
 	connect(m_archiveParser.data(), &ArchiveParser::parseSucceed, this, &KeyZipWindow::onParseSucceed);
 }
@@ -218,7 +218,8 @@ void KeyZipWindow::initArchiveParser()
 void KeyZipWindow::initArchiveExtractor()
 {
 	m_archiveExtractor.reset(new ArchiveExtractor());
-
+	connect(m_archiveExtractor.data(), &ArchiveExtractor::requirePassword, this, &KeyZipWindow::onRequirePassword, Qt::BlockingQueuedConnection);
+	connect(m_archiveExtractor.data(), &ArchiveExtractor::updateProgress, this, &KeyZipWindow::onUpdateExtractProgress, Qt::BlockingQueuedConnection);
 
 }
 
@@ -317,15 +318,6 @@ void KeyZipWindow::onCentralStackedChanged(int index)
 		m_actDelete->setEnabled(false);
 		m_actPreview->setEnabled(false);
 	}
-	else if (index == 1)
-	{
-		m_toolBar->setVisible(true);
-		m_actExtractAll->setEnabled(true);
-		m_actLocation->setEnabled(true);
-		m_actClose->setEnabled(true);
-		m_actAdd->setEnabled(true);
-		m_actPreview->setEnabled(true);
-	}
 }
 
 void KeyZipWindow::onRequirePassword(bool& bCancel, QString& password)
@@ -336,10 +328,9 @@ void KeyZipWindow::onRequirePassword(bool& bCancel, QString& password)
 		bCancel = true;
 }
 
-void KeyZipWindow::onUpdateProgress(quint64 completed, quint64 total)
+void KeyZipWindow::onUpdateParseProgress(quint64 completed, quint64 total)
 {
-	if (m_archiveInfoLab)
-		m_archiveInfoLab->setText(tr("Parsing Archive: %1 / %2").arg(completed).arg(total));
+	// ToDo:显示进度
 }
 
 void KeyZipWindow::onParseFailed()
@@ -362,4 +353,26 @@ void KeyZipWindow::onParseSucceed()
 		.arg(CommonHelper::formatFileSize(QFileInfo(m_archivePath).size())));
 
 	m_treeWidget->refresh(m_archiveParser->getRootNode());
+
+	m_toolBar->setVisible(true);
+	m_actExtractAll->setEnabled(true);
+	m_actLocation->setEnabled(true);
+	m_actClose->setEnabled(true);
+	m_actAdd->setEnabled(true);
+	m_actPreview->setEnabled(true);
+}
+
+void KeyZipWindow::onUpdateExtractProgress(quint64 completed, quint64 total)
+{
+	// ToDo:显示进度
+}
+
+void KeyZipWindow::onExtractFailed()
+{
+	QMessageBox::critical(this, "", tr("Extraction Failed"));
+}
+
+void KeyZipWindow::onExtractSucceed()
+{
+	QMessageBox::critical(this, "", tr("Extraction Succeed"));
 }

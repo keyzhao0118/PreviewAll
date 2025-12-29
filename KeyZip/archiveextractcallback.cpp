@@ -5,10 +5,11 @@
 #include <QFileInfo>
 #include <QDebug>
 
-void ArchiveExtractCallBack::init(IInArchive* archive, const QString& destDirPath)
+void ArchiveExtractCallBack::init(IInArchive* archive, const QString& destDirPath, const QString& password)
 {
 	m_archive = archive;
 	m_destDirPath = destDirPath;
+	m_password = password;
 }
 
 STDMETHODIMP ArchiveExtractCallBack::SetTotal(const UInt64 size)
@@ -125,13 +126,15 @@ STDMETHODIMP ArchiveExtractCallBack::CryptoGetTextPassword(BSTR* password)
 	if (!password)
 		return E_INVALIDARG;
 
-	bool bCancel = false;
-	QString pass;
-	emit requirePassword(bCancel, pass);
+	if (m_password.isEmpty())
+	{
+		bool bCancel = false;
+		emit requirePassword(bCancel, m_password);
 
-	if (bCancel || pass.isEmpty())
-		return E_ABORT;
+		if (bCancel || m_password.isEmpty())
+			return E_ABORT;
+	}
 
-	*password = SysAllocString(reinterpret_cast<const OLECHAR*>(pass.utf16()));
+	*password = SysAllocString(reinterpret_cast<const OLECHAR*>(m_password.utf16()));
 	return S_OK;
 }

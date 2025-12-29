@@ -16,12 +16,12 @@ STDMETHODIMP ArchiveOpenCallBack::CryptoGetTextPassword(BSTR* password)
 		return E_INVALIDARG;
 
 	bool bCancel = false;
-	QString pass;
-	emit requirePassword(bCancel, pass);
+	m_password.clear();
+	emit requirePassword(bCancel, m_password);
 
-	if (bCancel || pass.isEmpty())
+	if (bCancel || m_password.isEmpty())
 		return E_ABORT;
 
-	*password = SysAllocString(reinterpret_cast<const OLECHAR*>(pass.utf16()));
+	*password = SysAllocString(reinterpret_cast<const OLECHAR*>(m_password.utf16()));
 	return S_OK;
 }

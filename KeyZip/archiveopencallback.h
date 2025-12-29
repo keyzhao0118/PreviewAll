@@ -22,6 +22,11 @@ public:
 	// ICryptoGetTextPassword
 	STDMETHOD(CryptoGetTextPassword)(BSTR* password) override;
 
+	QString getPassword() const { return m_password; }
+
 signals:
 	void requirePassword(bool& bCancel, QString& password);
+
+private:
+	QString m_password;
 };

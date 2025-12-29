@@ -48,7 +48,7 @@ void ArchiveExtractor::run()
 	connect(extractCallBackSpec, &ArchiveExtractCallBack::requirePassword, this, &ArchiveExtractor::requirePassword, Qt::DirectConnection);
 	connect(extractCallBackSpec, &ArchiveExtractCallBack::updateProgress, this, &ArchiveExtractor::updateProgress, Qt::DirectConnection);
 
-	extractCallBackSpec->init(archive, m_destDirPath);
+	extractCallBackSpec->init(archive, m_destDirPath, openCallBackSpec->getPassword());
 	HRESULT hrExtract = archive->Extract(nullptr, static_cast<UInt32>(-1), false, extractCallBack);
 	if (hrExtract != S_OK)
 	{

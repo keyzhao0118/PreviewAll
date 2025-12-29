@@ -49,8 +49,6 @@ protected:
 
 private:
 	QString m_archivePath;
-	QString m_password;
-
 	QSharedPointer<ArchiveTree> m_archiveTree;
 
 };

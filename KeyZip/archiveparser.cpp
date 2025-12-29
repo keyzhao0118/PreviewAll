@@ -1,18 +1,11 @@
 ﻿#include "archiveparser.h"
 #include "archivetree.h"
 #include "commonhelper.h"
-#include "instreamwrapper.h"
 #include "archiveopencallback.h"
 
-#include <QLibrary>
-#include <QFileInfo>
 #include <QDateTime>
 #include <7zip/Archive/IArchive.h>
 #include <7zip/PropID.h>
-
-extern "C" const GUID CLSID_CFormatZip;
-extern "C" const GUID CLSID_CFormat7z;
-typedef UINT32(WINAPI* CreateObjectFunc)(const GUID* clsID, const GUID* iid, void** outObject);
 
 ArchiveParser::ArchiveParser(QObject* parent /*= nullptr*/)
 	: QThread(parent)
@@ -59,66 +52,14 @@ void ArchiveParser::run()
 	QElapsedTimer elapsedTimer;
 	elapsedTimer.start();
 
-	QString suffix = QFileInfo(m_archivePath).suffix().toLower();
-	GUID clsid = { 0 };
-	if (suffix == "zip")
-		clsid = CLSID_CFormatZip;
-	else if (suffix == "7z")
-		clsid = CLSID_CFormat7z;
-	else
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Unsupported archive format: " + suffix);
-		emit parseFailed();
-		return;
-	}
-
-	QLibrary sevenZipLib("7zip.dll");
-	if (!sevenZipLib.load())
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to load 7zip.dll.");
-		emit parseFailed();
-		return;
-	}
-
-	CreateObjectFunc createObjectFunc = (CreateObjectFunc)sevenZipLib.resolve("CreateObject");
-	if (!createObjectFunc)
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to get CreateObject function.");
-		emit parseFailed();
-		return;
-	}
-
-	CMyComPtr<IInArchive> archive;
-	if (createObjectFunc(&clsid, &IID_IInArchive, (void**)&archive) != S_OK)
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to create 7z archive handler.");
-		emit parseFailed();
-		return;
-	}
-
-	InStreamWrapper* inStreamSpec = new InStreamWrapper(m_archivePath);
-	CMyComPtr<IInStream> inStream(inStreamSpec);
-	if (!inStreamSpec->isOpen())
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to open archive file: " + m_archivePath);
-		emit parseFailed();
-		return;
-	}
-
 	ArchiveOpenCallBack* openCallBackSpec = new ArchiveOpenCallBack();
 	CMyComPtr<IArchiveOpenCallback> openCallBack(openCallBackSpec);
 	connect(openCallBackSpec, &ArchiveOpenCallBack::requirePassword, this, &ArchiveParser::requirePassword, Qt::DirectConnection);
 
-	HRESULT hr = archive->Open(inStream, nullptr, openCallBack);
-	if (hr == E_ABORT)
+	CMyComPtr<IInArchive> archive;
+	if (!CommonHelper::tryOpenArchive(m_archivePath, openCallBack, archive))
 	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Operation aborted by user (e.g., password cancelled).");
-		return;
-	}
-
-	if (hr != S_OK)
-	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to open archive. HRESULT: " + QString::number(hr, 16));
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to open archive: " + m_archivePath);
 		emit parseFailed();
 		return;
 	}

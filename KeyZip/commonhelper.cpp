@@ -2,6 +2,14 @@
 #include <shellapi.h>
 #include <QDebug>
 #include <QFileIconProvider>
+#include <QLibrary>
+
+#include "instreamwrapper.h"
+
+extern "C" const GUID CLSID_CFormatZip;
+extern "C" const GUID CLSID_CFormat7z;
+extern "C" const GUID CLSID_CFormatRar;
+extern "C" const GUID CLSID_CFormatRar5;
 
 void CommonHelper::LogKeyZipDebugMsg(const QString& msg)
 {
@@ -141,4 +149,54 @@ QIcon CommonHelper::fileIconForName(const QString& name, bool bIsDir)
 		return iconCache.value(ext);
 	}
 	
+}
+
+typedef UINT32(WINAPI* CreateObjectFunc)(const GUID* clsID, const GUID* iid, void** outObject);
+bool CommonHelper::tryOpenArchive(
+	const QString& archivePath,
+	IArchiveOpenCallback* openCallback,
+	CMyComPtr<IInArchive>& outInArchive)
+{
+	outInArchive.Release();
+
+	QLibrary sevenZipLib("7zip.dll");
+	if (!sevenZipLib.load())
+		return false;
+
+	CreateObjectFunc createObjectFunc = (CreateObjectFunc)sevenZipLib.resolve("CreateObject");
+	if (!createObjectFunc)
+		return false;
+
+	static const GUID kArchiveGuids[] = {
+		CLSID_CFormatZip,
+		CLSID_CFormatRar,
+		CLSID_CFormatRar5,
+		CLSID_CFormat7z
+		
+	};
+	for (const GUID& clsid : kArchiveGuids)
+	{
+		CMyComPtr<IInArchive> archive;
+		if (createObjectFunc(&clsid, &IID_IInArchive, (void**)&archive) != S_OK)
+			continue;
+
+		InStreamWrapper* inStreamSpec = new InStreamWrapper(archivePath);
+		CMyComPtr<IInStream> inStream(inStreamSpec);
+		if (!inStreamSpec->isOpen())
+			continue;
+
+		HRESULT hr = archive->Open(inStream, nullptr, openCallback);
+		if (hr == S_OK)
+		{
+			outInArchive = archive;
+			return true;
+		}
+		else if (hr == E_ABORT)
+		{
+			// User cancelled (e.g., password dialog)
+			return false;
+		}
+	}
+
+	return false;
 }

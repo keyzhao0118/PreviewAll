@@ -24,15 +24,13 @@ void ArchiveTreeWidget::refresh(const ArchiveTreeNode* rootNode)
 		return;
 
 	clear();
-	QTreeWidgetItem* rootItem = invisibleRootItem();
+	
+	// 添加压缩文件项
+	auto archiveItem = addItem(invisibleRootItem(), rootNode);
 	
 	// 添加顶层项
 	for (const ArchiveTreeNode* childNode : rootNode->m_childNodes)
-		addItem(rootItem, childNode);
-	
-	// 添加顶层项的子项，以便正确显示扩展箭头
-	for (int i = 0; i < rootItem->childCount(); ++i)
-		loadChildItems(rootItem->child(i));
+		addItem(archiveItem, childNode);
 }
 
 void ArchiveTreeWidget::onItemExpanded(QTreeWidgetItem* parentItem)
@@ -44,10 +42,10 @@ void ArchiveTreeWidget::onItemExpanded(QTreeWidgetItem* parentItem)
 		loadChildItems(parentItem->child(i));
 }
 
-void ArchiveTreeWidget::addItem(QTreeWidgetItem* parentItem, const ArchiveTreeNode* node)
+QTreeWidgetItem* ArchiveTreeWidget::addItem(QTreeWidgetItem* parentItem, const ArchiveTreeNode* node)
 {
 	if (!parentItem || !node)
-		return;
+		return nullptr;
 
 	auto* item = new ArchiveTreeWidgetItem(parentItem);
 	item->setText(ArchiveTreeWidgetItem::Column_Name, node->m_name);
@@ -68,6 +66,8 @@ void ArchiveTreeWidget::addItem(QTreeWidgetItem* parentItem, const ArchiveTreeNo
 	item->setData(ArchiveTreeWidgetItem::Column_ModifiedTime, Qt::UserRole, node->m_mtime);
 
 	parentItem->addChild(item);
+
+	return item;
 }
 
 void ArchiveTreeWidget::loadChildItems(QTreeWidgetItem* item)

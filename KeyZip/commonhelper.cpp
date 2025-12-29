@@ -168,10 +168,10 @@ bool CommonHelper::tryOpenArchive(
 		return false;
 
 	static const GUID kArchiveGuids[] = {
-		CLSID_CFormatZip,
-		CLSID_CFormatRar,
+		CLSID_CFormat7z,
 		CLSID_CFormatRar5,
-		CLSID_CFormat7z
+		CLSID_CFormatRar,
+		CLSID_CFormatZip
 		
 	};
 	for (const GUID& clsid : kArchiveGuids)

@@ -4,12 +4,12 @@
 #include "archiveopencallback.h"
 
 #include <QDateTime>
+#include <QFileInfo>
 #include <7zip/Archive/IArchive.h>
 #include <7zip/PropID.h>
 
 ArchiveParser::ArchiveParser(QObject* parent /*= nullptr*/)
 	: QThread(parent)
-	, m_archiveTree(new ArchiveTree())
 {
 }
 
@@ -23,6 +23,8 @@ ArchiveParser::~ArchiveParser()
 void ArchiveParser::parseArchive(const QString& archivePath)
 {
 	m_archivePath = archivePath;
+	QString archiveName = QFileInfo(archivePath).fileName();
+	m_archiveTree.reset(new ArchiveTree(archiveName));
 	this->start();
 }
 
@@ -72,17 +74,17 @@ void ArchiveParser::run()
 
 	for (UInt32 i = 0; i < itemCount; ++i)
 	{
+		if (isInterruptionRequested())
+		{
+			CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Parsing interrupted.");
+			return;
+		}
+
 		// 每500ms发送一次进度，确保首次和最后一次也发送
 		if (i == 0 || i == itemCount - 1 || progressTimer.elapsed() >= 500)
 		{
 			emit updateProgress(i + 1, itemCount);
 			progressTimer.restart();
-		}
-
-		if (isInterruptionRequested())
-		{
-			CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Parsing interrupted.");
-			return;
 		}
 
 		PROPVARIANT propPath;		PropVariantInit(&propPath);

@@ -28,9 +28,10 @@ void ArchiveTreeNode::addChild(const QString& name, ArchiveTreeNode* childNode)
 
 //---------------------------------------
 
-ArchiveTree::ArchiveTree()
+ArchiveTree::ArchiveTree(const QString& archiveName)
 {
 	m_rootNode = new ArchiveTreeNode();
+	m_rootNode->m_name = archiveName;
 }
 
 ArchiveTree::~ArchiveTree()

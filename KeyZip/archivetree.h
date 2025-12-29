@@ -28,7 +28,7 @@ class ArchiveParser;
 class ArchiveTree
 {
 public:
-	ArchiveTree();
+	explicit ArchiveTree(const QString& archiveName);
 	~ArchiveTree();
 
 	void addEntry(const QString& path, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime);

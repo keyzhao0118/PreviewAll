@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QProgressDialog>
 #include <QAction>
 #include <QMenuBar>
 #include <QToolBar>
@@ -206,21 +207,28 @@ void KeyZipWindow::clearOld()
 	m_archiveParser.reset(nullptr);
 }
 
-void KeyZipWindow::initArchiveParser()
+void KeyZipWindow::startArchiveParser()
 {
 	m_archiveParser.reset(new ArchiveParser());
 	connect(m_archiveParser.data(), &ArchiveParser::requirePassword, this, &KeyZipWindow::onRequirePassword, Qt::BlockingQueuedConnection);
 	connect(m_archiveParser.data(), &ArchiveParser::updateProgress, this, &KeyZipWindow::onUpdateParseProgress, Qt::BlockingQueuedConnection);
 	connect(m_archiveParser.data(), &ArchiveParser::parseFailed, this, &KeyZipWindow::onParseFailed);
 	connect(m_archiveParser.data(), &ArchiveParser::parseSucceed, this, &KeyZipWindow::onParseSucceed);
+
+	m_bParseCanceled = false;
+	m_archiveParser->parseArchive(m_archivePath);
 }
 
-void KeyZipWindow::initArchiveExtractor()
+void KeyZipWindow::startArchiveExtractor(const QString& archivePath, const QString& destDirPath)
 {
 	m_archiveExtractor.reset(new ArchiveExtractor());
 	connect(m_archiveExtractor.data(), &ArchiveExtractor::requirePassword, this, &KeyZipWindow::onRequirePassword, Qt::BlockingQueuedConnection);
 	connect(m_archiveExtractor.data(), &ArchiveExtractor::updateProgress, this, &KeyZipWindow::onUpdateExtractProgress, Qt::BlockingQueuedConnection);
-
+	connect(m_archiveExtractor.data(), &ArchiveExtractor::extractFailed, this, &KeyZipWindow::onExtractFailed);
+	connect(m_archiveExtractor.data(), &ArchiveExtractor::extractSucceed, this, &KeyZipWindow::onExtractSucceed);
+	
+	m_bExtractCanceled = false;
+	m_archiveExtractor->extractArchive(archivePath, destDirPath);
 }
 
 void KeyZipWindow::onOpenTriggered()
@@ -233,8 +241,7 @@ void KeyZipWindow::onOpenTriggered()
 	m_archivePath = filePath;
 	m_centralStackedLayout->setCurrentIndex(1);
 
-	initArchiveParser();
-	m_archiveParser->parseArchive(m_archivePath);
+	startArchiveParser();
 }
 
 void KeyZipWindow::onNewTriggered()
@@ -247,16 +254,15 @@ void KeyZipWindow::onExtractAllTriggered()
 	if (m_archivePath.isEmpty())
 		return;
 
-	const QString destDir = QFileDialog::getExistingDirectory(this, tr("Select Extraction Directory"), QString());
-	if (destDir.isEmpty())
+	const QString destDirPath = QFileDialog::getExistingDirectory(this, tr("Select Extraction Directory"), QString());
+	if (destDirPath.isEmpty())
 		return;
 
-	if (QMessageBox::question(this, tr("Confirm Extraction"), tr("Extract archive to:\n%1").arg(destDir),
+	if (QMessageBox::question(this, tr("Confirm Extraction"), tr("Extract archive to:\n%1").arg(destDirPath),
 		QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
 		return;
 
-	initArchiveExtractor();
-	m_archiveExtractor->extractArchive(m_archivePath, destDir);
+	startArchiveExtractor(m_archivePath, destDirPath);
 }
 
 void KeyZipWindow::onExtractSelectTriggered()
@@ -330,7 +336,23 @@ void KeyZipWindow::onRequirePassword(bool& bCancel, QString& password)
 
 void KeyZipWindow::onUpdateParseProgress(quint64 completed, quint64 total)
 {
-	// ToDo:显示进度
+	if (!m_parseProgressDlg)
+	{
+		m_parseProgressDlg = new QProgressDialog(tr("Parsing..."), tr("Cancel"), 0, 100, this);
+		m_parseProgressDlg->setWindowModality(Qt::WindowModal);
+		connect(m_parseProgressDlg, &QProgressDialog::canceled, this, [this]() {
+			if (m_archiveParser)
+				m_archiveParser->requestInterruption();
+			m_bParseCanceled = true;
+		});
+	}
+
+	if (m_bParseCanceled)
+		return;
+
+	if (m_parseProgressDlg->isHidden())
+		m_parseProgressDlg->show();
+	m_parseProgressDlg->setValue(static_cast<int>((completed * 100) / total));
 }
 
 void KeyZipWindow::onParseFailed()
@@ -364,7 +386,23 @@ void KeyZipWindow::onParseSucceed()
 
 void KeyZipWindow::onUpdateExtractProgress(quint64 completed, quint64 total)
 {
-	// ToDo:显示进度
+	if (!m_extractProgressDlg)
+	{
+		m_extractProgressDlg = new QProgressDialog(tr("Parsing..."), tr("Cancel"), 0, 100, this);
+		m_extractProgressDlg->setWindowModality(Qt::WindowModal);
+		connect(m_extractProgressDlg, &QProgressDialog::canceled, this, [this]() {
+			if (m_archiveExtractor)
+				m_archiveExtractor->requestInterruption();
+			m_bExtractCanceled = true;
+		});
+	}
+
+	if (m_bExtractCanceled)
+		return;
+
+	if (m_extractProgressDlg->isHidden())
+		m_extractProgressDlg->show();
+	m_extractProgressDlg->setValue(static_cast<int>((completed * 100) / total));
 }
 
 void KeyZipWindow::onExtractFailed()

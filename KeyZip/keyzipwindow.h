@@ -8,6 +8,7 @@ class ArchiveExtractor;
 class KeyCardWidget;
 class QLabel;
 class QStackedLayout;
+class QProgressDialog;
 
 class KeyZipWindow : public QMainWindow
 {
@@ -26,8 +27,8 @@ private:
 	
 	void clearOld();
 
-	void initArchiveParser();
-	void initArchiveExtractor();
+	void startArchiveParser();
+	void startArchiveExtractor(const QString& archivePath, const QString& destDirPath);
 
 private slots:
 	void onOpenTriggered();
@@ -74,6 +75,12 @@ private:
 	ArchiveTreeWidget* m_treeWidget = nullptr;
 	KeyCardWidget* m_previewPanel = nullptr;
 	QLabel* m_archiveInfoLab = nullptr;
+
+	QProgressDialog* m_parseProgressDlg = nullptr;
+	bool m_bParseCanceled = false;
+
+	QProgressDialog* m_extractProgressDlg = nullptr;
+	bool m_bExtractCanceled = false;
 
 	QSharedPointer<ArchiveParser> m_archiveParser;
 	QSharedPointer<ArchiveExtractor> m_archiveExtractor;

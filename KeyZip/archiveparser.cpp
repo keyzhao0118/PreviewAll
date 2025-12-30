@@ -75,6 +75,7 @@ void ArchiveParser::run()
 		if (isInterruptionRequested())
 		{
 			CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Parsing interrupted.");
+			emit parseFailed();
 			return;
 		}
 

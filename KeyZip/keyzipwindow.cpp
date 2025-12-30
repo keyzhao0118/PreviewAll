@@ -388,7 +388,7 @@ void KeyZipWindow::onUpdateExtractProgress(quint64 completed, quint64 total)
 {
 	if (!m_extractProgressDlg)
 	{
-		m_extractProgressDlg = new QProgressDialog(tr("Parsing..."), tr("Cancel"), 0, 100, this);
+		m_extractProgressDlg = new QProgressDialog(tr("Extracting..."), tr("Cancel"), 0, 100, this);
 		m_extractProgressDlg->setWindowModality(Qt::WindowModal);
 		connect(m_extractProgressDlg, &QProgressDialog::canceled, this, [this]() {
 			if (m_archiveExtractor)

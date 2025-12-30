@@ -23,6 +23,9 @@ signals:
 protected:
 	void run() override;
 
+private slots:
+	void onUpdateProgress(quint64 completed, quint64 total, bool& bIsInterruption);
+
 private:
 	QString m_archivePath;
 	QString m_destDirPath;

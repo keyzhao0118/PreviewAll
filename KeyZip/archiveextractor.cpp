@@ -46,7 +46,7 @@ void ArchiveExtractor::run()
 	ArchiveExtractCallBack* extractCallBackSpec = new ArchiveExtractCallBack();
 	CMyComPtr<IArchiveExtractCallback> extractCallBack(extractCallBackSpec);
 	connect(extractCallBackSpec, &ArchiveExtractCallBack::requirePassword, this, &ArchiveExtractor::requirePassword, Qt::DirectConnection);
-	connect(extractCallBackSpec, &ArchiveExtractCallBack::updateProgress, this, &ArchiveExtractor::updateProgress, Qt::DirectConnection);
+	connect(extractCallBackSpec, &ArchiveExtractCallBack::updateProgress, this, &ArchiveExtractor::onUpdateProgress, Qt::DirectConnection);
 
 	extractCallBackSpec->init(archive, m_destDirPath, openCallBackSpec->getPassword());
 	HRESULT hrExtract = archive->Extract(nullptr, static_cast<UInt32>(-1), false, extractCallBack);
@@ -59,4 +59,22 @@ void ArchiveExtractor::run()
 
 	emit extractSucceed();
 	CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Extrcting completed in " + QString::number(elapsedTimer.elapsed()) + " ms.");
+}
+
+void ArchiveExtractor::onUpdateProgress(quint64 completed, quint64 total, bool& bIsInterruption)
+{
+	if (isInterruptionRequested())
+	{
+		bIsInterruption = true;
+		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Parsing interrupted.");
+		return;
+	}
+
+	static qint64 lastEmitTime = QDateTime::currentMSecsSinceEpoch();
+	quint64 currentTime = QDateTime::currentMSecsSinceEpoch();
+	if (currentTime - lastEmitTime >= 500)
+	{
+		lastEmitTime = currentTime;
+		emit updateProgress(completed, total);
+	}
 }

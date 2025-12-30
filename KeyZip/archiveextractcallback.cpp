@@ -25,7 +25,10 @@ STDMETHODIMP ArchiveExtractCallBack::SetCompleted(const UInt64* completedSize)
 	{
 		m_completedSize = static_cast<quint64>(*completedSize);
 		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractCallBack: Completed size: " + QString::number(m_completedSize));
-		emit updateProgress(m_completedSize, m_totalSize);
+		bool bIsInterruption = false;
+		emit updateProgress(m_completedSize, m_totalSize, bIsInterruption);
+		if (bIsInterruption)
+			return E_ABORT;
 	}
 	return S_OK;
 }

@@ -29,7 +29,7 @@ public:
 
 signals:
 	void requirePassword(bool& bCancel, QString& password);
-	void updateProgress(quint64 completed, quint64 total);
+	void updateProgress(quint64 completed, quint64 total, bool& bIsInterruption);
 
 private:
 	quint64 m_totalSize = 0;

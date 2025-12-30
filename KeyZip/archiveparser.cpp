@@ -4,7 +4,6 @@
 #include "archiveopencallback.h"
 
 #include <QDateTime>
-#include <QFileInfo>
 #include <7zip/Archive/IArchive.h>
 #include <7zip/PropID.h>
 
@@ -23,8 +22,7 @@ ArchiveParser::~ArchiveParser()
 void ArchiveParser::parseArchive(const QString& archivePath)
 {
 	m_archivePath = archivePath;
-	QString archiveName = QFileInfo(archivePath).fileName();
-	m_archiveTree.reset(new ArchiveTree(archiveName));
+	m_archiveTree.reset(new ArchiveTree(archivePath));
 	this->start();
 }
 

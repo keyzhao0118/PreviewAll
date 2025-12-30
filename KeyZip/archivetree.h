@@ -8,7 +8,6 @@ class ArchiveTreeNode
 public:
 	
 	ArchiveTreeNode(const QString& name, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime);
-	ArchiveTreeNode() = default;
 	~ArchiveTreeNode();
 
 	void addChild(const QString& name, ArchiveTreeNode* childNode);
@@ -28,7 +27,7 @@ class ArchiveParser;
 class ArchiveTree
 {
 public:
-	explicit ArchiveTree(const QString& archiveName);
+	explicit ArchiveTree(const QString& archivePath);
 	~ArchiveTree();
 
 	void addEntry(const QString& path, bool bIsDir, quint64 compressedSize, quint64 originalSize, const QDateTime& mtime);
@@ -39,6 +38,4 @@ public:
 
 private:
 	ArchiveTreeNode* m_rootNode = nullptr;
-
-	friend class ArchiveParser;// 友元声明
 };

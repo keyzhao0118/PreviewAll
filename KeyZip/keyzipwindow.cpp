@@ -347,19 +347,19 @@ void KeyZipWindow::onParseSucceed()
 {
 	setWindowTitle(m_archivePath + " - KeyZip");
 
-	m_archiveInfoLab->setText(tr("File: %1, Folder: %2, Archive file size: %3")
-		.arg(m_archiveParser->getFileCount())
-		.arg(m_archiveParser->getFolderCount())
-		.arg(CommonHelper::formatFileSize(QFileInfo(m_archivePath).size())));
-
-	m_treeWidget->refresh(m_archiveParser->getRootNode());
-
 	m_toolBar->setVisible(true);
 	m_actExtractAll->setEnabled(true);
 	m_actLocation->setEnabled(true);
 	m_actClose->setEnabled(true);
 	m_actAdd->setEnabled(true);
 	m_actPreview->setEnabled(true);
+
+	m_treeWidget->refresh(m_archiveParser->getRootNode());
+
+	m_archiveInfoLab->setText(tr("File: %1, Folder: %2, Archive file size: %3")
+		.arg(m_archiveParser->getFileCount())
+		.arg(m_archiveParser->getFolderCount())
+		.arg(CommonHelper::formatFileSize(QFileInfo(m_archivePath).size())));
 }
 
 void KeyZipWindow::onUpdateExtractProgress(quint64 completed, quint64 total)

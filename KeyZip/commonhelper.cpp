@@ -153,7 +153,7 @@ QString CommonHelper::fileTypeDisplayName(const QString& name, bool bIsDir)
 		return QObject::tr("Folder");
 
 	const int dot = name.lastIndexOf('.');
-	if (dot <= 0 || dot == name.length() - 1)
+	if (dot < 0 || dot == name.length() - 1)
 		return QObject::tr("File");
 
 	const QString ext = name.mid(dot); // includes dot
@@ -186,7 +186,7 @@ QIcon CommonHelper::fileIconForName(const QString& name, bool bIsDir)
 	}
 
 	const int dot = name.lastIndexOf('.');
-	if (dot <= 0 || dot == name.length() - 1)
+	if (dot < 0 || dot == name.length() - 1)
 	{
 		if (!iconCache.contains("file"))
 		{
@@ -197,7 +197,7 @@ QIcon CommonHelper::fileIconForName(const QString& name, bool bIsDir)
 		}
 		else
 		{
-			return iconCache.value("folder");
+			return iconCache.value("file");
 		}
 	}
 

@@ -28,10 +28,16 @@ void ArchiveTreeNode::addChild(const QString& name, ArchiveTreeNode* childNode)
 
 //---------------------------------------
 
-ArchiveTree::ArchiveTree(const QString& archiveName)
+ArchiveTree::ArchiveTree(const QString& archivePath)
 {
-	m_rootNode = new ArchiveTreeNode();
-	m_rootNode->m_name = archiveName;
+	QFileInfo archiveInfo(archivePath);
+	m_rootNode = new ArchiveTreeNode(
+		archiveInfo.fileName(),
+		false,
+		archiveInfo.size(),
+		0,
+		archiveInfo.lastModified()
+	);
 }
 
 ArchiveTree::~ArchiveTree()
@@ -63,9 +69,16 @@ void ArchiveTree::addEntry(const QString& path, bool bIsDir, quint64 compressedS
 		}
 
 		bool bIsLastPart = (i == pathParts.size() - 1);
-		ArchiveTreeNode* newNode = bIsLastPart ?
-			new ArchiveTreeNode(name, bIsDir, compressedSize, originalSize, mtime) :
-			new ArchiveTreeNode(name, true, 0, 0, QDateTime());
+		ArchiveTreeNode* newNode = nullptr;
+		if (bIsLastPart)
+		{
+			newNode = new ArchiveTreeNode(name, bIsDir, compressedSize, originalSize, mtime);
+			m_rootNode->m_originalSize += originalSize;
+		}
+		else
+		{
+			newNode = new ArchiveTreeNode(name, true, 0, 0, QDateTime());
+		}
 		
 		parentNode->addChild(name, newNode);
 		parentNode = newNode;

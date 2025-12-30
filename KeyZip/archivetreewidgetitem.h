@@ -8,10 +8,10 @@ public:
 	enum Column
 	{
 		Column_Name = 0,
-		Column_CompressedSize,
-		Column_OriginalSize,
+		Column_ModifiedTime,
 		Column_Type,
-		Column_ModifiedTime
+		Column_CompressedSize,
+		Column_OriginalSize
 	};
 
 	using QTreeWidgetItem::QTreeWidgetItem;

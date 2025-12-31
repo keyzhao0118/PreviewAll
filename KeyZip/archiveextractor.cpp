@@ -37,24 +37,36 @@ void ArchiveExtractor::run()
 	connect(openCallBackSpec, &ArchiveOpenCallBack::requirePassword, this, &ArchiveExtractor::requirePassword, Qt::DirectConnection);
 
 	CMyComPtr<IInArchive> archive;
-	if (!CommonHelper::tryOpenArchive(m_archivePath, openCallBack, archive))
+	HRESULT hrOpen = CommonHelper::tryOpenArchive(m_archivePath, openCallBack, archive);
+	if (hrOpen == E_ABORT)
 	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Failed to open archive: " + m_archivePath);
+		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Open abort.");
+		emit extractCanceled();
+		return;
+	}
+	if (hrOpen != S_OK)
+	{
+		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Failed to open archive.");
 		emit extractFailed();
 		return;
 	}
-	QString password = openCallBackSpec->getPassword();
 
 	ArchiveExtractCallBack* extractCallBackSpec = new ArchiveExtractCallBack();
 	CMyComPtr<IArchiveExtractCallback> extractCallBack(extractCallBackSpec);
 	connect(extractCallBackSpec, &ArchiveExtractCallBack::requirePassword, this, &ArchiveExtractor::requirePassword, Qt::DirectConnection);
 	connect(extractCallBackSpec, &ArchiveExtractCallBack::updateProgress, this, &ArchiveExtractor::onUpdateProgress, Qt::DirectConnection);
 
-	extractCallBackSpec->init(archive, m_entryPath, m_destDirPath, password);
+	extractCallBackSpec->init(archive, m_entryPath, m_destDirPath, openCallBackSpec->getPassword());
 	HRESULT hrExtract = archive->Extract(nullptr, static_cast<UInt32>(-1), false, extractCallBack);
+	if (hrExtract == E_ABORT)
+	{
+		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Extraction aborted.");
+		emit extractCanceled();
+		return;
+	}
 	if (hrExtract != S_OK)
 	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Failed to extract archive. HRESULT: " + QString::number(hrExtract, 16));
+		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Failed to extract archive.");
 		emit extractFailed();
 		return;
 	}

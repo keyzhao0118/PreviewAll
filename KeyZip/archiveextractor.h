@@ -18,6 +18,7 @@ signals:
 
 	void extractFailed();
 	void extractSucceed();
+	void extractCanceled();
 
 
 protected:

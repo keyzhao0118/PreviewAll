@@ -47,15 +47,18 @@ private slots:
 	void onAboutTriggered();
 
 	void onCentralStackedChanged(int index);
+	void onItemSelectionChanged();
 
 	void onRequirePassword(bool& bCancel, QString& password);
 	void onUpdateParseProgress(quint64 completed, quint64 total);
 	void onParseFailed();
 	void onParseSucceed();
+	void onParseCanceled();
 
 	void onUpdateExtractProgress(quint64 completed, quint64 total);
 	void onExtractFailed();
 	void onExtractSucceed();
+	void onExtractCanceled();
 
 private:
 	QAction* m_actOpen = nullptr;

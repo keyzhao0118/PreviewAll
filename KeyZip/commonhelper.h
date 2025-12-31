@@ -16,7 +16,7 @@ namespace CommonHelper
 	QString fileTypeDisplayName(const QString& name, bool bIsDir);
 	QIcon fileIconForName(const QString& name, bool bIsDir);
 
-	bool tryOpenArchive(
+	HRESULT tryOpenArchive(
 		const QString& archivePath,
 		IArchiveOpenCallback* openCallback,
 		CMyComPtr<IInArchive>& outInArchive);

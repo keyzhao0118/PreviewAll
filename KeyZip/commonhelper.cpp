@@ -216,7 +216,7 @@ QIcon CommonHelper::fileIconForName(const QString& name, bool bIsDir)
 	
 }
 
-bool CommonHelper::tryOpenArchive(
+HRESULT CommonHelper::tryOpenArchive(
 	const QString& archivePath,
 	IArchiveOpenCallback* openCallback,
 	CMyComPtr<IInArchive>& outInArchive)
@@ -225,29 +225,28 @@ bool CommonHelper::tryOpenArchive(
 
 	QLibrary sevenZipLib("7zip.dll");
 	if (!sevenZipLib.load())
-		return false;
+		return S_FALSE;
 
 	CreateObjectFunc createObjectFunc = (CreateObjectFunc)sevenZipLib.resolve("CreateObject");
 	if (!createObjectFunc)
-		return false;
+		return S_FALSE;
 
 	const GUID clsid = getAdapatedCLSID(archivePath);
 	if (clsid == CLSID_NULL)
-		return false;
+		return S_FALSE;
 
 	CMyComPtr<IInArchive> archive;
 	if (createObjectFunc(&clsid, &IID_IInArchive, (void**)&archive) != S_OK)
-		return false;
+		return S_FALSE;
 
 	InStreamWrapper* inStreamSpec = new InStreamWrapper(archivePath);
 	CMyComPtr<IInStream> inStream(inStreamSpec);
 	if (!inStreamSpec->isOpen())
-		return false;
+		return S_FALSE;
 
 	HRESULT hr = archive->Open(inStream, nullptr, openCallback);
-	if (hr != S_OK)
-		return false;
+	if (hr == S_OK)
+		outInArchive = archive;
 
-	outInArchive = archive;
-	return true;
+	return hr;
 }

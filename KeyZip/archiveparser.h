@@ -43,6 +43,7 @@ signals:
 	void updateProgress(quint64 completed, quint64 total);
 	void parseFailed();
 	void parseSucceed();
+	void parseCanceled();
 
 protected:
 	void run() override;

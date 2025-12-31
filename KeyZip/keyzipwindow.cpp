@@ -166,16 +166,12 @@ void KeyZipWindow::initCentralWidget()
 
 	m_treeWidget = new ArchiveTreeWidget(splitter);
 	m_treeWidget->setMinimumWidth(500);
-	connect(m_treeWidget, &QTreeWidget::itemSelectionChanged, this, [this]() {
-		const bool bHasSelection = !m_treeWidget->selectedItems().isEmpty();
-		m_actExtractSelect->setEnabled(bHasSelection);
-		m_actDelete->setEnabled(bHasSelection);
-	});
+	connect(m_treeWidget, &QTreeWidget::itemSelectionChanged, this, &KeyZipWindow::onItemSelectionChanged);
 
 	m_previewPanel = new KeyCardWidget(splitter);
 	m_previewPanel->setMinimumWidth(300);
 	m_previewPanel->setBackgroundColor(Qt::gray);
-	m_previewPanel->setVisible(false);//ToDo:使用配置文件控制
+	m_previewPanel->setVisible(false);
 
 	splitter->addWidget(m_treeWidget);
 	splitter->addWidget(m_previewPanel);
@@ -252,6 +248,7 @@ void KeyZipWindow::startArchiveParser()
 	connect(m_archiveParser.data(), &ArchiveParser::updateProgress, this, &KeyZipWindow::onUpdateParseProgress, Qt::BlockingQueuedConnection);
 	connect(m_archiveParser.data(), &ArchiveParser::parseFailed, this, &KeyZipWindow::onParseFailed);
 	connect(m_archiveParser.data(), &ArchiveParser::parseSucceed, this, &KeyZipWindow::onParseSucceed);
+	connect(m_archiveParser.data(), &ArchiveParser::parseCanceled, this, &KeyZipWindow::onParseCanceled);
 
 	m_bParseCanceled = false;
 	m_archiveParser->parseArchive(m_archivePath);
@@ -264,6 +261,7 @@ void KeyZipWindow::startArchiveExtractor(const QString& archivePath, const QStri
 	connect(m_archiveExtractor.data(), &ArchiveExtractor::updateProgress, this, &KeyZipWindow::onUpdateExtractProgress, Qt::BlockingQueuedConnection);
 	connect(m_archiveExtractor.data(), &ArchiveExtractor::extractFailed, this, &KeyZipWindow::onExtractFailed);
 	connect(m_archiveExtractor.data(), &ArchiveExtractor::extractSucceed, this, &KeyZipWindow::onExtractSucceed);
+	connect(m_archiveExtractor.data(), &ArchiveExtractor::extractCanceled, this, &KeyZipWindow::onExtractCanceled);
 	
 	m_bExtractCanceled = false;
 	m_archiveExtractor->extractArchive(archivePath, entryPath, destDirPath);
@@ -361,6 +359,28 @@ void KeyZipWindow::onCentralStackedChanged(int index)
 	}
 }
 
+void KeyZipWindow::onItemSelectionChanged()
+{
+	auto items = m_treeWidget->selectedItems();
+	bool bHasSelection = items.isEmpty();
+	m_actExtractSelect->setEnabled(bHasSelection);
+	m_actDelete->setEnabled(bHasSelection);
+
+	//m_previewPanel->clearContent();
+	if (!m_previewPanel || !m_previewPanel->isVisible() || items.size() != 1)
+		return;
+
+	auto selectItem = items.first();
+	if (selectItem->childCount() != 0)
+		return;
+	
+	QString entryPath;
+	if (!getSelectEntryPath(entryPath))
+		return;
+
+	//m_previewPanel->startPreview(m_archivePath, entryPath);
+}
+
 void KeyZipWindow::onRequirePassword(bool& bCancel, QString& password)
 {
 	bool ok = false;
@@ -426,6 +446,17 @@ void KeyZipWindow::onParseSucceed()
 		.arg(CommonHelper::formatFileSize(QFileInfo(m_archivePath).size())));
 }
 
+void KeyZipWindow::onParseCanceled()
+{
+	if (m_parseProgressDlg)
+		m_parseProgressDlg->hide();
+
+	clearOld();
+
+	if (m_centralStackedLayout)
+		m_centralStackedLayout->setCurrentIndex(0);
+}
+
 void KeyZipWindow::onUpdateExtractProgress(quint64 completed, quint64 total)
 {
 	if (!m_extractProgressDlg)
@@ -460,4 +491,10 @@ void KeyZipWindow::onExtractSucceed()
 	if (m_extractProgressDlg)
 		m_extractProgressDlg->hide();
 	QMessageBox::information(this, "", tr("Extraction Succeed"));
+}
+
+void KeyZipWindow::onExtractCanceled()
+{
+	if (m_extractProgressDlg)
+		m_extractProgressDlg->hide();
 }

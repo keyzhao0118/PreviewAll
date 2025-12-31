@@ -57,9 +57,16 @@ void ArchiveParser::run()
 	connect(openCallBackSpec, &ArchiveOpenCallBack::requirePassword, this, &ArchiveParser::requirePassword, Qt::DirectConnection);
 
 	CMyComPtr<IInArchive> archive;
-	if (!CommonHelper::tryOpenArchive(m_archivePath, openCallBack, archive))
+	HRESULT hrOpen = CommonHelper::tryOpenArchive(m_archivePath, openCallBack, archive);
+	if (hrOpen == E_ABORT)
 	{
-		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to open archive: " + m_archivePath);
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Open abort.");
+		emit parseCanceled();
+		return;
+	}
+	if (hrOpen != S_OK)
+	{
+		CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Failed to open archive.");
 		emit parseFailed();
 		return;
 	}
@@ -75,7 +82,7 @@ void ArchiveParser::run()
 		if (isInterruptionRequested())
 		{
 			CommonHelper::LogKeyZipDebugMsg("ArchiveParser: Parsing interrupted.");
-			emit parseFailed();
+			emit parseCanceled();
 			return;
 		}
 

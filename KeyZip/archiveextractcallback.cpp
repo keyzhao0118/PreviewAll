@@ -69,7 +69,7 @@ STDMETHODIMP ArchiveExtractCallBack::GetStream(UInt32 index, ISequentialOutStrea
 		}
 
 		int pos = m_entryPath.lastIndexOf(QDir::separator()) + 1;
-		m_currentFullPath = m_destDirPath + QDir::separator() + m_entryPath.mid(pos);
+		m_currentFullPath = m_destDirPath + QDir::separator() + path.mid(pos);
 	}
 	m_currentIsDir = propIsDir.boolVal != VARIANT_FALSE;
 	

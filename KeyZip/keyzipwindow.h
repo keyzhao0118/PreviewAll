@@ -27,8 +27,11 @@ private:
 	
 	void clearOld();
 
+	bool getSelectEntryPath(QString& entryPath);
+	bool getExtractDestDirPath(QString& destDirPath);
+
 	void startArchiveParser();
-	void startArchiveExtractor(const QString& archivePath, const QString& destDirPath);
+	void startArchiveExtractor(const QString& archivePath, const QString& entryPath, const QString& destDirPath);
 
 private slots:
 	void onOpenTriggered();

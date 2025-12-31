@@ -15,7 +15,7 @@ class ArchiveExtractCallBack
 	Z7_COM_UNKNOWN_IMP_2(IArchiveExtractCallback, ICryptoGetTextPassword)
 
 public:
-	void init(IInArchive* archive, const QString& destDirPath, const QString& password);
+	void init(IInArchive* archive, const QString& entryPath, const QString& destDirPath, const QString& password);
 
 	// IArchiveExtractCallback
 	STDMETHOD(SetTotal)(const UInt64 size) override;
@@ -36,7 +36,7 @@ private:
 	quint64 m_completedSize = 0;
 
 	CMyComPtr<IInArchive> m_archive;
-	CMyComPtr<ISequentialOutStream> m_outStream;
+	QString m_entryPath;
 	QString m_destDirPath;
 	QString m_password;
 
@@ -44,5 +44,6 @@ private:
 	UInt32 m_currentIndex = (UInt32)-1;
 	QString m_currentFullPath;
 	bool m_currentIsDir = false;
+	bool m_bSkipCurrent = false;
 };
 

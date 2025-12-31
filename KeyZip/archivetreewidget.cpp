@@ -83,8 +83,6 @@ QTreeWidgetItem* ArchiveTreeWidget::addItem(QTreeWidgetItem* parentItem, const A
 	item->setData(ArchiveTreeWidgetItem::Column_Type, Qt::UserRole, node->m_bIsDir);
 	item->setData(ArchiveTreeWidgetItem::Column_ModifiedTime, Qt::UserRole, node->m_mtime);
 
-	parentItem->addChild(item);
-
 	return item;
 }
 

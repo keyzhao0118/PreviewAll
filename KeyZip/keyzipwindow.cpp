@@ -1,5 +1,6 @@
 ﻿#include "keyzipwindow.h"
 #include "archivetreewidget.h"
+#include "archivetreewidgetitem.h"
 #include "keycardwidget.h"
 #include "archiveparser.h"
 #include "archiveextractor.h"
@@ -207,6 +208,43 @@ void KeyZipWindow::clearOld()
 	m_archiveParser.reset(nullptr);
 }
 
+bool KeyZipWindow::getSelectEntryPath(QString& entryPath)
+{
+	entryPath.clear();
+	const auto items = m_treeWidget->selectedItems();
+	if (items.size() != 1)
+		return false;
+
+	auto item = items.first();
+	if (!item)
+		return false;
+
+	while (m_treeWidget->indexOfTopLevelItem(item) == -1)
+	{
+		if (entryPath.isEmpty())
+			entryPath = item->text(ArchiveTreeWidgetItem::Column_Name);
+		else
+			entryPath = item->text(ArchiveTreeWidgetItem::Column_Name) + QDir::separator() + entryPath;
+		item = item->parent();
+	}
+	
+	return true;
+}
+
+bool KeyZipWindow::getExtractDestDirPath(QString& destDirPath)
+{
+	destDirPath = QFileDialog::getExistingDirectory(this, tr("Select Extraction Directory"), QString());
+	if (destDirPath.isEmpty())
+		return false;
+
+	if (QMessageBox::question(this, tr("Confirm Extraction"), tr("Extract archive to:\n%1").arg(destDirPath),
+		QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
+		return false;
+
+	destDirPath = QDir::toNativeSeparators(destDirPath);
+	return true;
+}
+
 void KeyZipWindow::startArchiveParser()
 {
 	m_archiveParser.reset(new ArchiveParser());
@@ -219,7 +257,7 @@ void KeyZipWindow::startArchiveParser()
 	m_archiveParser->parseArchive(m_archivePath);
 }
 
-void KeyZipWindow::startArchiveExtractor(const QString& archivePath, const QString& destDirPath)
+void KeyZipWindow::startArchiveExtractor(const QString& archivePath, const QString& entryPath, const QString& destDirPath)
 {
 	m_archiveExtractor.reset(new ArchiveExtractor());
 	connect(m_archiveExtractor.data(), &ArchiveExtractor::requirePassword, this, &KeyZipWindow::onRequirePassword, Qt::BlockingQueuedConnection);
@@ -228,7 +266,7 @@ void KeyZipWindow::startArchiveExtractor(const QString& archivePath, const QStri
 	connect(m_archiveExtractor.data(), &ArchiveExtractor::extractSucceed, this, &KeyZipWindow::onExtractSucceed);
 	
 	m_bExtractCanceled = false;
-	m_archiveExtractor->extractArchive(archivePath, destDirPath);
+	m_archiveExtractor->extractArchive(archivePath, entryPath, destDirPath);
 }
 
 void KeyZipWindow::onOpenTriggered()
@@ -238,7 +276,7 @@ void KeyZipWindow::onOpenTriggered()
 		return;
 
 	clearOld();
-	m_archivePath = filePath;
+	m_archivePath = QDir::toNativeSeparators(filePath);
 	m_centralStackedLayout->setCurrentIndex(1);
 
 	startArchiveParser();
@@ -251,32 +289,29 @@ void KeyZipWindow::onNewTriggered()
 
 void KeyZipWindow::onExtractAllTriggered()
 {
-	if (m_archivePath.isEmpty())
+	QString destDirPath;
+	if (!getExtractDestDirPath(destDirPath))
 		return;
-
-	const QString destDirPath = QFileDialog::getExistingDirectory(this, tr("Select Extraction Directory"), QString());
-	if (destDirPath.isEmpty())
-		return;
-
-	if (QMessageBox::question(this, tr("Confirm Extraction"), tr("Extract archive to:\n%1").arg(destDirPath),
-		QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
-		return;
-
-	startArchiveExtractor(m_archivePath, destDirPath);
+	startArchiveExtractor(m_archivePath, "", destDirPath);
 }
 
 void KeyZipWindow::onExtractSelectTriggered()
 {
-	QMessageBox::information(this, "", tr("Not Implemented Yet"));
+	QString entryPath;
+	if (!getSelectEntryPath(entryPath))
+		return;
+
+	QString destDirPath;
+	if (!getExtractDestDirPath(destDirPath))
+		return;
+
+	startArchiveExtractor(m_archivePath, entryPath, destDirPath);
 }
 
 void KeyZipWindow::onLocationTriggered()
 {
 	if (!m_archivePath.isEmpty() && QFile::exists(m_archivePath))
-	{
-		QString nativePath = QDir::toNativeSeparators(m_archivePath);
-		QProcess::startDetached("explorer.exe", { "/select,", nativePath });
-	}
+		QProcess::startDetached("explorer.exe", { "/select,", m_archivePath });
 }
 
 void KeyZipWindow::onCloseTriggered()
@@ -340,6 +375,7 @@ void KeyZipWindow::onUpdateParseProgress(quint64 completed, quint64 total)
 	{
 		m_parseProgressDlg = new QProgressDialog(tr("Parsing..."), tr("Cancel"), 0, 100, this);
 		m_parseProgressDlg->setWindowModality(Qt::WindowModal);
+		m_parseProgressDlg->setAutoClose(false);
 		connect(m_parseProgressDlg, &QProgressDialog::canceled, this, [this]() {
 			if (m_archiveParser)
 				m_archiveParser->requestInterruption();
@@ -357,6 +393,9 @@ void KeyZipWindow::onUpdateParseProgress(quint64 completed, quint64 total)
 
 void KeyZipWindow::onParseFailed()
 {
+	if(m_parseProgressDlg)
+		m_parseProgressDlg->hide();
+
 	clearOld();
 
 	QMessageBox::critical(this, "", tr("Parsing Failed"));
@@ -367,6 +406,9 @@ void KeyZipWindow::onParseFailed()
 
 void KeyZipWindow::onParseSucceed()
 {
+	if (m_parseProgressDlg)
+		m_parseProgressDlg->hide();
+
 	setWindowTitle(m_archivePath + " - KeyZip");
 
 	m_toolBar->setVisible(true);
@@ -390,6 +432,7 @@ void KeyZipWindow::onUpdateExtractProgress(quint64 completed, quint64 total)
 	{
 		m_extractProgressDlg = new QProgressDialog(tr("Extracting..."), tr("Cancel"), 0, 100, this);
 		m_extractProgressDlg->setWindowModality(Qt::WindowModal);
+		m_extractProgressDlg->setAutoClose(false);
 		connect(m_extractProgressDlg, &QProgressDialog::canceled, this, [this]() {
 			if (m_archiveExtractor)
 				m_archiveExtractor->requestInterruption();
@@ -407,10 +450,14 @@ void KeyZipWindow::onUpdateExtractProgress(quint64 completed, quint64 total)
 
 void KeyZipWindow::onExtractFailed()
 {
+	if (m_extractProgressDlg)
+		m_extractProgressDlg->hide();
 	QMessageBox::critical(this, "", tr("Extraction Failed"));
 }
 
 void KeyZipWindow::onExtractSucceed()
 {
-	QMessageBox::critical(this, "", tr("Extraction Succeed"));
+	if (m_extractProgressDlg)
+		m_extractProgressDlg->hide();
+	QMessageBox::information(this, "", tr("Extraction Succeed"));
 }

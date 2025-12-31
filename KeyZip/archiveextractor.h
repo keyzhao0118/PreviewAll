@@ -10,7 +10,7 @@ public:
 	explicit ArchiveExtractor(QObject* parent = nullptr);
 	~ArchiveExtractor();
 
-	void extractArchive(const QString& archivePath, const QString& destDirPath);
+	void extractArchive(const QString& archivePath, const QString& entryPath, const QString& destDirPath);
 
 signals:
 	void requirePassword(bool& bCancel, QString& password);
@@ -28,6 +28,7 @@ private slots:
 
 private:
 	QString m_archivePath;
+	QString m_entryPath;
 	QString m_destDirPath;
 	QString m_password;
 };

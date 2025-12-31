@@ -79,10 +79,9 @@ void ArchiveParser::run()
 			return;
 		}
 
-		// 每500ms发送一次进度，确保首次和最后一次也发送
-		if (i == 0 || i == itemCount - 1 || progressTimer.elapsed() >= 500)
+		if (progressTimer.elapsed() >= 500)
 		{
-			emit updateProgress(i + 1, itemCount);
+			emit updateProgress(i, itemCount);
 			progressTimer.restart();
 		}
 

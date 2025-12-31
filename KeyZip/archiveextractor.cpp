@@ -19,9 +19,10 @@ ArchiveExtractor::~ArchiveExtractor()
 		CommonHelper::LogKeyZipDebugMsg("ArchiveExtractor: Failed to stop thread within 1 second.");
 }
 
-void ArchiveExtractor::extractArchive(const QString& archivePath, const QString& destDirPath)
+void ArchiveExtractor::extractArchive(const QString& archivePath, const QString& entryPath, const QString& destDirPath)
 {
 	m_archivePath = archivePath;
+	m_entryPath = entryPath;
 	m_destDirPath = destDirPath;
 	this->start();
 }
@@ -42,13 +43,14 @@ void ArchiveExtractor::run()
 		emit extractFailed();
 		return;
 	}
+	QString password = openCallBackSpec->getPassword();
 
 	ArchiveExtractCallBack* extractCallBackSpec = new ArchiveExtractCallBack();
 	CMyComPtr<IArchiveExtractCallback> extractCallBack(extractCallBackSpec);
 	connect(extractCallBackSpec, &ArchiveExtractCallBack::requirePassword, this, &ArchiveExtractor::requirePassword, Qt::DirectConnection);
 	connect(extractCallBackSpec, &ArchiveExtractCallBack::updateProgress, this, &ArchiveExtractor::onUpdateProgress, Qt::DirectConnection);
 
-	extractCallBackSpec->init(archive, m_destDirPath, openCallBackSpec->getPassword());
+	extractCallBackSpec->init(archive, m_entryPath, m_destDirPath, password);
 	HRESULT hrExtract = archive->Extract(nullptr, static_cast<UInt32>(-1), false, extractCallBack);
 	if (hrExtract != S_OK)
 	{

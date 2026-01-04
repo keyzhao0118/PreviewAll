@@ -1,8 +1,0 @@
-﻿<RCC>
-	<qresource prefix="/icons">
-		<file>extract_all.svg</file>
-		<file>extract_select.svg</file>
-		<file>add.svg</file>
-		<file>delete.svg</file>
-	</qresource>
-</RCC>

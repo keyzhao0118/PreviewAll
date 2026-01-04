@@ -30,13 +30,16 @@ void PreviewAppPanel::showEvent(QShowEvent* event)
 	QWidget::showEvent(event);
 }
 
+void PreviewAppPanel::windowToTop()
+{
+	show();
+	activateWindow();
+}
+
 void PreviewAppPanel::onActivatedTrayIcon(QSystemTrayIcon::ActivationReason reason)
 {
 	if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick)
-	{
-		show();
-		activateWindow();
-	}
+		windowToTop();
 }
 
 void PreviewAppPanel::closeEvent(QCloseEvent* event)

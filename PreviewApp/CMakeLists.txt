@@ -11,6 +11,7 @@ set(CMAKE_AUTOUIC ON)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 add_executable(PreviewApp WIN32
+	resources/resource.qrc
 	main.cpp
 	previewapppanel.h
 	previewapppanel.cpp

@@ -2,7 +2,6 @@
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QAction>
-#include <QStyle>
 #include "previewapppanel.h"
 
 int main(int argc, char* argv[])
@@ -12,7 +11,7 @@ int main(int argc, char* argv[])
 	QApplication app(argc, argv);
 
 	// 创建托盘图标
-	QSystemTrayIcon* trayIcon = new QSystemTrayIcon(QApplication::style()->standardIcon(QStyle::SP_ComputerIcon), qApp);
+	QSystemTrayIcon* trayIcon = new QSystemTrayIcon(QIcon(":/icons/previewall.svg"), qApp);
 	trayIcon->setToolTip("Preview All");
 
 	// 创建托盘右键菜单
@@ -25,7 +24,7 @@ int main(int argc, char* argv[])
 	// 创建主面板并连接信号槽
 	PreviewAppPanel appPanel(trayIcon);
 	QObject::connect(trayIcon, &QSystemTrayIcon::activated, &appPanel, &PreviewAppPanel::onActivatedTrayIcon);
-	QObject::connect(showAction, &QAction::triggered, &appPanel, &PreviewAppPanel::show);
+	QObject::connect(showAction, &QAction::triggered, &appPanel, &PreviewAppPanel::windowToTop);
 	QObject::connect(exitAction, &QAction::triggered, qApp, &QApplication::quit);
 	appPanel.show();
 

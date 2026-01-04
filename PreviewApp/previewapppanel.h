@@ -12,6 +12,7 @@ public:
 	~PreviewAppPanel();
 
 public slots:
+	void windowToTop();
 	void onActivatedTrayIcon(QSystemTrayIcon::ActivationReason reason);
 
 protected:

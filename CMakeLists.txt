@@ -8,7 +8,7 @@ project(PreviewAll
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(PreviewApp)
+add_subdirectory(PreviewAll)
 add_subdirectory(PreviewServer)
 add_subdirectory(KeyZip)
 add_subdirectory(KeyWidgets)

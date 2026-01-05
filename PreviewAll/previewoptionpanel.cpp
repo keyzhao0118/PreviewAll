@@ -42,7 +42,7 @@ namespace
 		}
 	}
 
-	void unregisterPreviewHandler()
+	void unregisterPreviewAllHandler()
 	{
 		QSettings inproc("HKEY_CURRENT_USER\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler + "\\InProcServer32", QSettings::NativeFormat);
 		inproc.remove("");
@@ -78,6 +78,8 @@ namespace
 PreviewOptionPanel::PreviewOptionPanel(QSystemTrayIcon* trayIcon /*= nullptr*/, QWidget* parent /*= nullptr*/)
 	: QWidget(parent), m_trayIcon(trayIcon)
 {
+	registerPreviewAllHandler();
+
 	setWindowFlag(Qt::WindowMaximizeButtonHint, false);
 	setWindowFlag(Qt::WindowMinMaxButtonsHint, false);
 	setFixedSize(320, 320);
@@ -89,12 +91,11 @@ PreviewOptionPanel::PreviewOptionPanel(QSystemTrayIcon* trayIcon /*= nullptr*/, 
 	addSwitchCard(tr("Image Files"), s_imageExtList, &m_imageSwitch);
 	addSwitchCard(tr("Archive Files"), s_archiveExtList, &m_archiveSwitch);
 	addSwitchCard(tr("Source Code"), s_codeExtList, &m_codeSwitch);
-
-	registerPreviewAllHandler();
 }
 
 PreviewOptionPanel::~PreviewOptionPanel()
 {
+	unregisterPreviewAllHandler();
 }
 
 void PreviewOptionPanel::showEvent(QShowEvent* event)

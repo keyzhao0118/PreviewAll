@@ -4,27 +4,31 @@
 namespace
 {
 
-const QString s_previewAllSocketName = "PreviewAllSocket_{0A869132-411F-41ED-9CD7-47659A55569F}";
+	const QString s_previewAllSocketName = "PreviewAllSocket_{0A869132-411F-41ED-9CD7-47659A55569F}";
 
 }
 
 HWND PreviewAllRequester::sendCreateCmd(HWND hwndParent, const QString& filePath)
 {
+	HWND hwndPreview = nullptr;
 	QLocalSocket socket;
 	socket.connectToServer(s_previewAllSocketName);
 	if (!socket.waitForConnected())
-		return nullptr;
+		return hwndPreview;
 
 	QString encodedPath = filePath.toUtf8().toBase64();
 	QString command = QString("CREATE %1 %2\n").arg((qulonglong)hwndParent).arg(encodedPath);
 	socket.write(command.toUtf8());
 	socket.flush();
 
-	if (!socket.waitForReadyRead())
-		return nullptr;
+	if (socket.waitForReadyRead())
+	{
+		QByteArray response = socket.readLine().trimmed();
+		hwndPreview = HWND(response.toULongLong());
+	}
+	socket.disconnectFromServer();
 
-	QByteArray response = socket.readLine().trimmed();
-	return HWND(response.toULongLong());
+	return hwndPreview;
 }
 
 void PreviewAllRequester::postResizeCmd(HWND hwndPreview, int width, int height)

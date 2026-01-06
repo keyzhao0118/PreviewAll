@@ -1,14 +1,16 @@
-﻿#include <QApplication>
+﻿#include "previewallapplication.h"
+#include "previewoptionpanel.h"
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QAction>
-#include "previewoptionpanel.h"
+
 
 int main(int argc, char* argv[])
 {
 	// ToDo:单个实例
 
-	QApplication app(argc, argv);
+	PreviewAllApplication app(argc, argv);
+	app.startWindowManageService();
 
 	// 创建托盘图标
 	QSystemTrayIcon* trayIcon = new QSystemTrayIcon(QIcon(":/icons/previewall.svg"), qApp);

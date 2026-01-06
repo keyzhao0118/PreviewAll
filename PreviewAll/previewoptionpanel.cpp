@@ -24,51 +24,50 @@ namespace
 	void registerPreviewAllHandler()
 	{
 		{
-			QSettings clsidRoot("HKEY_CURRENT_USER\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
+			QSettings clsidRoot("HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
 			clsidRoot.setValue(".", NAME_PreviewAllHandler);
 			clsidRoot.setValue("AppID", APPID_PREVHOST64);
 			clsidRoot.setValue("DisableLowILProcessIsolation", 1);
 
-			QSettings inproc("HKEY_CURRENT_USER\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler + "\\InProcServer32", QSettings::NativeFormat);
-			QString curDirPath = QFileInfo(QApplication::applicationFilePath()).absolutePath();
-			QString handlerPath = QDir::toNativeSeparators(curDirPath + QDir::separator() + "PreviewAllHandler.dll");
+			QSettings inproc("HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler + "\\InProcServer32", QSettings::NativeFormat);
+			QString handlerPath = "D:\\workspace\\PreviewAll\\out\\build\\x64-debug-user\\PreviewAllHandler\\PreviewAllHandler.dll";
 			inproc.setValue(".", handlerPath);
 			inproc.setValue("ThreadingModel", "Apartment");
 		}
 
 		{
-			QSettings previewHandlers("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\PreviewHandlers", QSettings::NativeFormat);
+			QSettings previewHandlers("HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\PreviewHandlers", QSettings::NativeFormat);
 			previewHandlers.setValue(CLSID_PreviewAllHandler, NAME_PreviewAllHandler);
 		}
 	}
 
 	void unregisterPreviewAllHandler()
 	{
-		QSettings inproc("HKEY_CURRENT_USER\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler + "\\InProcServer32", QSettings::NativeFormat);
+		QSettings inproc("HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler + "\\InProcServer32", QSettings::NativeFormat);
 		inproc.remove("");
 
-		QSettings clsidRoot("HKEY_CURRENT_USER\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
+		QSettings clsidRoot("HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
 		clsidRoot.remove("");
 
-		QSettings previewHandlers("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\PreviewHandlers", QSettings::NativeFormat);
+		QSettings previewHandlers("HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\PreviewHandlers", QSettings::NativeFormat);
 		previewHandlers.remove(CLSID_PreviewAllHandler);
 	}
 
 	void registerExtention(const QString& suffix)
 	{
-		QSettings shellExKey("HKEY_CURRENT_USER\\Software\\Classes\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
+		QSettings shellExKey("HKEY_LOCAL_MACHINE\\Software\\Classes\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
 		shellExKey.setValue(".", CLSID_PreviewAllHandler);
 	}
 
 	void unregisterExtention(const QString& suffix)
 	{
-		QSettings shellExKey("HKEY_CURRENT_USER\\Software\\Classes\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
+		QSettings shellExKey("HKEY_LOCAL_MACHINE\\Software\\Classes\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
 		shellExKey.remove("");
 	}
 
 	bool isRegisteredExtention(const QString& suffix)
 	{
-		QSettings shellExKey("HKEY_CURRENT_USER\\Software\\Classes\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
+		QSettings shellExKey("HKEY_LOCAL_MACHINE\\Software\\Classes\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
 		return shellExKey.value(".").toString() == CLSID_PreviewAllHandler;
 	}
 

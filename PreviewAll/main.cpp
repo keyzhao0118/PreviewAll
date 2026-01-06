@@ -10,6 +10,7 @@ int main(int argc, char* argv[])
 	// ToDo:单个实例
 
 	PreviewAllApplication app(argc, argv);
+	app.setQuitOnLastWindowClosed(false);
 	app.startWindowManageService();
 
 	// 创建托盘图标

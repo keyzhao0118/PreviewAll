@@ -23,6 +23,7 @@ void PreviewAllApplication::startWindowManageService()
 {
 	QLocalServer::removeServer(s_previewAllSocketName);
 	m_previewAllServer = new QLocalServer(this);
+	m_previewAllServer->setSocketOptions(QLocalServer::WorldAccessOption);
 	connect(m_previewAllServer, &QLocalServer::newConnection, this, &PreviewAllApplication::onNewConnection);
 	if (!m_previewAllServer->listen(s_previewAllSocketName))
 	{
@@ -77,6 +78,8 @@ QSharedPointer<QWidget> PreviewAllApplication::createPreviewWidget(const QString
 	QString suffix = fileInfo.suffix().toLower();
 
 	previewWidget.reset(new QWidget());
+	previewWidget->setStyleSheet("background-color: red;");
+	previewWidget->setWindowFlags(Qt::FramelessWindowHint);
 
 	return previewWidget;
 }

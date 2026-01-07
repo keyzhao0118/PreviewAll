@@ -18,7 +18,6 @@ private:
 	HWND handleCreateCmd(HWND hwndParent, const QString& filePath);
 	void handleResizeCmd(HWND hwndPreview, int width, int height);
 	void handleCloseCmd(HWND hwndPreview);
-	void handleQuitCmd();
 	QSharedPointer<QWidget> createPreviewWidget(const QString& filePath);
 
 private slots:

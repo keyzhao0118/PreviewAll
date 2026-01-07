@@ -61,15 +61,6 @@ void PreviewAllApplication::handleCloseCmd(HWND hwndPreview)
 	}
 }
 
-void PreviewAllApplication::handleQuitCmd()
-{
-	for (auto w : m_widgetHash)
-		w->close();
-
-	m_widgetHash.clear();
-	quit();
-}
-
 QSharedPointer<QWidget> PreviewAllApplication::createPreviewWidget(const QString& filePath)
 {
 	QSharedPointer<QWidget> previewWidget;
@@ -77,9 +68,9 @@ QSharedPointer<QWidget> PreviewAllApplication::createPreviewWidget(const QString
 	QFileInfo fileInfo(filePath);
 	QString suffix = fileInfo.suffix().toLower();
 
+	
 	previewWidget.reset(new QWidget());
-	previewWidget->setStyleSheet("background-color: red;");
-	previewWidget->setWindowFlags(Qt::FramelessWindowHint);
+	
 
 	return previewWidget;
 }
@@ -129,10 +120,6 @@ void PreviewAllApplication::onReadyRead()
 		HWND hwndPreview = reinterpret_cast<HWND>(parts[1].toULongLong());
 		handleCloseCmd(hwndPreview);
 	}
-	else if (command == "QUIT" && parts.size() == 1)
-	{
-		handleQuitCmd();
-	}
-		
+
 }
 

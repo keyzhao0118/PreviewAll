@@ -1,4 +1,6 @@
 ﻿#include "previewallapplication.h"
+#include "previewallregister.h"
+#include "previewarchive/archivepreviewwidget.h"
 #include <QLocalSocket>
 #include <QFileInfo>
 #include <Windows.h>
@@ -66,11 +68,18 @@ QSharedPointer<QWidget> PreviewAllApplication::createPreviewWidget(const QString
 	QSharedPointer<QWidget> previewWidget;
 
 	QFileInfo fileInfo(filePath);
-	QString suffix = fileInfo.suffix().toLower();
+	QString suffix = "." + fileInfo.suffix();
 
-	
-	previewWidget.reset(new QWidget());
-	
+	if (PreviewAllRegister::archiveExtList.contains(suffix, Qt::CaseInsensitive))
+	{
+		previewWidget.reset(new ArchivePreviewWidget(filePath));
+	}
+	else
+	{
+		previewWidget.reset(new QWidget());
+		previewWidget->setStyleSheet("background-color: red;");
+		previewWidget->setWindowFlags(Qt::FramelessWindowHint);
+	}
 
 	return previewWidget;
 }

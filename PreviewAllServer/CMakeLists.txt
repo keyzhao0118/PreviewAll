@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.20)
 
-project(PreviewAll
+project(PreviewAllServer
 	LANGUAGES CXX
 )
 
@@ -11,16 +11,18 @@ set(CMAKE_AUTOUIC ON)
 find_package(Qt5 COMPONENTS Widgets Network REQUIRED)
 find_package(KF5SyntaxHighlighting REQUIRED)
 
-add_executable(PreviewAll WIN32
+add_executable(PreviewAllServer WIN32
 	resources/resource.qrc
 	main.cpp
 	previewoptionpanel.cpp
 	previewoptionpanel.h
 	previewallapplication.cpp
 	previewallapplication.h
+	previewallregister.cpp
+	previewallregister.h
 )
 
-target_link_libraries(PreviewAll
+target_link_libraries(PreviewAllServer
 	PRIVATE
 		Qt5::Widgets
 		Qt5::Network

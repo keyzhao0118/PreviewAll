@@ -8,7 +8,11 @@ project(PreviewAll
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(PreviewAll)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/PreviewAll)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/PreviewAll)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/PreviewAll)
+
+add_subdirectory(PreviewAllServer)
 add_subdirectory(PreviewAllHandler)
 add_subdirectory(KeyZip)
 add_subdirectory(KeyWidgets)

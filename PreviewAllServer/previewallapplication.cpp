@@ -1,6 +1,7 @@
 ﻿#include "previewallapplication.h"
 #include "previewallregister.h"
 #include "previewarchive/archivepreviewwidget.h"
+#include "previewimage/imageviewerwidget.h"
 #include <QLocalSocket>
 #include <QFileInfo>
 #include <Windows.h>
@@ -73,6 +74,10 @@ QSharedPointer<QWidget> PreviewAllApplication::createPreviewWidget(const QString
 	if (PreviewAllRegister::archiveExtList.contains(suffix, Qt::CaseInsensitive))
 	{
 		previewWidget.reset(new ArchivePreviewWidget(filePath));
+	}
+	else if (PreviewAllRegister::imageExtList.contains(suffix, Qt::CaseInsensitive))
+	{
+		previewWidget.reset(new ImageViewerWidget(filePath));
 	}
 	else
 	{

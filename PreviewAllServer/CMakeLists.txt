@@ -8,7 +8,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Widgets Network REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Network OpenGL REQUIRED)
 find_package(7zip CONFIG REQUIRED)
 find_package(KF5SyntaxHighlighting REQUIRED)
 
@@ -23,8 +23,6 @@ add_executable(PreviewAllServer WIN32
 	previewallregister.h
 
 	previewarchive/guiddef.cpp
-	
-	
 	previewarchive/archiveparser.cpp
 	previewarchive/archiveparser.h
 	previewarchive/archiveopencallback.cpp
@@ -39,12 +37,20 @@ add_executable(PreviewAllServer WIN32
 	previewarchive/archivetreewidgetitem.h
 	previewarchive/archivepreviewwidget.cpp
 	previewarchive/archivepreviewwidget.h
+
+	previewimage/imageviewerwidget.cpp
+	previewimage/imageviewerwidget.h
+	previewimage/imageviewportwidget.cpp
+	previewimage/imageviewportwidget.h
+	previewimage/imageviewstatusbar.cpp
+	previewimage/imageviewstatusbar.h
 )
 
 target_link_libraries(PreviewAllServer
 	PRIVATE
 		Qt5::Widgets
 		Qt5::Network
+		Qt5::OpenGL
 		KeyWidgets
 		7zip::7zip
 		KF5::SyntaxHighlighting

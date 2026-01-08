@@ -9,7 +9,7 @@ const QString PreviewAllRegister::NAME_PreviewAllHandler = "PreviewAllHandler";
 
 const QStringList PreviewAllRegister::imageExtList = { ".png",".jpg",".jpeg",".tif",".tiff",".bmp",".webp",".ico",".svg",".gif" };
 const QStringList PreviewAllRegister::archiveExtList = { ".zip", ".rar", ".7z" };
-const QStringList PreviewAllRegister::codeExtList = { ".c" };
+const QStringList PreviewAllRegister::codeExtList = { ".c", ".cpp", ".h", ".hpp"};
 
 void PreviewAllRegister::registerHandler()
 {

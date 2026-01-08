@@ -45,6 +45,9 @@ add_executable(PreviewAllServer WIN32
 	previewimage/imageviewportwidget.h
 	previewimage/imageviewstatusbar.cpp
 	previewimage/imageviewstatusbar.h
+
+	previewcode/codepreviewwidget.cpp
+	previewcode/codepreviewwidget.h
 )
 
 target_link_libraries(PreviewAllServer

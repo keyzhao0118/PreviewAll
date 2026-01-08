@@ -2,6 +2,7 @@
 #include "previewallregister.h"
 #include "previewarchive/archivepreviewwidget.h"
 #include "previewimage/imageviewerwidget.h"
+#include "previewcode/codepreviewwidget.h"
 #include <QLocalSocket>
 #include <QFileInfo>
 #include <Windows.h>
@@ -38,6 +39,9 @@ void PreviewAllApplication::startWindowManageService()
 HWND PreviewAllApplication::handleCreateCmd(HWND hwndParent, const QString& filePath)
 {
 	QSharedPointer<QWidget> previewWidget = createPreviewWidget(filePath);
+	if (!previewWidget)
+		return nullptr;
+
 	HWND hwndPreview = reinterpret_cast<HWND>(previewWidget->winId());
 	SetParent(hwndPreview, hwndParent);
 	previewWidget->show();
@@ -78,6 +82,10 @@ QSharedPointer<QWidget> PreviewAllApplication::createPreviewWidget(const QString
 	else if (PreviewAllRegister::imageExtList.contains(suffix, Qt::CaseInsensitive))
 	{
 		previewWidget.reset(new ImageViewerWidget(filePath));
+	}
+	else if (PreviewAllRegister::codeExtList.contains(suffix, Qt::CaseInsensitive))
+	{
+		previewWidget.reset(new CodePreviewWidget(filePath));
 	}
 	else
 	{

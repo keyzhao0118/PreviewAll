@@ -36,12 +36,15 @@ PreviewOptionPanel::~PreviewOptionPanel()
 void PreviewOptionPanel::showEvent(QShowEvent* event)
 {
 	auto funcGetSwitchCheckState = [](const QStringList& extList)->bool {
+		if (!PreviewAllRegister::isRegisteredHandler())
+			return false;
+		
 		for (const QString& ext : extList)
 		{
-			if (PreviewAllRegister::isRegisteredExtention(ext))
-				return true;
+			if (!PreviewAllRegister::isRegisteredExtention(ext))
+				return false;
 		}
-		return false;
+		return true;
 	};
 
 	if (m_imageSwitch) m_imageSwitch->setChecked(funcGetSwitchCheckState(PreviewAllRegister::imageExtList));

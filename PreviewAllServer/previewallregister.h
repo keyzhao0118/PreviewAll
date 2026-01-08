@@ -19,6 +19,7 @@ public:
 	void static unregisterHandler();
 	void static registerExtention(const QString& suffix);
 	void static unregisterExtention(const QString& suffix);
+	bool static isRegisteredHandler();
 	bool static isRegisteredExtention(const QString& suffix);
 
 

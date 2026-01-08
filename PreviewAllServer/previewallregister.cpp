@@ -35,6 +35,12 @@ void PreviewAllRegister::unregisterExtention(const QString& suffix)
 	unregisterExtention(suffix, HKEY_LOCAL_MACHINE);
 }
 
+bool PreviewAllRegister::isRegisteredHandler()
+{
+	QSettings previewHandlers("HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
+	return previewHandlers.value(".").toString() == NAME_PreviewAllHandler;
+}
+
 bool PreviewAllRegister::isRegisteredExtention(const QString& suffix)
 {
 	QSettings shellExKey("HKEY_CLASSES_ROOT\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);

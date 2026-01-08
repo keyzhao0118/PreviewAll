@@ -14,6 +14,7 @@ find_package(KF5SyntaxHighlighting REQUIRED)
 
 add_executable(PreviewAllServer WIN32
 	resources/resource.qrc
+
 	main.cpp
 	previewoptionpanel.cpp
 	previewoptionpanel.h
@@ -55,6 +56,12 @@ target_link_libraries(PreviewAllServer
 		7zip::7zip
 		KF5::SyntaxHighlighting
 )
+
+if (MSVC)
+	target_link_options(PreviewAllServer PRIVATE
+		"/MANIFESTUAC:level='requireAdministrator'"
+	)
+endif()
 
 # 添加此命令以在构建后复制 DLL
 add_custom_command(TARGET PreviewAllServer POST_BUILD

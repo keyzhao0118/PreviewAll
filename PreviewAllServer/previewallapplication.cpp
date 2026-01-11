@@ -5,6 +5,7 @@
 #include "previewcode/codepreviewwidget.h"
 #include <QLocalSocket>
 #include <QFileInfo>
+#include <QTranslator>
 #include <Windows.h>
 
 namespace
@@ -22,6 +23,17 @@ PreviewAllApplication::PreviewAllApplication(int& argc, char** argv)
 PreviewAllApplication::~PreviewAllApplication()
 {}
 
+void PreviewAllApplication::initTranslations()
+{
+	QTranslator* qtTranslator = new QTranslator(this);
+
+	QString locale = QLocale::system().name();
+	QString appDir = QCoreApplication::applicationDirPath();
+	QString qmFilePath = QString("%1/translations/previewall_%2.qm").arg(appDir).arg(locale);
+
+	if (qtTranslator->load(qmFilePath))
+		installTranslator(qtTranslator);
+}
 
 void PreviewAllApplication::startWindowManageService()
 {

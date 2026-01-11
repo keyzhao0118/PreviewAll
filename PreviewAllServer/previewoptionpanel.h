@@ -7,6 +7,7 @@ class QVBoxLayout;
 class KeySlideSwitch;
 class PreviewOptionPanel : public QWidget
 {
+	Q_OBJECT
 public:
 	explicit PreviewOptionPanel(QSystemTrayIcon* trayIcon = nullptr, QWidget* parent = nullptr);
 	~PreviewOptionPanel();

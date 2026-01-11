@@ -12,6 +12,7 @@ public:
 	PreviewAllApplication(int& argc, char** argv);
 	~PreviewAllApplication();
 
+	void initTranslations();
 	void startWindowManageService();
 
 private:

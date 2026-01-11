@@ -10,6 +10,7 @@ class ArchiveParser;
 
 class ArchivePreviewWidget : public QWidget
 {
+	Q_OBJECT
 public:
 	explicit ArchivePreviewWidget(const QString& filePath, QWidget* parent = nullptr);
 	~ArchivePreviewWidget();

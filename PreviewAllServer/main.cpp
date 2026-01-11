@@ -12,6 +12,7 @@ int main(int argc, char* argv[])
 	PreviewAllApplication app(argc, argv);
 	app.setQuitOnLastWindowClosed(false);
 	app.startWindowManageService();
+	app.initTranslations();
 
 	// 创建托盘图标
 	QSystemTrayIcon* trayIcon = new QSystemTrayIcon(QIcon(":/icons/previewall.svg"), qApp);

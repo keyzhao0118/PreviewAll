@@ -41,7 +41,7 @@ void ArchivePreviewWidget::showLoadingPage()
 {
 	if (!m_loadingLab)
 	{
-		m_loadingLab = new QLabel("Loading...", this);
+		m_loadingLab = new QLabel(tr("Loading..."), this);
 		m_loadingLab->setAlignment(Qt::AlignCenter);
 		m_stackedLayout->addWidget(m_loadingLab);
 	}
@@ -53,7 +53,7 @@ void ArchivePreviewWidget::showErrorPage()
 {
 	if (!m_errorLab)
 	{
-		m_errorLab = new QLabel("Failed to parse archive.", this);
+		m_errorLab = new QLabel(tr("Failed to parse archive."), this);
 		m_errorLab->setAlignment(Qt::AlignCenter);
 		m_stackedLayout->addWidget(m_errorLab);
 	}
@@ -65,7 +65,7 @@ void ArchivePreviewWidget::showEncryptPage()
 {
 	if (!m_encryptLab)
 	{
-		m_encryptLab = new QLabel("The archive is encrypted.", this);
+		m_encryptLab = new QLabel(tr("The archive is encrypted."), this);
 		m_encryptLab->setAlignment(Qt::AlignCenter);
 		m_stackedLayout->addWidget(m_encryptLab);
 	}

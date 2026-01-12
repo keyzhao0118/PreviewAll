@@ -14,5 +14,4 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/PreviewAll)
 
 add_subdirectory(PreviewAllServer)
 add_subdirectory(PreviewAllHandler)
-#add_subdirectory(KeyZip)
 add_subdirectory(KeyWidgets)

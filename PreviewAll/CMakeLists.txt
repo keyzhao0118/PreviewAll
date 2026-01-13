@@ -60,11 +60,11 @@ target_link_libraries(PreviewAll
 		KF5::SyntaxHighlighting
 )
 
-if (MSVC)
-	target_link_options(PreviewAll PRIVATE
-		"/MANIFESTUAC:level='requireAdministrator'"
-	)
-endif()
+#if (MSVC)
+#	target_link_options(PreviewAll PRIVATE
+#		"/MANIFESTUAC:level='requireAdministrator'"
+#	)
+#endif()
 
 # 添加此命令以在构建后复制 DLL
 add_custom_command(TARGET PreviewAll POST_BUILD

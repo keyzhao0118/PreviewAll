@@ -43,7 +43,11 @@ void PreviewAllApplication::startWindowManageService()
 	connect(m_previewAllServer, &QLocalServer::newConnection, this, &PreviewAllApplication::onNewConnection);
 	if (!m_previewAllServer->listen(s_previewAllSocketName))
 	{
-		// Failed to start the server
+		const QString err = m_previewAllServer->errorString();
+		const QString msg = QString("PreviewAll: QLocalServer listen failed on '%1': %2")
+			.arg(s_previewAllSocketName)
+			.arg(err);
+		qDebug() << msg;
 	}
 	
 }

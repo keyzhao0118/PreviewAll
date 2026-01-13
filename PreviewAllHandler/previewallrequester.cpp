@@ -14,7 +14,17 @@ HWND PreviewAllRequester::sendCreateCmd(HWND hwndParent, const QString& filePath
 	QLocalSocket socket;
 	socket.connectToServer(s_previewAllSocketName);
 	if (!socket.waitForConnected())
+	{
+		// 输出详细错误信息到调试/输出窗口
+		const QLocalSocket::LocalSocketError err = socket.error();
+		const QString errStr = socket.errorString();
+		qWarning().nospace()
+			<< "PreviewAllRequester::sendCreateCmd - connectToServer failed. "
+			<< "socketName=\"" << s_previewAllSocketName << "\", "
+			<< "errorCode=" << static_cast<int>(err) << ", "
+			<< "errorString=\"" << errStr << "\"";
 		return hwndPreview;
+	}
 
 	QString encodedPath = filePath.toUtf8().toBase64();
 	QString command = QString("CREATE %1 %2\n").arg((qulonglong)hwndParent).arg(encodedPath);

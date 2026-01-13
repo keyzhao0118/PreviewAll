@@ -47,7 +47,7 @@ void PreviewAllRegister::unregisterExtention(const QString& suffix)
 
 bool PreviewAllRegister::isRegisteredHandler()
 {
-	QSettings previewHandlers("HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
+	QSettings previewHandlers("HKEY_CLASSES_ROOT\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
 	return previewHandlers.value(".").toString() == NAME_PreviewAllHandler;
 }
 

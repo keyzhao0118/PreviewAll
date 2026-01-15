@@ -16,14 +16,6 @@ CodePreviewWidget::CodePreviewWidget(const QString& filePath, QWidget* parent)
 
 CodePreviewWidget::~CodePreviewWidget()
 {
-	auto* layout = new QVBoxLayout(this);
-	layout->setContentsMargins(0, 0, 0, 0);
-
-	m_editor = new QPlainTextEdit(this);
-	m_editor->setReadOnly(true);
-	m_editor->setLineWrapMode(QPlainTextEdit::NoWrap);
-
-	layout->addWidget(m_editor);
 }
 
 void CodePreviewWidget::initUi()

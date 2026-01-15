@@ -36,19 +36,22 @@ void PreviewAllRegister::unregisterHandler()
 void PreviewAllRegister::registerExtention(const QString& suffix)
 {
 	registerExtention(suffix, HKEY_CURRENT_USER);
-	registerExtention(suffix, HKEY_LOCAL_MACHINE);
+	//registerExtention(suffix, HKEY_LOCAL_MACHINE);
 }
 
 void PreviewAllRegister::unregisterExtention(const QString& suffix)
 {
 	unregisterExtention(suffix, HKEY_CURRENT_USER);
-	unregisterExtention(suffix, HKEY_LOCAL_MACHINE);
+	//unregisterExtention(suffix, HKEY_LOCAL_MACHINE);
 }
 
 bool PreviewAllRegister::isRegisteredHandler()
 {
 	QSettings previewHandlers("HKEY_CLASSES_ROOT\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
-	return previewHandlers.value(".").toString() == NAME_PreviewAllHandler;
+	bool bClassRootRegistered = previewHandlers.value(".").toString() == NAME_PreviewAllHandler;
+	bool bCurrentUserRegistered = isRegisteredHandler(HKEY_CURRENT_USER);
+	bool bLocalMachineRegistered = isRegisteredHandler(HKEY_LOCAL_MACHINE);
+	return bClassRootRegistered && bCurrentUserRegistered && bLocalMachineRegistered;
 }
 
 bool PreviewAllRegister::isRegisteredExtention(const QString& suffix)
@@ -133,6 +136,20 @@ void PreviewAllRegister::unregisterExtention(const QString& suffix, HKEY hkey)
 
 	QSettings shellExKey(rootName + "\\Software\\Classes\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
 	shellExKey.remove("");
+}
+
+bool PreviewAllRegister::isRegisteredHandler(HKEY hkey)
+{
+	QString rootName;
+	if (hkey == HKEY_CURRENT_USER)
+		rootName = "HKEY_CURRENT_USER";
+	else if (hkey == HKEY_LOCAL_MACHINE)
+		rootName = "HKEY_LOCAL_MACHINE";
+	else
+		return false;
+
+	QSettings previewHandlers(rootName + "\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
+	return previewHandlers.value(".").toString() == NAME_PreviewAllHandler;
 }
 
 

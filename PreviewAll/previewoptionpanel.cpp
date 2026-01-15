@@ -13,8 +13,6 @@
 PreviewOptionPanel::PreviewOptionPanel(QSystemTrayIcon* trayIcon /*= nullptr*/, QWidget* parent /*= nullptr*/)
 	: QWidget(parent), m_trayIcon(trayIcon)
 {
-	PreviewAllRegister::registerHandler();
-
 	setWindowFlag(Qt::WindowMaximizeButtonHint, false);
 	setWindowFlag(Qt::WindowMinMaxButtonsHint, false);
 	setFixedSize(320, 320);
@@ -30,26 +28,13 @@ PreviewOptionPanel::PreviewOptionPanel(QSystemTrayIcon* trayIcon /*= nullptr*/, 
 
 PreviewOptionPanel::~PreviewOptionPanel()
 {
-	PreviewAllRegister::unregisterHandler();
 }
 
 void PreviewOptionPanel::showEvent(QShowEvent* event)
 {
-	auto funcGetSwitchCheckState = [](const QStringList& extList)->bool {
-		if (!PreviewAllRegister::isRegisteredHandler())
-			return false;
-		
-		for (const QString& ext : extList)
-		{
-			if (!PreviewAllRegister::isRegisteredExtention(ext))
-				return false;
-		}
-		return true;
-	};
-
-	if (m_imageSwitch) m_imageSwitch->setChecked(funcGetSwitchCheckState(PreviewAllRegister::imageExtList));
-	if (m_archiveSwitch) m_archiveSwitch->setChecked(funcGetSwitchCheckState(PreviewAllRegister::archiveExtList));
-	if (m_codeSwitch) m_codeSwitch->setChecked(funcGetSwitchCheckState(PreviewAllRegister::codeExtList));
+	if (m_imageSwitch) m_imageSwitch->setChecked(getRegisterState(PreviewAllRegister::imageExtList));
+	if (m_archiveSwitch) m_archiveSwitch->setChecked(getRegisterState(PreviewAllRegister::archiveExtList));
+	if (m_codeSwitch) m_codeSwitch->setChecked(getRegisterState(PreviewAllRegister::codeExtList));
 
 	QWidget::showEvent(event);
 }
@@ -105,4 +90,18 @@ void PreviewOptionPanel::addSwitchCard(const QString& title, const QStringList& 
 	
 	if (m_mainLayout)
 		m_mainLayout->addWidget(card);
+}
+
+bool PreviewOptionPanel::getRegisterState(const QStringList& extList)
+{
+	if (!PreviewAllRegister::isRegisteredHandler())
+		return false;
+
+	for (const QString& ext : extList)
+	{
+		if (!PreviewAllRegister::isRegisteredExtention(ext))
+			return false;
+	}
+
+	return true;
 }

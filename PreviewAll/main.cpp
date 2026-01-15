@@ -1,15 +1,50 @@
 ﻿#include "previewallapplication.h"
 #include "previewoptionpanel.h"
+#include "previewallregister.h"
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QAction>
+#include <QProcess>
+
+namespace
+{
+
+	void ensureRegisterPreviewHandler()
+	{
+		if (PreviewAllRegister::isRegisteredHandler())
+			return;
+
+		QProcess process;
+		QString appPath = QCoreApplication::applicationFilePath();
+		QStringList psArgs;
+		psArgs << "-Command"
+			   << QString("Start-Process -FilePath \"%1\" -ArgumentList \"--register-preview-handler\" -Verb runAs -Wait").arg(appPath);
+		process.start("powershell", psArgs);
+		if (!process.waitForFinished(-1))
+		{
+			qDebug() << "Failed to launch elevated registration process.";
+		}
+	}
+
+}
 
 
 int main(int argc, char* argv[])
 {
-	// ToDo:单个实例
-
 	PreviewAllApplication app(argc, argv);
+
+	QStringList args = app.arguments();
+	if (args.contains("--register-preview-handler"))
+	{
+		PreviewAllRegister::registerHandler();
+		if(PreviewAllRegister::isRegisteredHandler())
+			qDebug() << "Preview handler registered successfully.";
+		else
+			qDebug() << "Failed to register preview handler.";
+		return 0;
+	}
+	ensureRegisterPreviewHandler();
+
 	app.setQuitOnLastWindowClosed(false);
 	app.startWindowManageService();
 	app.initTranslations();

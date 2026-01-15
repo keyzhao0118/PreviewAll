@@ -22,6 +22,7 @@ protected:
 
 private:
 	void addSwitchCard(const QString& title, const QStringList& extList, KeySlideSwitch** switchControl);
+	bool getRegisterState(const QStringList& extList);
 
 private:
 	QVBoxLayout* m_mainLayout = nullptr;

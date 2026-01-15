@@ -28,4 +28,5 @@ private:
 	void static unregisterHandler(HKEY hkey);
 	void static registerExtention(const QString& suffix, HKEY hkey);
 	void static unregisterExtention(const QString& suffix, HKEY hkey);
+	bool static isRegisteredHandler(HKEY hkey);
 };

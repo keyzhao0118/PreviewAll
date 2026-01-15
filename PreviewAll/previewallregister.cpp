@@ -33,18 +33,6 @@ void PreviewAllRegister::unregisterHandler()
 	unregisterHandler(HKEY_LOCAL_MACHINE);
 }
 
-void PreviewAllRegister::registerExtention(const QString& suffix)
-{
-	registerExtention(suffix, HKEY_CURRENT_USER);
-	//registerExtention(suffix, HKEY_LOCAL_MACHINE);
-}
-
-void PreviewAllRegister::unregisterExtention(const QString& suffix)
-{
-	unregisterExtention(suffix, HKEY_CURRENT_USER);
-	//unregisterExtention(suffix, HKEY_LOCAL_MACHINE);
-}
-
 bool PreviewAllRegister::isRegisteredHandler()
 {
 	QSettings previewHandlers("HKEY_CLASSES_ROOT\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
@@ -54,10 +42,27 @@ bool PreviewAllRegister::isRegisteredHandler()
 	return bClassRootRegistered && bCurrentUserRegistered && bLocalMachineRegistered;
 }
 
-bool PreviewAllRegister::isRegisteredExtention(const QString& suffix)
+void PreviewAllRegister::registerExtentions(const QStringList& extList)
 {
-	QSettings shellExKey("HKEY_CLASSES_ROOT\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
-	return shellExKey.value(".").toString() == CLSID_PreviewAllHandler;
+	for (const QString& suffix : extList)
+	{
+		registerExtention(suffix, HKEY_CURRENT_USER);
+	}
+}
+
+void PreviewAllRegister::unregisterExtentions(const QStringList& extList)
+{
+	for (const QString& suffix : extList)
+	{
+		unregisterExtention(suffix, HKEY_CURRENT_USER);
+	}
+}
+
+void PreviewAllRegister::unregisterAllExtentions()
+{
+	unregisterExtentions(imageExtList);
+	unregisterExtentions(archiveExtList);
+	unregisterExtentions(codeExtList);
 }
 
 

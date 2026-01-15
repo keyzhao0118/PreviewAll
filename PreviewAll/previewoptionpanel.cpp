@@ -21,22 +21,14 @@ PreviewOptionPanel::PreviewOptionPanel(QSystemTrayIcon* trayIcon /*= nullptr*/, 
 		setWindowIcon(m_trayIcon->icon());
 
 	m_mainLayout = new QVBoxLayout(this);
-	addSwitchCard(tr("Image Files"), PreviewAllRegister::imageExtList, &m_imageSwitch);
-	addSwitchCard(tr("Archive Files"), PreviewAllRegister::archiveExtList, &m_archiveSwitch);
-	addSwitchCard(tr("Source Code"), PreviewAllRegister::codeExtList, &m_codeSwitch);
+	addSwitchCard(tr("Image Files"), PreviewAllRegister::imageExtList, &m_imageSwitch, "image");
+	addSwitchCard(tr("Archive Files"), PreviewAllRegister::archiveExtList, &m_archiveSwitch, "archive");
+	addSwitchCard(tr("Source Code"), PreviewAllRegister::codeExtList, &m_codeSwitch, "code");
+	initCheckState();
 }
 
 PreviewOptionPanel::~PreviewOptionPanel()
 {
-}
-
-void PreviewOptionPanel::showEvent(QShowEvent* event)
-{
-	if (m_imageSwitch) m_imageSwitch->setChecked(getRegisterState(PreviewAllRegister::imageExtList));
-	if (m_archiveSwitch) m_archiveSwitch->setChecked(getRegisterState(PreviewAllRegister::archiveExtList));
-	if (m_codeSwitch) m_codeSwitch->setChecked(getRegisterState(PreviewAllRegister::codeExtList));
-
-	QWidget::showEvent(event);
 }
 
 void PreviewOptionPanel::windowToTop()
@@ -65,7 +57,7 @@ void PreviewOptionPanel::closeEvent(QCloseEvent* event)
 	}
 }
 
-void PreviewOptionPanel::addSwitchCard(const QString& title, const QStringList& extList, KeySlideSwitch** switchControl)
+void PreviewOptionPanel::addSwitchCard(const QString& title, const QStringList& extList, KeySlideSwitch** switchControl, const QString& type)
 {
 	KeyCardWidget* card = new KeyCardWidget(this);
 	QHBoxLayout* cardLayout = new QHBoxLayout(card);
@@ -76,13 +68,12 @@ void PreviewOptionPanel::addSwitchCard(const QString& title, const QStringList& 
 	*switchControl = new KeySlideSwitch(card);
 	(*switchControl)->setFixedSize(60, 30);
 	connect(*switchControl, &KeySlideSwitch::toggled, this, [=](bool checked) {
-		for (const QString& ext : extList)
-		{
-			if (checked)
-				PreviewAllRegister::registerExtention(ext);
-			else
-				PreviewAllRegister::unregisterExtention(ext);
-		}
+		if (checked)
+			PreviewAllRegister::registerExtentions(extList);
+		else
+			PreviewAllRegister::unregisterExtentions(extList);
+		QSettings settings;
+		settings.setValue("switchState/" + type, checked);
 	});
 
 	cardLayout->addWidget(titleLabel);
@@ -92,16 +83,19 @@ void PreviewOptionPanel::addSwitchCard(const QString& title, const QStringList& 
 		m_mainLayout->addWidget(card);
 }
 
-bool PreviewOptionPanel::getRegisterState(const QStringList& extList)
+void PreviewOptionPanel::initCheckState()
 {
-	if (!PreviewAllRegister::isRegisteredHandler())
-		return false;
+	QSettings settings;
+	bool imageState = settings.value("switchState/image", false).toBool();
+	bool archiveState = settings.value("switchState/archive", false).toBool();
+	bool codeState = settings.value("switchState/code", false).toBool();
 
-	for (const QString& ext : extList)
-	{
-		if (!PreviewAllRegister::isRegisteredExtention(ext))
-			return false;
-	}
+	if (imageState) PreviewAllRegister::registerExtentions(PreviewAllRegister::imageExtList);
+	if (archiveState) PreviewAllRegister::registerExtentions(PreviewAllRegister::archiveExtList);
+	if (codeState) PreviewAllRegister::registerExtentions(PreviewAllRegister::codeExtList);
 
-	return true;
+	if (m_imageSwitch) m_imageSwitch->setChecked(imageState);
+	if (m_archiveSwitch) m_archiveSwitch->setChecked(archiveState);
+	if (m_codeSwitch) m_codeSwitch->setChecked(codeState);
 }
+

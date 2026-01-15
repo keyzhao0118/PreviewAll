@@ -17,11 +17,11 @@ public:
 
 	void static registerHandler();
 	void static unregisterHandler();
-	void static registerExtention(const QString& suffix);
-	void static unregisterExtention(const QString& suffix);
 	bool static isRegisteredHandler();
-	bool static isRegisteredExtention(const QString& suffix);
 
+	void static registerExtentions(const QStringList& extList);
+	void static unregisterExtentions(const QStringList& extList);
+	void static unregisterAllExtentions();
 
 private:
 	void static registerHandler(HKEY hkey);

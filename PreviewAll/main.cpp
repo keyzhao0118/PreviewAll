@@ -52,6 +52,8 @@ namespace
 int main(int argc, char* argv[])
 {
 	PreviewAllApplication app(argc, argv);
+	app.setOrganizationName("FreedomKey");
+	app.setApplicationName("PreviewAll");
 
 	QStringList args = app.arguments();
 	if (args.contains("--register-preview-handler"))
@@ -90,5 +92,10 @@ int main(int argc, char* argv[])
 	QObject::connect(exitAction, &QAction::triggered, qApp, &QApplication::quit);
 	appPanel.show();
 
-	return app.exec();
+	app.exec();
+
+	// 进程退出时反注册所有文件扩展名
+	PreviewAllRegister::unregisterAllExtentions();
+
+	return 0;
 }

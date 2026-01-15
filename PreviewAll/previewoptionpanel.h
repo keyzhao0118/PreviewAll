@@ -17,12 +17,11 @@ public slots:
 	void onActivatedTrayIcon(QSystemTrayIcon::ActivationReason reason);
 
 protected:
-	virtual void showEvent(QShowEvent* event) override;
 	virtual void closeEvent(QCloseEvent* event) override;
 
 private:
-	void addSwitchCard(const QString& title, const QStringList& extList, KeySlideSwitch** switchControl);
-	bool getRegisterState(const QStringList& extList);
+	void addSwitchCard(const QString& title, const QStringList& extList, KeySlideSwitch** switchControl, const QString& type);
+	void initCheckState();
 
 private:
 	QVBoxLayout* m_mainLayout = nullptr;

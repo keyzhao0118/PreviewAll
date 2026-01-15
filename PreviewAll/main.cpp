@@ -26,6 +26,26 @@ namespace
 		}
 	}
 
+	bool isSingleInstance()
+	{
+		HANDLE hMutex = CreateMutexW(
+			nullptr,
+			FALSE,
+			L"Global\\FreedomKey_PreviewAll_UniqueMutex"
+		);
+
+		if (!hMutex) 
+			return false;
+
+		if (GetLastError() == ERROR_ALREADY_EXISTS)
+		{
+			CloseHandle(hMutex);
+			return false;
+		}
+
+		return true;
+	}
+
 }
 
 
@@ -44,6 +64,9 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 	ensureRegisterPreviewHandler();
+
+	if (!isSingleInstance())
+		return 0;
 
 	app.setQuitOnLastWindowClosed(false);
 	app.startWindowManageService();

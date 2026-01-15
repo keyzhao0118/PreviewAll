@@ -18,7 +18,13 @@ const QStringList PreviewAllRegister::codeExtList = {
 	".cmake",".mk",".sh",".ps1",".bat",".cmd",
 	".md",".rst",".adoc",".tex",
 	".sql",
-	".diff",".patch"
+	".diff",".patch",
+	".txt",".log",".csv",".tsv",".env",".gitignore",".gitattributes",
+	".editorconfig",".dockerignore",".htaccess",".properties",".cfg",".config",
+	".rs",".go",".dart",".scala",".groovy",".gradle",".v",".zig",
+	".r",".R",".jl",".hs",".elm",".erl",".ex",".exs",".clj",".cljs",
+	".vue",".svelte",".astro",
+	".proto",".graphql",".gql"
 };
 
 void PreviewAllRegister::registerHandler()

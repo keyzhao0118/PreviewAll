@@ -105,9 +105,8 @@ QSharedPointer<QWidget> PreviewAllApplication::createPreviewWidget(const QString
 	}
 	else
 	{
-		previewWidget.reset(new QWidget());
-		previewWidget->setStyleSheet("background-color: red;");
-		previewWidget->setWindowFlags(Qt::FramelessWindowHint);
+		// Fallback: try to preview as text for unknown file types
+		previewWidget.reset(new CodePreviewWidget(filePath));
 	}
 
 	return previewWidget;

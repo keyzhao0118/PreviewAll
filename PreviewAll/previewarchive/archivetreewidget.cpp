@@ -59,6 +59,7 @@ namespace
 ArchiveTreeWidget::ArchiveTreeWidget(QWidget* parent /*= nullptr*/)
 	: QTreeWidget(parent)
 {
+	setFrameShape(QFrame::NoFrame);
 	header()->setVisible(false);
 	setAnimated(true);
 	

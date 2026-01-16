@@ -5,5 +5,6 @@
 		<file>maximize.svg</file>
 		<file>zoom-in.svg</file>
 		<file>zoom-out.svg</file>
+		<file>check.png</file>
 	</qresource>
 </RCC>

@@ -24,12 +24,14 @@ private slots:
 	void showPreviewPage();
 
 private:
+	void createInfoLab();
+
+private:
 	QString m_filePath;
 
 	QStackedLayout* m_stackedLayout = nullptr;
 	QLabel* m_loadingLab = nullptr;
-	QLabel* m_errorLab = nullptr;
-	QLabel* m_encryptLab = nullptr;
+	QLabel* m_infoLab = nullptr;
 	ArchiveTreeWidget* m_treeWidget = nullptr;
 
 	ArchiveParser* m_archiveParser = nullptr;

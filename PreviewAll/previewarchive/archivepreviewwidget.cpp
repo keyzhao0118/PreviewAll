@@ -9,6 +9,11 @@ ArchivePreviewWidget::ArchivePreviewWidget(const QString& filePath, QWidget* par
 	, m_filePath(filePath)
 {
 	setWindowFlags(Qt::FramelessWindowHint);
+	setAutoFillBackground(true);
+	QPalette pal = palette();
+	pal.setColor(QPalette::Window, Qt::white);
+	setPalette(pal);
+
 	m_stackedLayout = new QStackedLayout(this);
 	startParseArchive();
 }
@@ -55,26 +60,26 @@ void ArchivePreviewWidget::showLoadingPage()
 
 void ArchivePreviewWidget::showErrorPage()
 {
-	if (!m_errorLab)
+	if (!m_infoLab)
 	{
-		m_errorLab = new QLabel(tr("Failed to parse archive."), this);
-		m_errorLab->setAlignment(Qt::AlignCenter);
-		m_stackedLayout->addWidget(m_errorLab);
+		createInfoLab();
+		m_stackedLayout->addWidget(m_infoLab);
 	}
 
-	m_stackedLayout->setCurrentWidget(m_errorLab);
+	m_infoLab->setText(tr("Failed to parse archive."));
+	m_stackedLayout->setCurrentWidget(m_infoLab);
 }
 
 void ArchivePreviewWidget::showEncryptPage()
 {
-	if (!m_encryptLab)
+	if (!m_infoLab)
 	{
-		m_encryptLab = new QLabel(tr("The archive is encrypted."), this);
-		m_encryptLab->setAlignment(Qt::AlignCenter);
-		m_stackedLayout->addWidget(m_encryptLab);
+		createInfoLab();
+		m_stackedLayout->addWidget(m_infoLab);
 	}
 
-	m_stackedLayout->setCurrentWidget(m_encryptLab);
+	m_infoLab->setText(tr("The archive is encrypted and cannot be previewed."));
+	m_stackedLayout->setCurrentWidget(m_infoLab);
 }
 
 void ArchivePreviewWidget::showPreviewPage()
@@ -88,4 +93,19 @@ void ArchivePreviewWidget::showPreviewPage()
 	}
 
 	m_stackedLayout->setCurrentWidget(m_treeWidget);
+}
+
+void ArchivePreviewWidget::createInfoLab()
+{
+	m_infoLab = new QLabel(this);
+	m_infoLab->setWordWrap(true);
+	m_infoLab->setAlignment(Qt::AlignCenter);
+	m_infoLab->setStyleSheet(R"(
+			QLabel
+			{
+				font-family: "Microsoft YaHei";
+				font-size: 12pt;
+				color: #808080;
+			}
+	)");
 }

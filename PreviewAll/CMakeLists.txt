@@ -16,8 +16,10 @@ add_executable(PreviewAll WIN32
 	resources/resource.qrc
 
 	main.cpp
-	previewoptionpanel.cpp
-	previewoptionpanel.h
+	previewallmenu.h
+	previewallmenu.cpp
+	
+	
 	previewallapplication.cpp
 	previewallapplication.h
 	previewallregister.cpp
@@ -55,7 +57,6 @@ target_link_libraries(PreviewAll
 		Qt5::Widgets
 		Qt5::Network
 		Qt5::OpenGL
-		KeyWidgets
 		7zip::7zip
 		KF5::SyntaxHighlighting
 )

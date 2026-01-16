@@ -1,5 +1,5 @@
 ﻿#include "previewallapplication.h"
-#include "previewoptionpanel.h"
+#include "previewallmenu.h"
 #include "previewallregister.h"
 #include <QSystemTrayIcon>
 #include <QMenu>
@@ -74,28 +74,14 @@ int main(int argc, char* argv[])
 	app.startWindowManageService();
 	app.initTranslations();
 
-	// 创建托盘图标
 	QSystemTrayIcon* trayIcon = new QSystemTrayIcon(QIcon(":/icons/previewall.svg"), qApp);
 	trayIcon->setToolTip("Preview All");
-
-	// 创建托盘右键菜单
-	QMenu* trayMenu = new QMenu();
-	QAction* showAction = trayMenu->addAction(QObject::tr("Option"));
-	QAction* exitAction = trayMenu->addAction(QObject::tr("Exit"));
-	trayIcon->setContextMenu(trayMenu);
+	trayIcon->setContextMenu(new PreviewAllMenu());
 	trayIcon->show();
 
-	// 创建主面板并连接信号槽
-	PreviewOptionPanel appPanel(trayIcon);
-	QObject::connect(trayIcon, &QSystemTrayIcon::activated, &appPanel, &PreviewOptionPanel::onActivatedTrayIcon);
-	QObject::connect(showAction, &QAction::triggered, &appPanel, &PreviewOptionPanel::windowToTop);
-	QObject::connect(exitAction, &QAction::triggered, qApp, &QApplication::quit);
-	appPanel.show();
-
 	app.exec();
-
-	// 进程退出时反注册所有文件扩展名
 	PreviewAllRegister::unregisterAllExtentions();
+	// 进程退出时反注册所有文件扩展名
 
 	return 0;
 }

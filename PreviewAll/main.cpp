@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 	app.startWindowManageService();
 	app.initTranslations();
 
-	QSystemTrayIcon* trayIcon = new QSystemTrayIcon(QIcon(":/icons/previewall.svg"), qApp);
+	QSystemTrayIcon* trayIcon = new QSystemTrayIcon(QIcon(":/svg/previewall.svg"), qApp);
 	trayIcon->setToolTip("Preview All");
 	trayIcon->setContextMenu(new PreviewAllMenu());
 	trayIcon->show();

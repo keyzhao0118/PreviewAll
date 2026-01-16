@@ -1,10 +1,15 @@
 ﻿<RCC>
-	<qresource prefix="/icons">
+	<qresource prefix="/svg">
 		<file>previewall.svg</file>
 		<file>image.svg</file>
 		<file>maximize.svg</file>
 		<file>zoom-in.svg</file>
 		<file>zoom-out.svg</file>
+	</qresource>
+	<qresource prefix="/png">
 		<file>check.png</file>
+	</qresource>
+	<qresource prefix="/gif">
+		<file>loading.gif</file>
 	</qresource>
 </RCC>

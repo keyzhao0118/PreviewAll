@@ -93,7 +93,7 @@ void ImageViewStatusBar::resizeEvent(QResizeEvent* resizeEvent)
 void ImageViewStatusBar::addResolutionLab()
 {
 	QLabel* resolutionIconLab = new QLabel(this);
-	resolutionIconLab->setPixmap(QIcon(":/icons/image.svg").pixmap(24, 24));
+	resolutionIconLab->setPixmap(QIcon(":/svg/image.svg").pixmap(24, 24));
 	QImageReader reader(m_imagePath);
 	QSize imageSize = reader.size();
 	QLabel* resolutionTextLab = new QLabel(QString("%1 x %2").arg(imageSize.width()).arg(imageSize.height()), this);
@@ -105,7 +105,7 @@ void ImageViewStatusBar::addResolutionLab()
 void ImageViewStatusBar::addAdaptiveBtn()
 {
 	m_adaptiveBtn = new QPushButton(this);
-	m_adaptiveBtn->setIcon(QIcon(":/icons/maximize.svg"));
+	m_adaptiveBtn->setIcon(QIcon(":/svg/maximize.svg"));
 	connect(m_adaptiveBtn, &QPushButton::clicked, this, &ImageViewStatusBar::adaptiveScale);
 	m_mainLayout->addWidget(m_adaptiveBtn);
 }
@@ -124,7 +124,7 @@ void ImageViewStatusBar::addScaleComboBox()
 void ImageViewStatusBar::addZoomOutBtn()
 {
 	m_zoomOutBtn = new QPushButton(this);
-	m_zoomOutBtn->setIcon(QIcon(":/icons/zoom-out.svg"));
+	m_zoomOutBtn->setIcon(QIcon(":/svg/zoom-out.svg"));
 	connect(m_zoomOutBtn, &QPushButton::clicked, this, &ImageViewStatusBar::handleZoomOut);
 	m_mainLayout->addWidget(m_zoomOutBtn);
 }
@@ -142,7 +142,7 @@ void ImageViewStatusBar::addScaleSlider()
 void ImageViewStatusBar::addZoomInBtn()
 {
 	m_zoomInBtn = new QPushButton(this);
-	m_zoomInBtn->setIcon(QIcon(":/icons/zoom-in.svg"));
+	m_zoomInBtn->setIcon(QIcon(":/svg/zoom-in.svg"));
 	connect(m_zoomInBtn, &QPushButton::clicked, this, &ImageViewStatusBar::handleZoomIn);
 	m_mainLayout->addWidget(m_zoomInBtn);
 }

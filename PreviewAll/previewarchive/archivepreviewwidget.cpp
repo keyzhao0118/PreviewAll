@@ -2,6 +2,7 @@
 #include "archiveparser.h"
 #include "archivetreewidget.h"
 #include <QThread>
+#include <QMovie>
 
 ArchivePreviewWidget::ArchivePreviewWidget(const QString& filePath, QWidget* parent)
 	: QWidget(parent)
@@ -41,8 +42,11 @@ void ArchivePreviewWidget::showLoadingPage()
 {
 	if (!m_loadingLab)
 	{
-		m_loadingLab = new QLabel(tr("Loading..."), this);
+		m_loadingLab = new QLabel(this);
 		m_loadingLab->setAlignment(Qt::AlignCenter);
+		auto* movie = new QMovie(":/gif/loading.gif");
+		m_loadingLab->setMovie(movie);
+		movie->start();
 		m_stackedLayout->addWidget(m_loadingLab);
 	}
 

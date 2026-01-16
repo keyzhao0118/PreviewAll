@@ -85,7 +85,7 @@ QMenu::indicator:unchecked {
 }
 
 QMenu::indicator:checked {
-	image: url(:/icons/check.png);
+	image: url(:/png/check.png);
 }
 )");
 }

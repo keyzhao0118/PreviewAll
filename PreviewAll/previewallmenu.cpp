@@ -31,63 +31,63 @@ void PreviewAllMenu::initUi()
 	addSeparator();
 	m_actExit = addAction(tr("Exit"));
 
-// 浅色现代风 QSS
+	// 浅色现代风 QSS
 	setStyleSheet(R"(
-QMenu {
-	background-color: #FFFFFF;
-	color: #1F2328;
-	border: 1px solid #D7D7D7;
-	border-radius: 10px;
-	padding: 6px;
-}
+		QMenu {
+			background-color: #FFFFFF;
+			color: #1F2328;
+			border: 1px solid #D7D7D7;
+			border-radius: 10px;
+			padding: 6px;
+		}
 
-/* 菜单项 */
-QMenu::item {
-	padding: 8px 34px 8px 34px;   /* 左侧给 indicator 预留空间 */
-	margin: 2px 4px;
-	border-radius: 8px;
-	background: transparent;
-}
+		/* 菜单项 */
+		QMenu::item {
+			padding: 8px 34px 8px 34px;   /* 左侧给 indicator 预留空间 */
+			margin: 2px 4px;
+			border-radius: 8px;
+			background: transparent;
+		}
 
-/* hover / selected */
-QMenu::item:selected {
-	background-color: #F0F0F0;
-}
+		/* hover / selected */
+		QMenu::item:selected {
+			background-color: #F0F0F0;
+		}
 
-/* disabled */
-QMenu::item:disabled {
-	color: #8C959F;
-}
+		/* disabled */
+		QMenu::item:disabled {
+			color: #8C959F;
+		}
 
-/* 分隔线 */
-QMenu::separator {
-	height: 1px;
-	background: #D7D7D7;
-	margin: 4px 8px;
-}
+		/* 分隔线 */
+		QMenu::separator {
+			height: 1px;
+			background: #D7D7D7;
+			margin: 4px 8px;
+		}
 
-/* 子菜单箭头（你当前没子菜单；有的话可在这里换图标） */
-QMenu::right-arrow {
-	image: none;
-	width: 0px;
-	height: 0px;
-}
+		/* 子菜单箭头（你当前没子菜单；有的话可在这里换图标） */
+		QMenu::right-arrow {
+			image: none;
+			width: 0px;
+			height: 0px;
+		}
 
-/* checkable indicator 区域 */
-QMenu::indicator {
-	width: 16px;
-	height: 16px;
-	left: 10px;
-}
+		/* checkable indicator 区域 */
+		QMenu::indicator {
+			width: 16px;
+			height: 16px;
+			left: 10px;
+		}
 
-QMenu::indicator:unchecked {
-	image: none;
-}
+		QMenu::indicator:unchecked {
+			image: none;
+		}
 
-QMenu::indicator:checked {
-	image: url(:/png/check.png);
-}
-)");
+		QMenu::indicator:checked {
+			image: url(:/png/check.png);
+		}
+	)");
 }
 
 void PreviewAllMenu::initConnect()

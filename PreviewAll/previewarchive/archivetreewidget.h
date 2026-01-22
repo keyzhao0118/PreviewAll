@@ -17,8 +17,6 @@ private slots:
 	void onItemExpanded(QTreeWidgetItem* parentItem);
 
 private:
-	void initHeader();
-
 	QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, const ArchiveTreeNode* node);
 	void loadChildItems(QTreeWidgetItem* item);
 };

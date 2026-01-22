@@ -60,9 +60,9 @@ ArchiveTreeWidget::ArchiveTreeWidget(QWidget* parent /*= nullptr*/)
 	: QTreeWidget(parent)
 {
 	setFrameShape(QFrame::NoFrame);
-	header()->setVisible(false);
 	setAnimated(true);
 	
+	header()->setVisible(false);
 	verticalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
 	horizontalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
 

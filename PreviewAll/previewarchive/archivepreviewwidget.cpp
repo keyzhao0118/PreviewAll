@@ -101,11 +101,11 @@ void ArchivePreviewWidget::createInfoLab()
 	m_infoLab->setWordWrap(true);
 	m_infoLab->setAlignment(Qt::AlignCenter);
 	m_infoLab->setStyleSheet(R"(
-			QLabel
-			{
-				font-family: "Microsoft YaHei";
-				font-size: 12pt;
-				color: #808080;
-			}
+		QLabel
+		{
+			font-family: "Microsoft YaHei";
+			font-size: 12pt;
+			color: #808080;
+		}
 	)");
 }

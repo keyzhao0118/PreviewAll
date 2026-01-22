@@ -5,7 +5,6 @@
 #include <QTreeWidget>
 #include <QStackedLayout>
 
-class ArchiveTreeWidget;
 class ArchiveParser;
 
 class ArchivePreviewWidget : public QWidget
@@ -25,6 +24,7 @@ private slots:
 
 private:
 	void createInfoLab();
+	void craetePreviewPage();
 
 private:
 	QString m_filePath;
@@ -32,7 +32,7 @@ private:
 	QStackedLayout* m_stackedLayout = nullptr;
 	QLabel* m_loadingLab = nullptr;
 	QLabel* m_infoLab = nullptr;
-	ArchiveTreeWidget* m_treeWidget = nullptr;
+	QWidget* m_previewPage = nullptr;
 
 	ArchiveParser* m_archiveParser = nullptr;
 	QThread* m_parserThread = nullptr;

@@ -83,7 +83,7 @@ void ImageViewPortWidget::paintGL()
 	if (auto* f = QOpenGLContext::currentContext()->functions())
 	{
 		f->glDisable(GL_SCISSOR_TEST); // 防止部分区域剪裁导致清屏不完整
-		const QColor bg = palette().window().color();
+		const QColor bg = QColor("#ffffff");
 		f->glClearColor(bg.redF(), bg.greenF(), bg.blueF(), bg.alphaF());
 		f->glClear(GL_COLOR_BUFFER_BIT);
 	}

@@ -22,6 +22,10 @@ ImageViewStatusBar::ImageViewStatusBar(const QString& imagePath, QWidget* parent
 	addZoomOutBtn();
 	addScaleSlider();
 	addZoomInBtn();
+
+	QFont statusBarFont("Microsoft YaHei");
+	statusBarFont.setPointSize(9);
+	setFont(statusBarFont);
 }
 
 ImageViewStatusBar::~ImageViewStatusBar()

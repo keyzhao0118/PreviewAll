@@ -3,17 +3,13 @@
 #include "archivetreewidget.h"
 #include <QThread>
 #include <QMovie>
+#include <QPushButton>
 
 ArchivePreviewWidget::ArchivePreviewWidget(const QString& filePath, QWidget* parent)
 	: QWidget(parent)
 	, m_filePath(filePath)
 {
 	setWindowFlags(Qt::FramelessWindowHint);
-	setAutoFillBackground(true);
-	QPalette pal = palette();
-	pal.setColor(QPalette::Window, Qt::white);
-	setPalette(pal);
-
 	m_stackedLayout = new QStackedLayout(this);
 	startParseArchive();
 }
@@ -84,15 +80,13 @@ void ArchivePreviewWidget::showEncryptPage()
 
 void ArchivePreviewWidget::showPreviewPage()
 {
-	if (!m_treeWidget)
+	if (!m_previewPage)
 	{
-		m_treeWidget = new ArchiveTreeWidget(this);
-		const ArchiveTreeNode* rootNode = m_archiveParser->getRootNode();
-		m_treeWidget->refresh(rootNode);
-		m_stackedLayout->addWidget(m_treeWidget);
+		craetePreviewPage();
+		m_stackedLayout->addWidget(m_previewPage);
 	}
 
-	m_stackedLayout->setCurrentWidget(m_treeWidget);
+	m_stackedLayout->setCurrentWidget(m_previewPage);
 }
 
 void ArchivePreviewWidget::createInfoLab()
@@ -100,12 +94,38 @@ void ArchivePreviewWidget::createInfoLab()
 	m_infoLab = new QLabel(this);
 	m_infoLab->setWordWrap(true);
 	m_infoLab->setAlignment(Qt::AlignCenter);
-	m_infoLab->setStyleSheet(R"(
-		QLabel
-		{
-			font-family: "Microsoft YaHei";
-			font-size: 12pt;
-			color: #808080;
-		}
-	)");
+	QFont infoFont("Microsoft YaHei");
+	infoFont.setPointSize(9);
+	m_infoLab->setFont(infoFont);
+}
+
+void ArchivePreviewWidget::craetePreviewPage()
+{
+	m_previewPage = new QWidget(this);
+
+	ArchiveTreeWidget* treeWidget = new ArchiveTreeWidget(this);
+	const ArchiveTreeNode* rootNode = m_archiveParser->getRootNode();
+	treeWidget->refresh(rootNode);
+
+	QLabel* statusLab = new QLabel(
+		tr("File: %1, Folder: %2").arg(m_archiveParser->getFileCount()).arg(m_archiveParser->getFolderCount()), this);
+	QPushButton* extractBtn = new QPushButton(QIcon(":/svg/previewall.svg"), tr("Extract"), this);
+
+	QWidget* bottomWidget = new QWidget(this);
+	QFont statusBarFont("Microsoft YaHei");
+	statusBarFont.setPointSize(9);
+	bottomWidget->setFont(statusBarFont);
+	bottomWidget->setFixedHeight(35);
+	QHBoxLayout* bottomLayout = new QHBoxLayout(bottomWidget);
+	bottomLayout->setContentsMargins(5, 0, 5, 0);
+	bottomLayout->setSpacing(5);
+	bottomLayout->addWidget(statusLab);
+	bottomLayout->addStretch();
+	bottomLayout->addWidget(extractBtn);
+
+	QVBoxLayout* previewPageLayout = new QVBoxLayout(m_previewPage);
+	previewPageLayout->setContentsMargins(0, 0, 0, 0);
+	previewPageLayout->setSpacing(0);
+	previewPageLayout->addWidget(treeWidget);
+	previewPageLayout->addWidget(bottomWidget);
 }

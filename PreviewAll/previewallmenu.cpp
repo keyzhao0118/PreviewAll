@@ -16,10 +16,10 @@ PreviewAllMenu::~PreviewAllMenu()
 
 void PreviewAllMenu::initUi()
 {
-	m_actImagePreview = addAction(QIcon(":/png/image.png"), tr("Preview Image"));
-	m_actArchivePreview = addAction(QIcon(":/png/archive.png"), tr("Preview Archive"));
-	m_actCodePreview = addAction(QIcon(":/png/code.png"), tr("Preview Code"));
-	
+	m_actImagePreview = addAction(tr("Preview Image"));
+	m_actArchivePreview = addAction(tr("Preview Archive"));
+	m_actCodePreview = addAction(tr("Preview Code"));
+
 	m_actImagePreview->setCheckable(true);
 	m_actArchivePreview->setCheckable(true);
 	m_actCodePreview->setCheckable(true);

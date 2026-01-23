@@ -2,6 +2,8 @@
 #include <QVBoxLayout>
 #include <QFile>
 #include <QTextStream>
+#include <QLabel>
+#include <QPlainTextEdit>
 #include <KSyntaxHighlighting/Definition>
 #include <KSyntaxHighlighting/Theme>
 
@@ -21,21 +23,42 @@ CodePreviewWidget::~CodePreviewWidget()
 void CodePreviewWidget::initUi()
 {
 	setWindowFlags(Qt::FramelessWindowHint);
-	auto* layout = new QVBoxLayout(this);
-	layout->setContentsMargins(0, 0, 0, 0);
+	auto* mainLayout = new QVBoxLayout(this);
+	mainLayout->setContentsMargins(0, 0, 0, 0);
+	mainLayout->setSpacing(0);
+
+	QWidget* statusWidget = new QWidget(this);
+	statusWidget->setFixedHeight(35);
+	auto statusLayout = new QHBoxLayout(statusWidget);
+	statusLayout->setContentsMargins(5, 0, 5, 0);
+	statusLayout->setSpacing(5);
+
+	QLabel* codeIconLab = new QLabel(this);
+	QPixmap codePix(":/png/code.png");
+	codePix = codePix.scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	codeIconLab->setPixmap(codePix);
+
+	m_infoLab = new QLabel(this);
+
+	statusLayout->addWidget(codeIconLab);
+	statusLayout->addWidget(m_infoLab);
+	statusLayout->addStretch();
 
 	m_editor = new QPlainTextEdit(this);
+	m_editor->setFrameShape(QFrame::NoFrame);
 	m_editor->setReadOnly(true);
 	m_editor->setLineWrapMode(QPlainTextEdit::NoWrap);
 
-	QFont font;
+	QFont font("Microsoft YaHei");
+	font.setPointSize(9);
+	m_infoLab->setFont(font);
+
 	font.setFamily("Consolas");
 	font.setPointSize(12);
-	font.setFixedPitch(true);
-
 	m_editor->setFont(font);
 
-	layout->addWidget(m_editor);
+	mainLayout->addWidget(statusWidget);
+	mainLayout->addWidget(m_editor);
 }
 
 void CodePreviewWidget::initHighlighter()
@@ -61,5 +84,11 @@ void CodePreviewWidget::loadFile()
 	QTextStream ts(&file);
 	ts.setCodec("UTF-8");
 
-	m_editor->setPlainText(ts.readAll());
+	const QString content = ts.readAll();
+	m_editor->setPlainText(content);
+	
+	int lineCount = m_editor->blockCount();
+	int charCount = content.length();
+
+	m_infoLab->setText(tr("Lines: %1, Chars: %2").arg(lineCount).arg(charCount));
 }

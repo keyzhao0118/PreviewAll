@@ -89,6 +89,11 @@ void ArchivePreviewWidget::showPreviewPage()
 	m_stackedLayout->setCurrentWidget(m_previewPage);
 }
 
+void ArchivePreviewWidget::onExtractBtnClicked()
+{
+
+}
+
 void ArchivePreviewWidget::createInfoLab()
 {
 	m_infoLab = new QLabel(this);
@@ -118,6 +123,7 @@ void ArchivePreviewWidget::craetePreviewPage()
 	QPushButton* extractBtn = new QPushButton(this);
 	extractBtn->setIcon(QIcon(":/svg/extract.svg"));
 	extractBtn->setToolTip(tr("Extract"));
+	connect(extractBtn, &QPushButton::clicked, this, &ArchivePreviewWidget::onExtractBtnClicked);
 
 	QWidget* bottomWidget = new QWidget(this);
 	QFont statusBarFont("Microsoft YaHei");

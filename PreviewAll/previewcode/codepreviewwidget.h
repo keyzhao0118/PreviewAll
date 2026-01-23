@@ -1,9 +1,11 @@
 ﻿#pragma once
 
 #include <QWidget>
-#include <QPlainTextEdit>
 #include <KSyntaxHighlighting/Repository>
 #include <KSyntaxHighlighting/SyntaxHighlighter>
+
+class QLabel;
+class QPlainTextEdit;
 
 class CodePreviewWidget : public QWidget
 {
@@ -18,10 +20,10 @@ private:
 	void initHighlighter();
 	void loadFile();
 
-
 private:
 	QString m_filePath;
 
+	QLabel* m_infoLab = nullptr;
 	QPlainTextEdit* m_editor = nullptr;
 
 	KSyntaxHighlighting::Repository* m_repository = nullptr;

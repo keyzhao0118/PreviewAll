@@ -107,9 +107,17 @@ void ArchivePreviewWidget::craetePreviewPage()
 	const ArchiveTreeNode* rootNode = m_archiveParser->getRootNode();
 	treeWidget->refresh(rootNode);
 
+	QLabel* archiveIconLab = new QLabel(this);
+	QPixmap archivePix(":/png/archive.png");
+	archivePix = archivePix.scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	archiveIconLab->setPixmap(archivePix);
+
 	QLabel* statusLab = new QLabel(
 		tr("File: %1, Folder: %2").arg(m_archiveParser->getFileCount()).arg(m_archiveParser->getFolderCount()), this);
-	QPushButton* extractBtn = new QPushButton(QIcon(":/svg/extract.svg"), tr("Extract"), this);
+	
+	QPushButton* extractBtn = new QPushButton(this);
+	extractBtn->setIcon(QIcon(":/svg/extract.svg"));
+	extractBtn->setToolTip(tr("Extract"));
 
 	QWidget* bottomWidget = new QWidget(this);
 	QFont statusBarFont("Microsoft YaHei");
@@ -119,6 +127,8 @@ void ArchivePreviewWidget::craetePreviewPage()
 	QHBoxLayout* bottomLayout = new QHBoxLayout(bottomWidget);
 	bottomLayout->setContentsMargins(5, 0, 5, 0);
 	bottomLayout->setSpacing(5);
+
+	bottomLayout->addWidget(archiveIconLab);
 	bottomLayout->addWidget(statusLab);
 	bottomLayout->addStretch();
 	bottomLayout->addWidget(extractBtn);

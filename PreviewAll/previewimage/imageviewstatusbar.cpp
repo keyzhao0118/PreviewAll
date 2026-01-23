@@ -96,13 +96,16 @@ void ImageViewStatusBar::resizeEvent(QResizeEvent* resizeEvent)
 
 void ImageViewStatusBar::addResolutionLab()
 {
-	QLabel* resolutionIconLab = new QLabel(this);
-	resolutionIconLab->setPixmap(QIcon(":/svg/image.svg").pixmap(24, 24));
+	QLabel* imageIconLab = new QLabel(this);
+	QPixmap imagePix(":/png/image.png");
+	imagePix = imagePix.scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	imageIconLab->setPixmap(imagePix);
+
 	QImageReader reader(m_imagePath);
 	QSize imageSize = reader.size();
 	QLabel* resolutionTextLab = new QLabel(QString("%1 x %2").arg(imageSize.width()).arg(imageSize.height()), this);
 
-	m_mainLayout->addWidget(resolutionIconLab);
+	m_mainLayout->addWidget(imageIconLab);
 	m_mainLayout->addWidget(resolutionTextLab);
 }
 

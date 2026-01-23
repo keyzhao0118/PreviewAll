@@ -10,8 +10,8 @@ ImageViewerWidget::ImageViewerWidget(const QString& filePath, QWidget* parent)
 	QVBoxLayout* mainLayout = new QVBoxLayout(this);
 	mainLayout->setContentsMargins(0, 0, 0, 0);
 	mainLayout->setSpacing(0);
-	mainLayout->addWidget(m_imageViewPort);
 	mainLayout->addWidget(m_statusBar);
+	mainLayout->addWidget(m_imageViewPort);
 
 	connect(m_imageViewPort, &ImageViewPortWidget::scaleFactorChanged, m_statusBar, &ImageViewStatusBar::onScaleFactorChanged);
 	connect(m_statusBar, &ImageViewStatusBar::scaleFactorChanged, m_imageViewPort, &ImageViewPortWidget::onScaleFactorChanged);

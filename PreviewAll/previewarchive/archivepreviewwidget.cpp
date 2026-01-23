@@ -109,7 +109,7 @@ void ArchivePreviewWidget::craetePreviewPage()
 
 	QLabel* statusLab = new QLabel(
 		tr("File: %1, Folder: %2").arg(m_archiveParser->getFileCount()).arg(m_archiveParser->getFolderCount()), this);
-	QPushButton* extractBtn = new QPushButton(QIcon(":/svg/previewall.svg"), tr("Extract"), this);
+	QPushButton* extractBtn = new QPushButton(QIcon(":/svg/extract.svg"), tr("Extract"), this);
 
 	QWidget* bottomWidget = new QWidget(this);
 	QFont statusBarFont("Microsoft YaHei");
@@ -126,6 +126,6 @@ void ArchivePreviewWidget::craetePreviewPage()
 	QVBoxLayout* previewPageLayout = new QVBoxLayout(m_previewPage);
 	previewPageLayout->setContentsMargins(0, 0, 0, 0);
 	previewPageLayout->setSpacing(0);
-	previewPageLayout->addWidget(treeWidget);
 	previewPageLayout->addWidget(bottomWidget);
+	previewPageLayout->addWidget(treeWidget);
 }

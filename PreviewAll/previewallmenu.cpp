@@ -25,6 +25,9 @@ void PreviewAllMenu::initUi()
 	m_actCodePreview->setCheckable(true);
 
 	addSeparator();
+	m_actHelp = addAction(tr("Help"));
+	addSeparator();
+	m_actReboot = addAction(tr("Reboot"));
 	m_actExit = addAction(tr("Exit"));
 }
 

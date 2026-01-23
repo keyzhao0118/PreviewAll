@@ -21,5 +21,9 @@ private:
 	QAction* m_actImagePreview = nullptr;
 	QAction* m_actArchivePreview = nullptr;
 	QAction* m_actCodePreview = nullptr;
+
+	QAction* m_actHelp = nullptr;
+
+	QAction* m_actReboot = nullptr;
 	QAction* m_actExit = nullptr;
 };

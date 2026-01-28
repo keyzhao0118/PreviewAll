@@ -14,3 +14,4 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory(PreviewAll)
 add_subdirectory(PreviewAllHandler)
+add_subdirectory(PreviewDemo)

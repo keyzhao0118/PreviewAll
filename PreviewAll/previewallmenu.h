@@ -17,6 +17,9 @@ private:
 	void initConnect();
 	void initCheckState();
 
+private slots:
+	void showHelpPage();
+
 private:
 	QAction* m_actImagePreview = nullptr;
 	QAction* m_actArchivePreview = nullptr;

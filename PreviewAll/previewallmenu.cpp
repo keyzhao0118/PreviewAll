@@ -27,14 +27,13 @@ void PreviewAllMenu::initUi()
 	addSeparator();
 	m_actHelp = addAction(tr("Help"));
 	addSeparator();
-	m_actReboot = addAction(tr("Reboot"));
 	m_actExit = addAction(tr("Exit"));
 }
 
 void PreviewAllMenu::initConnect()
 {
 	connect(m_actExit, &QAction::triggered, qApp, &QCoreApplication::quit);
-
+	connect(m_actHelp, &QAction::triggered, this, &PreviewAllMenu::showHelpPage);
 	connect(m_actImagePreview, &QAction::toggled, this, [](bool checked) {
 		if (checked)
 			PreviewAllRegister::registerExtentions(PreviewAllRegister::imageExtList);
@@ -73,6 +72,11 @@ void PreviewAllMenu::initCheckState()
 	m_actImagePreview->setChecked(imageState);
 	m_actArchivePreview->setChecked(archiveState);
 	m_actCodePreview->setChecked(codeState);
+}
+
+void PreviewAllMenu::showHelpPage()
+{
+
 }
 
 

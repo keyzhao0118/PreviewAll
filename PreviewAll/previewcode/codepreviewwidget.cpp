@@ -90,5 +90,5 @@ void CodePreviewWidget::loadFile()
 	int lineCount = m_editor->blockCount();
 	int charCount = content.length();
 
-	m_infoLab->setText(tr("Lines: %1, Chars: %2").arg(lineCount).arg(charCount));
+	m_infoLab->setText(tr("Line: %1, Char: %2").arg(lineCount).arg(charCount));
 }

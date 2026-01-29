@@ -17,11 +17,12 @@ ImageViewStatusBar::ImageViewStatusBar(const QString& imagePath, QWidget* parent
 	m_mainLayout->setSpacing(5);
 	addResolutionLab();
 	m_mainLayout->addStretch();
-	addAdaptiveBtn();
-	addScaleComboBox();
+
 	addZoomOutBtn();
 	addScaleSlider();
 	addZoomInBtn();
+	addScaleComboBox();
+	addAdaptiveBtn();
 
 	QFont statusBarFont("Microsoft YaHei");
 	statusBarFont.setPointSize(9);
@@ -46,11 +47,10 @@ void ImageViewStatusBar::resizeEvent(QResizeEvent* resizeEvent)
 
 	QList<QWidget*> controls
 	{
-		m_adaptiveBtn,
-		m_scaleComboBox,
 		m_zoomOutBtn,
 		m_scaleSlider,
-		m_zoomInBtn
+		m_zoomInBtn,
+		m_scaleComboBox,
 	};
 
 	int usedWidth = 10;
@@ -73,11 +73,6 @@ void ImageViewStatusBar::resizeEvent(QResizeEvent* resizeEvent)
 	}
 
 	int stretchWidth = 20;
-	if (m_adaptiveBtn && usedWidth + m_adaptiveBtn->width() <= width() - stretchWidth)
-	{
-		m_adaptiveBtn->setVisible(true);
-		usedWidth += m_adaptiveBtn->width() + spacing;
-	}
 
 	if (m_scaleComboBox && usedWidth + m_scaleComboBox->width() <= width() - stretchWidth)
 	{

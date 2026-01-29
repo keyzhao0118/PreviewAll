@@ -4,6 +4,9 @@
 #include <QTextStream>
 #include <QLabel>
 #include <QPlainTextEdit>
+#include <QThread>
+#include <QPointer>
+#include <QTimer>
 #include <KSyntaxHighlighting/Definition>
 #include <KSyntaxHighlighting/Theme>
 
@@ -13,7 +16,7 @@ CodePreviewWidget::CodePreviewWidget(const QString& filePath, QWidget* parent)
 {
 	initUi();
 	initHighlighter();
-	loadFile();
+	QTimer::singleShot(0, this, &CodePreviewWidget::loadFile);
 }
 
 CodePreviewWidget::~CodePreviewWidget()
@@ -77,18 +80,40 @@ void CodePreviewWidget::initHighlighter()
 
 void CodePreviewWidget::loadFile()
 {
-	QFile file(m_filePath);
-	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-		return;
+	QPointer<CodePreviewWidget> that(this);
+	QThread* loadThread = QThread::create([that]() {
+		if (!that)
+			return;
 
-	QTextStream ts(&file);
-	ts.setCodec("UTF-8");
+		QFile file(that->m_filePath);
+		if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+		{
+			QTextStream ts(&file);
+			const QString content = ts.readAll();
 
-	const QString content = ts.readAll();
-	m_editor->setPlainText(content);
-	
-	int lineCount = m_editor->blockCount();
-	int charCount = content.length();
+			// 切回 UI 线程：在这里才设置文本内容
+			QMetaObject::invokeMethod(that, [that, content]() {
+				if (!that)
+					return;
+				that->m_editor->setPlainText(content);
+				int lineCount = that->m_editor->blockCount();
+				int charCount = content.length();
+				that->m_infoLab->setText(tr("Line: %1, Char: %2").arg(lineCount).arg(charCount));
+				}, Qt::QueuedConnection);
+		}
+		else
+		{
+			// 切回 UI 线程：在这里才设置文本内容
+			QMetaObject::invokeMethod(that, [that]() {
+				if (that)
+				{
+					that->m_editor->setPlainText(QString());
+					that->m_infoLab->setText(tr("Failed to load file."));
+				}
+			}, Qt::QueuedConnection);
+		}
+	});
 
-	m_infoLab->setText(tr("Line: %1, Char: %2").arg(lineCount).arg(charCount));
+	connect(loadThread, &QThread::finished, loadThread, &QObject::deleteLater);
+	loadThread->start();
 }

@@ -184,13 +184,26 @@ void ImageViewPortWidget::loadOriginPixmap()
 			QMetaObject::invokeMethod(that, [that, originPixmap]() {
 				if (that)
 				{
+					that->m_bIsLoading = false;
 					that->m_originPixmap = originPixmap;
 					that->resizeToFit();
+					that->update();
 				}
 			}, Qt::QueuedConnection);
 		}
+		else
+		{
+			// 切回 UI 线程：在这里才刷新视图
+			QMetaObject::invokeMethod(that, [that]() {
+				if (that)
+				{
+					that->m_bIsLoading = false;
+					that->m_originPixmap = QPixmap();
+					that->update();
+				}
+				}, Qt::QueuedConnection);
+		}
 
-		that->m_bIsLoading = false;
 	});
 
 	connect(loadThread, &QThread::finished, loadThread, &QObject::deleteLater);
@@ -200,7 +213,6 @@ void ImageViewPortWidget::loadOriginPixmap()
 void ImageViewPortWidget::loadGifFramePixmap()
 {
 	QPointer<ImageViewPortWidget> that(this);
-
 	QThread* loadThread = QThread::create([that]() {
 		if (!that)
 			return;
@@ -214,14 +226,12 @@ void ImageViewPortWidget::loadGifFramePixmap()
 			QMetaObject::invokeMethod(that, [that, gifData]() {
 				if (!that)
 					return;
+				that->m_bIsLoading = false;
 
 				QBuffer* gifBuffer = new QBuffer(that);
 				gifBuffer->setData(gifData);
 				gifBuffer->open(QIODevice::ReadOnly);
 				QMovie* gifMovie = new QMovie(gifBuffer, QByteArray(), that);
-				if (!gifMovie->isValid())
-					return;
-
 				connect(gifMovie, &QMovie::frameChanged, that, [that, gifMovie]() {
 					if (!that)
 						return;
@@ -239,12 +249,22 @@ void ImageViewPortWidget::loadGifFramePixmap()
 					that->updateCursor();
 					that->update();
 				});
-
 				gifMovie->start();
+
 			}, Qt::QueuedConnection);
 		}
-
-		that->m_bIsLoading = false;
+		else
+		{
+			// 切回 UI 线程：在这里才刷新视图
+			QMetaObject::invokeMethod(that, [that]() {
+				if (that)
+				{
+					that->m_bIsLoading = false;
+					that->m_originPixmap = QPixmap();
+					that->update();
+				}
+				}, Qt::QueuedConnection);
+		}
 	});
 
 	connect(loadThread, &QThread::finished, loadThread, &QObject::deleteLater);

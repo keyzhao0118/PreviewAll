@@ -110,6 +110,7 @@ void ArchivePreviewWidget::createEncryptPage()
 
 	QPushButton* okBtn = new QPushButton(tr("OK"), m_encryptPage);
 	connect(okBtn, &QPushButton::clicked, this, [this, passwordEdit]() {
+		showLoadingPage();
 		QString password = passwordEdit->text();
 		m_archiveParser->setPassword(password);
 	});

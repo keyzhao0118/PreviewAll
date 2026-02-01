@@ -2,7 +2,7 @@
 #include "archiveparser.h"
 #include "archivetreewidget.h"
 #include <QThread>
-#include <QMovie>
+#include <QLineEdit>
 #include <QPushButton>
 
 ArchivePreviewWidget::ArchivePreviewWidget(const QString& filePath, QWidget* parent)
@@ -29,7 +29,7 @@ void ArchivePreviewWidget::startParseArchive()
 	m_archiveParser->moveToThread(m_parserThread);
 
 	connect(m_parserThread, &QThread::started, m_archiveParser, &ArchiveParser::parseArchive);
-	connect(m_archiveParser, &ArchiveParser::encryptArchive, this, &ArchivePreviewWidget::showEncryptPage);
+	connect(m_archiveParser, &ArchiveParser::requestPassword, this, &ArchivePreviewWidget::showEncryptPage);
 	connect(m_archiveParser, &ArchiveParser::parseFailed, this, &ArchivePreviewWidget::showErrorPage);
 	connect(m_archiveParser, &ArchiveParser::parseSucceed, this, &ArchivePreviewWidget::showPreviewPage);
 
@@ -41,17 +41,14 @@ void ArchivePreviewWidget::startParseArchive()
 
 void ArchivePreviewWidget::showLoadingPage()
 {
-	if (!m_loadingLab)
+	if (!m_infoLab)
 	{
-		m_loadingLab = new QLabel(this);
-		m_loadingLab->setAlignment(Qt::AlignCenter);
-		auto* movie = new QMovie(":/gif/loading.gif");
-		m_loadingLab->setMovie(movie);
-		movie->start();
-		m_stackedLayout->addWidget(m_loadingLab);
+		createInfoLab();
+		m_stackedLayout->addWidget(m_infoLab);
 	}
 
-	m_stackedLayout->setCurrentWidget(m_loadingLab);
+	m_infoLab->setText(tr("Loading archive."));
+	m_stackedLayout->setCurrentWidget(m_infoLab);
 }
 
 void ArchivePreviewWidget::showErrorPage()
@@ -68,14 +65,13 @@ void ArchivePreviewWidget::showErrorPage()
 
 void ArchivePreviewWidget::showEncryptPage()
 {
-	if (!m_infoLab)
+	if (!m_encryptPage)
 	{
-		createInfoLab();
-		m_stackedLayout->addWidget(m_infoLab);
+		createEncryptPage();
+		m_stackedLayout->addWidget(m_encryptPage);
 	}
 
-	m_infoLab->setText(tr("The archive is encrypted and cannot be previewed."));
-	m_stackedLayout->setCurrentWidget(m_infoLab);
+	m_stackedLayout->setCurrentWidget(m_encryptPage);
 }
 
 void ArchivePreviewWidget::showPreviewPage()
@@ -102,6 +98,27 @@ void ArchivePreviewWidget::createInfoLab()
 	QFont infoFont("Microsoft YaHei");
 	infoFont.setPointSize(9);
 	m_infoLab->setFont(infoFont);
+}
+
+void ArchivePreviewWidget::createEncryptPage()
+{
+	m_encryptPage = new QWidget(this);
+
+	QLineEdit* passwordEdit = new QLineEdit(m_encryptPage);
+	passwordEdit->setPlaceholderText(tr("Enter password"));
+	passwordEdit->setEchoMode(QLineEdit::Password);
+
+	QPushButton* okBtn = new QPushButton(tr("OK"), m_encryptPage);
+	connect(okBtn, &QPushButton::clicked, this, [this, passwordEdit]() {
+		QString password = passwordEdit->text();
+		m_archiveParser->setPassword(password);
+	});
+
+	QVBoxLayout* encryptLayout = new QVBoxLayout(m_encryptPage);
+	encryptLayout->setContentsMargins(50, 50, 50, 50);
+	encryptLayout->setSpacing(10);
+	encryptLayout->addWidget(passwordEdit);
+	encryptLayout->addWidget(okBtn);
 }
 
 void ArchivePreviewWidget::craetePreviewPage()

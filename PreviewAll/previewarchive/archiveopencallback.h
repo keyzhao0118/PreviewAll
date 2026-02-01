@@ -22,4 +22,7 @@ public:
 	// ICryptoGetTextPassword
 	STDMETHOD(CryptoGetTextPassword)(BSTR* password) override;
 
+signals:
+	void requestPassword(BSTR* password);
+
 };

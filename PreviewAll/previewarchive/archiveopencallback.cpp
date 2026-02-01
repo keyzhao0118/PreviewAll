@@ -12,5 +12,9 @@ STDMETHODIMP ArchiveOpenCallBack::SetCompleted(const UInt64* files, const UInt64
 
 STDMETHODIMP ArchiveOpenCallBack::CryptoGetTextPassword(BSTR* password)
 {
-	return E_ABORT;
+	if (!password)
+		return E_INVALIDARG;
+
+	emit requestPassword(password);
+	return S_OK;
 }

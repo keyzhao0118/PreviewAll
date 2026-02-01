@@ -18,6 +18,7 @@ public:
 	explicit ArchiveParser(const QString& archivePath, QObject* parent = nullptr);
 	~ArchiveParser();
 
+	void setPassword(const QString& password);
 	void stopParse();
 
 	const ArchiveTreeNode* getRootNode() const;
@@ -28,7 +29,7 @@ public slots:
 	void parseArchive();
 
 signals:
-	void encryptArchive();
+	void requestPassword();
 	void updateProgress(quint64 completed, quint64 total);
 	void parseFailed();
 	void parseSucceed();
@@ -42,6 +43,9 @@ private:
 	bool processArchive(CMyComPtr<IInArchive> archive);
 	bool checkStopParse();
 
+private slots:
+	void onRequestPassword(BSTR* password);
+
 private:
 	QString m_archivePath;
 	QSharedPointer<ArchiveTree> m_archiveTree;
@@ -49,5 +53,8 @@ private:
 	QMutex m_mutex;
 	QWaitCondition m_waitCondition;
 	bool m_bStopParse = false;
+
+	bool m_bGetPassword = false;
+	QString m_password;
 
 };

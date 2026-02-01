@@ -14,6 +14,5 @@
 		<file>check.png</file>
 	</qresource>
 	<qresource prefix="/gif">
-		<file>loading.gif</file>
 	</qresource>
 </RCC>

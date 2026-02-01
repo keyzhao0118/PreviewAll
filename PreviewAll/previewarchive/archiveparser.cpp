@@ -89,6 +89,14 @@ ArchiveParser::~ArchiveParser()
 {
 }
 
+void ArchiveParser::setPassword(const QString& password)
+{
+	QMutexLocker locker(&m_mutex);
+	m_bGetPassword = true;
+	m_password = password;
+	m_waitCondition.wakeOne();
+}
+
 void ArchiveParser::stopParse()
 {
 	QMutexLocker locker(&m_mutex);
@@ -124,15 +132,10 @@ void ArchiveParser::parseArchive()
 
 	ArchiveOpenCallBack* openCallBackSpec = new ArchiveOpenCallBack();
 	CMyComPtr<IArchiveOpenCallback> openCallBack(openCallBackSpec);
+	connect(openCallBackSpec, &ArchiveOpenCallBack::requestPassword, this, &ArchiveParser::onRequestPassword);
 
 	CMyComPtr<IInArchive> archive;
 	HRESULT hrOpen = tryOpenArchive(m_archivePath, openCallBack, archive);
-	if (hrOpen == E_ABORT)
-	{
-		qDebug() << "ArchiveParser: Abort parse encrypt archive.";
-		emit encryptArchive();
-		return;
-	}
 	if (hrOpen != S_OK)
 	{
 		qDebug() << "ArchiveParser: Failed to open archive.";
@@ -224,4 +227,27 @@ bool ArchiveParser::checkStopParse()
 {
 	QMutexLocker locker(&m_mutex);
 	return m_bStopParse;
+}
+
+void ArchiveParser::onRequestPassword(BSTR* password)
+{
+	emit requestPassword();
+
+	QMutexLocker locker(&m_mutex);
+	while (!m_bStopParse && !m_bGetPassword)
+	{
+		m_waitCondition.wait(&m_mutex);
+	}
+
+	if (m_bStopParse)
+	{
+		*password = nullptr;
+		return;
+	}
+
+	if (m_bGetPassword)
+	{
+		*password = SysAllocString((const OLECHAR*)m_password.utf16());
+		return;
+	}
 }

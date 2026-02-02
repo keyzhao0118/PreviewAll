@@ -23,7 +23,8 @@ private slots:
 	void showPreviewPage();
 
 private:
-	void createInfoLab();
+	void createLoadingPage();
+	void createErrorPage();
 	void createEncryptPage();
 	void craetePreviewPage();
 
@@ -31,7 +32,8 @@ private:
 	QString m_filePath;
 
 	QStackedLayout* m_stackedLayout = nullptr;
-	QLabel* m_infoLab = nullptr;
+	QWidget* m_loadingPage = nullptr;
+	QWidget* m_errorPage = nullptr;
 	QWidget* m_encryptPage = nullptr;
 	QWidget* m_previewPage = nullptr;
 

@@ -4,6 +4,7 @@
 #include <QThread>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QMovie>
 
 ArchivePreviewWidget::ArchivePreviewWidget(const QString& filePath, QWidget* parent)
 	: QWidget(parent)
@@ -41,26 +42,24 @@ void ArchivePreviewWidget::startParseArchive()
 
 void ArchivePreviewWidget::showLoadingPage()
 {
-	if (!m_infoLab)
+	if (!m_loadingPage)
 	{
-		createInfoLab();
-		m_stackedLayout->addWidget(m_infoLab);
+		createLoadingPage();
+		m_stackedLayout->addWidget(m_loadingPage);
 	}
 
-	m_infoLab->setText(tr("Loading archive."));
-	m_stackedLayout->setCurrentWidget(m_infoLab);
+	m_stackedLayout->setCurrentWidget(m_loadingPage);
 }
 
 void ArchivePreviewWidget::showErrorPage()
 {
-	if (!m_infoLab)
+	if (!m_errorPage)
 	{
-		createInfoLab();
-		m_stackedLayout->addWidget(m_infoLab);
+		createErrorPage();
+		m_stackedLayout->addWidget(m_errorPage);
 	}
 
-	m_infoLab->setText(tr("Failed to parse archive."));
-	m_stackedLayout->setCurrentWidget(m_infoLab);
+	m_stackedLayout->setCurrentWidget(m_errorPage);
 }
 
 void ArchivePreviewWidget::showEncryptPage()
@@ -85,14 +84,38 @@ void ArchivePreviewWidget::showPreviewPage()
 	m_stackedLayout->setCurrentWidget(m_previewPage);
 }
 
-void ArchivePreviewWidget::createInfoLab()
+void ArchivePreviewWidget::createLoadingPage()
 {
-	m_infoLab = new QLabel(this);
-	m_infoLab->setWordWrap(true);
-	m_infoLab->setAlignment(Qt::AlignCenter);
-	QFont infoFont("Microsoft YaHei");
-	infoFont.setPointSize(9);
-	m_infoLab->setFont(infoFont);
+	m_loadingPage = new QWidget(this);
+
+	QLabel* loadingLab = new QLabel(m_loadingPage);
+	loadingLab->setAlignment(Qt::AlignCenter);
+
+	QMovie* movie = new QMovie(":/gif/loading.gif", QByteArray(), loadingLab);
+	movie->setScaledSize(QSize(50, 50));
+	loadingLab->setMovie(movie);
+	movie->start();
+
+	QVBoxLayout* layout = new QVBoxLayout(m_loadingPage);
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->addStretch();
+	layout->addWidget(loadingLab, 0, Qt::AlignCenter);
+	layout->addStretch();
+}
+
+void ArchivePreviewWidget::createErrorPage()
+{
+	m_errorPage = new QWidget(this);
+
+	QLabel* errorLab = new QLabel(m_errorPage);
+	errorLab->setText(tr("Failed to load archive."));
+	errorLab->setAlignment(Qt::AlignCenter);
+
+	QVBoxLayout* layout = new QVBoxLayout(m_errorPage);
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->addStretch();
+	layout->addWidget(errorLab, 0, Qt::AlignCenter);
+	layout->addStretch();
 }
 
 void ArchivePreviewWidget::createEncryptPage()

@@ -16,5 +16,9 @@ STDMETHODIMP ArchiveOpenCallBack::CryptoGetTextPassword(BSTR* password)
 		return E_INVALIDARG;
 
 	emit requestPassword(password);
+
+	if (!(*password))
+		return E_ABORT;
+	
 	return S_OK;
 }

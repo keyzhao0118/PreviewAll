@@ -108,8 +108,12 @@ void ArchivePreviewWidget::createErrorPage()
 	m_errorPage = new QWidget(this);
 
 	QLabel* errorLab = new QLabel(m_errorPage);
-	errorLab->setText(tr("Failed to load archive."));
+	errorLab->setText(tr("Failed to load archive"));
 	errorLab->setAlignment(Qt::AlignCenter);
+
+	QFont errorFont("Microsoft YaHei");
+	errorFont.setPointSize(9);
+	errorLab->setFont(errorFont);
 
 	QVBoxLayout* layout = new QVBoxLayout(m_errorPage);
 	layout->setContentsMargins(0, 0, 0, 0);

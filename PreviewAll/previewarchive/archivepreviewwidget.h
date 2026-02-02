@@ -22,8 +22,6 @@ private slots:
 	void showEncryptPage();
 	void showPreviewPage();
 
-	void onExtractBtnClicked();
-
 private:
 	void createInfoLab();
 	void createEncryptPage();

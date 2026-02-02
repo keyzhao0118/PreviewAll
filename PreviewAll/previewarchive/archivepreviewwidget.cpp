@@ -85,11 +85,6 @@ void ArchivePreviewWidget::showPreviewPage()
 	m_stackedLayout->setCurrentWidget(m_previewPage);
 }
 
-void ArchivePreviewWidget::onExtractBtnClicked()
-{
-
-}
-
 void ArchivePreviewWidget::createInfoLab()
 {
 	m_infoLab = new QLabel(this);
@@ -137,11 +132,6 @@ void ArchivePreviewWidget::craetePreviewPage()
 
 	QLabel* statusLab = new QLabel(
 		tr("File: %1, Folder: %2").arg(m_archiveParser->getFileCount()).arg(m_archiveParser->getFolderCount()), this);
-	
-	QPushButton* extractBtn = new QPushButton(this);
-	extractBtn->setIcon(QIcon(":/svg/extract.svg"));
-	extractBtn->setToolTip(tr("Extract"));
-	connect(extractBtn, &QPushButton::clicked, this, &ArchivePreviewWidget::onExtractBtnClicked);
 
 	QWidget* bottomWidget = new QWidget(this);
 	QFont statusBarFont("Microsoft YaHei");
@@ -155,7 +145,6 @@ void ArchivePreviewWidget::craetePreviewPage()
 	bottomLayout->addWidget(archiveIconLab);
 	bottomLayout->addWidget(statusLab);
 	bottomLayout->addStretch();
-	bottomLayout->addWidget(extractBtn);
 
 	QVBoxLayout* previewPageLayout = new QVBoxLayout(m_previewPage);
 	previewPageLayout->setContentsMargins(0, 0, 0, 0);

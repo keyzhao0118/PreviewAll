@@ -24,6 +24,19 @@
 
 ![一分钟演示动图](docs/media/previewall-demo.gif)
 
+## 技术栈 / Tech Stack
+
+| 类别 | 详情 |
+|------|------|
+| **编程语言** | C++17 |
+| **构建系统** | CMake（≥ 3.20） |
+| **UI 框架** | Qt 5（Widgets / Network / OpenGL） |
+| **语法高亮** | KDE KF5SyntaxHighlighting |
+| **压缩包解析** | 7-zip（通过 vcpkg 提供的 `7zip` 库） |
+| **平台** | Windows（Win32 API、Shell Preview Handler COM 接口） |
+
+> **一句话概括**：PreviewAll 是一个用 **C++17 + Qt 5** 编写的 Windows 系统托盘程序，通过注册 COM Preview Handler 接口，让 Windows 资源管理器的「预览窗格」原生支持图片（PNG/JPG/WebP/SVG/GIF 等）、压缩包（ZIP/RAR/7Z）和代码/文本（50+ 扩展名）的预览。
+
 ## 适用环境
 
 - Windows 10/11（x64，建议）

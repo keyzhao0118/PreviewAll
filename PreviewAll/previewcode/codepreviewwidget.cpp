@@ -258,7 +258,7 @@ void CodePreviewWidget::updateLineNumberArea(const QRect& rect, int dy)
 
 void CodePreviewWidget::zoomIn(int range)
 {
-	m_fontSize = qMin(m_fontSize + range, 48);
+	m_fontSize = qMin(m_fontSize + range, MAX_FONT_SIZE);
 	QFont f = m_editor->font();
 	f.setPointSize(m_fontSize);
 	m_editor->setFont(f);
@@ -270,7 +270,7 @@ void CodePreviewWidget::zoomIn(int range)
 
 void CodePreviewWidget::zoomOut(int range)
 {
-	m_fontSize = qMax(m_fontSize - range, 6);
+	m_fontSize = qMax(m_fontSize - range, MIN_FONT_SIZE);
 	QFont f = m_editor->font();
 	f.setPointSize(m_fontSize);
 	m_editor->setFont(f);

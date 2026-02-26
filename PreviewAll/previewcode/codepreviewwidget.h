@@ -33,6 +33,8 @@ private:
 	bool eventFilter(QObject* obj, QEvent* event) override;
 
 private:
+	static constexpr int MIN_FONT_SIZE = 6;
+	static constexpr int MAX_FONT_SIZE = 48;
 	static constexpr qint64 MAX_FILE_SIZE = 1024 * 1024;  // 1 MB
 	static constexpr int TAB_STOP_SPACES = 4;
 
@@ -56,7 +58,6 @@ public:
 	explicit LineNumberArea(CodePreviewWidget* codeWidget, QPlainTextEdit* editor)
 		: QWidget(editor)
 		, m_codeWidget(codeWidget)
-		, m_editor(editor)
 	{
 	}
 
@@ -73,6 +74,5 @@ protected:
 
 private:
 	CodePreviewWidget* m_codeWidget;
-	QPlainTextEdit* m_editor;
 };
 

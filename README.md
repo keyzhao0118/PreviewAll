@@ -1,12 +1,10 @@
 # Preview All
 
-让 Windows 资源管理器的「预览窗格」支持更多文件类型：压缩包、图片、代码/文本等。
+让 Windows 资源管理器的「预览窗格」支持更多文件类型：图片、压缩包、代码/文本等。
 
-> 使用提示：Preview All 需要在后台托盘运行，资源管理器预览窗格才能正常显示。
+> Preview All 需要在后台托盘运行，资源管理器预览窗格才能正常显示。
 
-## 效果预览（待补图）
-
-> 你后续把截图/动图按文件名放到 `docs/media/` 目录即可，README 会自动显示。
+## 效果预览
 
 **资源管理器预览窗格（代码）**
 
@@ -20,132 +18,194 @@
 
 ![资源管理器预览窗格 - 图片](docs/media/preview-pane-image.png)
 
-**一分钟演示动图（推荐）**
+**演示动图**
 
-![一分钟演示动图](docs/media/previewall-demo.gif)
+![演示动图](docs/media/previewall-demo.gif)
 
-## 技术栈 / Tech Stack
+## 工作原理
+
+Preview All 采用 **进程外（out-of-process）** 架构，由两个核心组件协同工作：
+
+```
+资源管理器
+  │  选中文件
+  ▼
+PreviewAllHandler.dll（COM 组件，被加载到 prevhost.exe）
+  │  通过 QLocalSocket 命名管道发送 CREATE / RESIZE / CLOSE 命令
+  ▼
+PreviewAll.exe（Qt 托盘程序，常驻后台）
+  │  根据文件扩展名创建对应的 Qt 预览控件
+  │  通过 Win32 SetParent() 嵌入资源管理器窗口
+  ▼
+预览窗格中显示内容
+```
+
+- **PreviewAllHandler.dll** 实现了 Windows 标准的 `IPreviewHandler` / `IInitializeWithFile` COM 接口，资源管理器通过它获取预览窗口。DLL 本身不做渲染，仅作为通信桥梁。
+- **PreviewAll.exe** 监听命名管道，收到请求后创建对应的 Qt Widget（图片查看器 / 压缩包树 / 代码高亮编辑器），并将窗口句柄嵌入资源管理器提供的父窗口。
+- 新增文件类型只需在 `PreviewAll.exe` 中添加渲染模块，**COM DLL 无需任何改动**，扩展成本极低。
+
+## 技术栈
 
 | 类别 | 详情 |
 |------|------|
 | **编程语言** | C++17 |
-| **构建系统** | CMake（≥ 3.20） |
+| **构建系统** | CMake ≥ 3.20 + Ninja |
+| **包管理** | vcpkg |
 | **UI 框架** | Qt 5（Widgets / Network / OpenGL） |
 | **语法高亮** | KDE KF5SyntaxHighlighting |
-| **压缩包解析** | 7-zip（通过 vcpkg 提供的 `7zip` 库） |
-| **平台** | Windows（Win32 API、Shell Preview Handler COM 接口） |
-
-> **一句话概括**：PreviewAll 是一个用 **C++17 + Qt 5** 编写的 Windows 系统托盘程序，通过注册 COM Preview Handler 接口，让 Windows 资源管理器的「预览窗格」原生支持图片（PNG/JPG/WebP/SVG/GIF 等）、压缩包（ZIP/RAR/7Z）和代码/文本（50+ 扩展名）的预览。
+| **压缩包解析** | 7-zip（vcpkg 提供的 `7zip` 库） |
+| **进程间通信** | QLocalSocket（命名管道） |
+| **平台接口** | Win32 API、Shell Preview Handler COM 接口 |
 
 ## 适用环境
 
-- Windows 10/11（x64，建议）
-- 使用 Windows 资源管理器的「预览窗格」（快捷键 `Alt + P`）
+- Windows 10 / 11（x64）
+- 资源管理器「预览窗格」（快捷键 `Alt + P`）
 
 ## 安装与首次使用
 
-1. 下载发行版（Release）并解压到任意目录
-2. 确保以下文件在同一目录（非常重要）
+1. 从 [Releases](../../releases) 下载最新版并解压到任意目录
+2. 确保以下文件在同一目录：
    - `PreviewAll.exe`
    - `PreviewAllHandler.dll`
+   - `7zip.dll`
 3. 运行 `PreviewAll.exe`
-4. 首次运行可能会弹出 UAC/管理员权限请求（用于注册预览处理器），请选择“是”
+4. 首次运行会弹出 UAC 管理员权限请求（用于注册预览处理器），请选择"是"
 5. 在任务栏托盘找到 Preview All 图标，右键打开菜单，勾选你需要的预览类型：
-   - Preview Image（图片）
-   - Preview Archive（压缩包）
-   - Preview Code（代码/文本）
+   - **Preview Image** — 图片预览
+   - **Preview Archive** — 压缩包预览
+   - **Preview Code** — 代码/文本预览
 
-完成后，在资源管理器中：
+![托盘菜单](docs/media/tray-menu.png)
 
-1. 按 `Alt + P` 打开「预览窗格」
-2. 单击选中一个受支持的文件
-3. 右侧预览窗格将显示内容
-
-（待补图）
-
-![托盘菜单（开关预览类型）](docs/media/tray-menu.png)
+完成后，在资源管理器中按 `Alt + P` 打开预览窗格，单击选中一个受支持的文件，右侧即可显示预览内容。
 
 ## 日常使用
 
-- Preview All 会常驻托盘；**只要托盘程序在运行**，预览窗格就能正常工作。
-- 你可以随时在托盘菜单中开关不同类别的预览。开关会被记住，下次启动会自动恢复。
+- Preview All 常驻托盘；**托盘程序运行期间**，预览窗格即可正常工作。
+- 托盘菜单中可随时开关不同类别的预览，开关状态会自动持久化，下次启动自动恢复。
+- 程序使用 Windows 全局互斥量保证单实例运行，不会重复启动。
 
 ## 支持的文件类型
 
-以下扩展名来自当前版本的默认配置（大小写不敏感）：
+以下扩展名均大小写不敏感：
 
-### 图片
+### 图片（10 种）
 
 `.png` `.jpg` `.jpeg` `.tif` `.tiff` `.bmp` `.webp` `.ico` `.svg` `.gif`
 
-### 压缩包
+### 压缩包（3 种）
 
 `.zip` `.rar` `.7z`
 
-### 代码/文本
+### 代码/文本（50+ 种）
 
-`.c` `.h` `.hpp` `.cpp` `.cxx` `.cc` `.mm` `.m` `.swift`
+| 分类 | 扩展名 |
+|------|--------|
+| C/C++/ObjC | `.c` `.h` `.hpp` `.cpp` `.cxx` `.cc` `.mm` `.m` |
+| Swift | `.swift` |
+| Java/Kotlin | `.java` `.kt` `.kts` |
+| C#/F# | `.cs` `.fs` |
+| 脚本语言 | `.py` `.rb` `.pl` `.lua` `.php` |
+| Web 前端 | `.js` `.ts` `.jsx` `.tsx` `.css` `.scss` `.html` |
+| 配置/数据 | `.json` `.jsonc` `.yaml` `.yml` `.xml` `.toml` `.ini` `.conf` |
+| 构建/Shell | `.cmake` `.mk` `.sh` `.ps1` `.bat` `.cmd` |
+| 文档/标记 | `.md` `.rst` `.adoc` `.tex` |
+| 其他 | `.sql` `.diff` `.patch` |
 
-`.java` `.kt` `.kts` `.cs` `.fs`
+## 从源码构建
 
-`.py` `.rb` `.pl` `.lua` `.php`
+### 前置条件
 
-`.js` `.ts` `.jsx` `.tsx` `.css` `.scss` `.html`
+- Visual Studio 2019+ 或 MSVC Build Tools（需要 C++17 支持）
+- [CMake](https://cmake.org/) ≥ 3.20
+- [vcpkg](https://github.com/microsoft/vcpkg)（设置 `VCPKG_ROOT` 环境变量）
+- 通过 vcpkg 安装以下依赖：
 
-`.json` `.jsonc` `.yaml` `.yml` `.xml` `.toml` `.ini` `.conf`
+```powershell
+vcpkg install qt5-base qt5-network qt5-opengl 7zip kf5syntaxhighlighting --triplet x64-windows
+```
 
-`.cmake` `.mk` `.sh` `.ps1` `.bat` `.cmd`
+### 构建步骤
 
-`.md` `.rst` `.adoc` `.tex`
+```powershell
+cmake --preset x64-debug      # 或 x64-release
+cmake --build out/build/x64-debug
+```
 
-`.sql` `.diff` `.patch`
+构建产物输出到 `out/build/<preset>/bin/` 目录，包含 `PreviewAll.exe`、`PreviewAllHandler.dll` 和 `7zip.dll`。
 
-## 常见问题（FAQ）
+### 手动注册预览处理器
 
-### 1) 预览窗格没有任何变化 / 一直空白
+如果首次运行时跳过了 UAC 授权，可以手动注册：
+
+```powershell
+# 以管理员身份运行
+.\PreviewAll.exe --register-preview-handler
+```
+
+## 常见问题
+
+### 预览窗格没有任何变化 / 一直空白
 
 请按顺序检查：
 
-1. 资源管理器是否已打开「预览窗格」（`Alt + P`）
+1. 资源管理器是否已打开预览窗格（`Alt + P`）
 2. Preview All 是否仍在托盘运行
 3. 托盘菜单里对应的预览类型是否已勾选
-4. 关闭并重新打开资源管理器窗口（必要时可重启资源管理器进程）
+4. 关闭并重新打开资源管理器窗口（必要时可在任务管理器中重启 `explorer.exe`）
 
-### 2) 首次运行弹出管理员权限请求是做什么的？
+### 首次运行弹出管理员权限请求是做什么的？
 
-Preview All 需要在系统中注册为“预览处理器（Preview Handler）”，资源管理器才能把文件交给它来预览。这个注册过程通常需要管理员权限。
+Preview All 需要将 `PreviewAllHandler.dll` 注册为系统的 Preview Handler COM 组件（写入 `HKEY_LOCAL_MACHINE` 和 `HKEY_CURRENT_USER` 下的注册表项），资源管理器才能识别并加载它。
 
-如果你点了“否”，预览可能无法工作；你可以稍后重新注册：
+### 为什么退出后预览又不生效了？
 
-```powershell
-# 在“以管理员身份运行”的终端中执行
-PreviewAll.exe --register-preview-handler
-```
-
-### 3) 为什么退出后预览又不生效了？
-
-Preview All 采用托盘常驻模式：关闭/退出托盘程序后，会停止提供预览服务；再次启动后即可恢复。
+Preview All 的渲染由托盘程序 `PreviewAll.exe` 提供。退出托盘程序后，COM DLL 无法通过命名管道获得预览窗口，因此预览会失效。重新启动即可恢复。
 
 ## 卸载 / 停用
 
-- 停用某类预览：在托盘菜单取消勾选对应项。
-- 退出程序：托盘菜单选择 Exit。
-- 删除程序：退出后直接删除解压目录即可。
+- **停用某类预览**：在托盘菜单取消勾选对应项。
+- **退出程序**：托盘菜单选择 Exit（退出时会自动反注册所有文件扩展名关联）。
+- **删除程序**：退出后直接删除整个目录即可。
+
+## Roadmap / 未来规划
+
+### 第一阶段：补齐核心体验
+
+- [ ] **Markdown 渲染预览**：当前 `.md` 以语法高亮的源码形式展示，应增加渲染模式（基于 Qt WebEngine 或自研 Markdown→HTML），支持源码/渲染双模式切换。
+- [ ] **代码预览增强**：添加行号显示、文字搜索（Ctrl+F）、亮色/暗色主题切换。
+- [ ] **图片预览增强**：显示图片基础信息（分辨率、文件大小、色彩空间），支持 EXIF 元数据展示，增加实际像素 1:1 与适应窗口的快捷切换。
+- [ ] **压缩包预览增强**：支持在树形视图中搜索/过滤文件名；支持预览压缩包内的单个文件（点击条目后就地预览）。
+
+### 第二阶段：扩展更多文件类型
+
+得益于进程外渲染架构，新增预览类型只需在 PreviewAll.exe 中添加对应的 Qt Widget 模块，COM Handler DLL 无需任何改动。
+
+- [ ] **PDF 预览**：利用 Qt PDF 模块或 MuPDF / Poppler 实现翻页预览。
+- [ ] **Office 文档预览**：轻量级 `.docx` / `.xlsx` / `.pptx` 预览（可借助 LibreOffice 无头模式或解析 OOXML）。
+- [ ] **字体文件预览**：`.ttf` / `.otf` / `.woff` / `.woff2`，展示字体样张、字符集和元信息。
+- [ ] **3D 模型预览**：`.stl` / `.obj` / `.gltf`，利用 Qt 3D 或 OpenGL 做基础的旋转/缩放查看。
+- [ ] **音视频缩略预览**：`.mp4` / `.mp3` / `.wav` 等，展示视频关键帧缩略图或音频波形图。
+
+### 第三阶段：架构升级与插件化
+
+- [ ] **插件系统**：将每种预览类型抽象为独立插件（动态库），定义标准 `IPreviewPlugin` 接口，支持第三方开发者编写自定义预览插件并热加载。
+- [ ] **设置界面**：独立的设置窗口，提供文件类型管理（自定义扩展名绑定）、主题选择（亮色/暗色/跟随系统）、字体大小、快捷键配置等。
+- [ ] **性能优化**：大文件异步加载与流式渲染；频繁预览文件的缩略图缓存，提升文件切换响应速度。
+- [ ] **多语言完善**：补齐英文及其他语言的翻译（当前已有 i18n 框架，支持中文和英文）。
+
+### 第四阶段：分发与生态
+
+- [ ] **安装包**：提供 MSI / MSIX 安装包，支持静默安装和开机自启。
+- [ ] **包管理器分发**：发布到 `winget` / `scoop` / `chocolatey`，一行命令安装。
+- [ ] **自动更新**：内置版本检查与自动更新（基于 GitHub Releases API）。
+- [ ] **开机自启**：托盘菜单选项或安装时选项，注册到 Windows 启动项。
 
 ## 反馈与支持
 
-- 发现 bug 或想提需求：请在 GitHub Issues 中提交（建议附上 Windows 版本、复现步骤、相关文件类型/扩展名）。
+发现 bug 或想提需求，请在 [GitHub Issues](../../issues) 中提交（建议附上 Windows 版本、复现步骤、相关文件扩展名）。
 
-## 截图/动图清单（你需要提供的素材）
+## License
 
-请把素材放到 `docs/media/`，并使用以下文件名（不区分大小写但建议保持一致）：
-
-- `preview-pane-code.png`：资源管理器预览窗格预览一份代码文件（例如 `.cpp` / `.ts` / `.json`）
-- `preview-pane-archive.png`：预览窗格展示压缩包内容树（例如 `.zip`）
-- `preview-pane-image.png`：预览窗格展示一张图片（例如 `.png`）
-- `tray-menu.png`：托盘右键菜单，能看到三个开关项（Preview Image / Preview Archive / Preview Code）
-- `previewall-demo.gif`（可选但强烈建议）：从“打开预览窗格 → 选中文件 → 展示预览”的一段 5~10 秒动图
-
-建议：截图尽量包含资源管理器右侧的预览窗格与被选中的文件名；动图推荐 1080p 或更小的清晰录制，控制在 5~10MB。
-
-
+MIT

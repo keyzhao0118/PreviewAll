@@ -4,23 +4,19 @@
 
 > Preview All 需要在后台托盘运行，资源管理器预览窗格才能正常显示。
 
-## 效果预览
+## 预览能力
 
-**资源管理器预览窗格（代码）**
+### 图片预览
 
-![资源管理器预览窗格 - 代码](docs/media/preview-pane-code.png)
+在资源管理器预览窗格中直接查看图片内容，支持 PNG、JPEG、BMP、WebP、SVG、GIF、TIFF、ICO 等常见格式。预览窗格会根据窗口大小自适应缩放，完整展示图片。
 
-**资源管理器预览窗格（压缩包）**
+### 压缩包预览
 
-![资源管理器预览窗格 - 压缩包](docs/media/preview-pane-archive.png)
+无需解压即可查看压缩包内部的文件结构。以树形目录的方式展示压缩包中的文件和文件夹层级，并显示每个条目的文件名、大小等信息，支持 ZIP、RAR、7z 格式。
 
-**资源管理器预览窗格（图片）**
+### 代码/文本预览
 
-![资源管理器预览窗格 - 图片](docs/media/preview-pane-image.png)
-
-**演示动图**
-
-![演示动图](docs/media/previewall-demo.gif)
+在预览窗格中以语法高亮的方式展示源代码和文本文件内容，覆盖 50+ 种编程语言和配置文件格式（C/C++、Python、Java、JavaScript/TypeScript、Markdown、JSON、YAML 等），方便快速浏览代码而无需打开编辑器。
 
 ## 工作原理
 
@@ -75,8 +71,6 @@ PreviewAll.exe（Qt 托盘程序，常驻后台）
    - **Preview Image** — 图片预览
    - **Preview Archive** — 压缩包预览
    - **Preview Code** — 代码/文本预览
-
-![托盘菜单](docs/media/tray-menu.png)
 
 完成后，在资源管理器中按 `Alt + P` 打开预览窗格，单击选中一个受支持的文件，右侧即可显示预览内容。
 

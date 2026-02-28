@@ -1,4 +1,4 @@
-﻿# 添加子目录
+# 添加子目录
 cmake_minimum_required(VERSION 3.20)
 
 project(PreviewAll
@@ -14,4 +14,3 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory(PreviewAll)
 add_subdirectory(PreviewAllHandler)
-add_subdirectory(PreviewDemo)

@@ -31,14 +31,14 @@ void CodePreviewWidget::initUi()
 	mainLayout->setSpacing(0);
 
 	QWidget* statusWidget = new QWidget(this);
-	statusWidget->setFixedHeight(35);
+	statusWidget->setFixedHeight(50);
 	auto statusLayout = new QHBoxLayout(statusWidget);
-	statusLayout->setContentsMargins(5, 0, 5, 0);
-	statusLayout->setSpacing(5);
+	statusLayout->setContentsMargins(10, 0, 10, 0);
+	statusLayout->setSpacing(10);
 
 	QLabel* codeIconLab = new QLabel(this);
 	QPixmap codePix(":/png/code.png");
-	codePix = codePix.scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	codePix = codePix.scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 	codeIconLab->setPixmap(codePix);
 
 	m_infoLab = new QLabel(this);

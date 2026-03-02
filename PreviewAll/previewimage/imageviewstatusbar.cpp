@@ -11,10 +11,10 @@ ImageViewStatusBar::ImageViewStatusBar(const QString& imagePath, QWidget* parent
 	: QWidget(parent)
 	, m_imagePath(imagePath)
 {
-	setFixedHeight(35);
+	setFixedHeight(50);
 	m_mainLayout = new QHBoxLayout(this);
-	m_mainLayout->setContentsMargins(5, 0, 5, 0);
-	m_mainLayout->setSpacing(5);
+	m_mainLayout->setContentsMargins(10, 0, 10, 0);
+	m_mainLayout->setSpacing(10);
 	addResolutionLab();
 	m_mainLayout->addStretch();
 
@@ -53,7 +53,8 @@ void ImageViewStatusBar::resizeEvent(QResizeEvent* resizeEvent)
 		m_scaleComboBox,
 	};
 
-	int usedWidth = 10;
+	QMargins margins = m_mainLayout->contentsMargins();
+	int usedWidth = margins.left() + margins.right();
 	int spacing = m_mainLayout->spacing();
 
 	for (int i = 0; i < m_mainLayout->count(); ++i)
@@ -93,7 +94,7 @@ void ImageViewStatusBar::addResolutionLab()
 {
 	QLabel* imageIconLab = new QLabel(this);
 	QPixmap imagePix(":/png/image.png");
-	imagePix = imagePix.scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	imagePix = imagePix.scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 	imageIconLab->setPixmap(imagePix);
 
 	QImageReader reader(m_imagePath);

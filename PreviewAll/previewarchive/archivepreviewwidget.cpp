@@ -11,7 +11,13 @@ ArchivePreviewWidget::ArchivePreviewWidget(const QString& filePath, QWidget* par
 	, m_filePath(filePath)
 {
 	setWindowFlags(Qt::FramelessWindowHint);
-	m_stackedLayout = new QStackedLayout(this);
+	m_mainLayout = new QVBoxLayout(this);
+	m_mainLayout->setContentsMargins(0, 0, 0, 0);
+	m_mainLayout->setSpacing(0);
+	initStatusBar();
+	m_stackedLayout = new QStackedLayout();
+	m_mainLayout->addLayout(m_stackedLayout);
+
 	startParseArchive();
 }
 
@@ -49,6 +55,7 @@ void ArchivePreviewWidget::showLoadingPage()
 	}
 
 	m_stackedLayout->setCurrentWidget(m_loadingPage);
+	m_statusLab->setText(tr("Loading"));
 }
 
 void ArchivePreviewWidget::showErrorPage()
@@ -60,6 +67,7 @@ void ArchivePreviewWidget::showErrorPage()
 	}
 
 	m_stackedLayout->setCurrentWidget(m_errorPage);
+	m_statusLab->setText(tr("Error"));
 }
 
 void ArchivePreviewWidget::showEncryptPage()
@@ -71,22 +79,50 @@ void ArchivePreviewWidget::showEncryptPage()
 	}
 
 	m_stackedLayout->setCurrentWidget(m_encryptPage);
+	m_statusLab->setText(tr("Enter password"));
 }
 
 void ArchivePreviewWidget::showPreviewPage()
 {
 	if (!m_previewPage)
 	{
-		craetePreviewPage();
+		createPreviewPage();
 		m_stackedLayout->addWidget(m_previewPage);
 	}
 
 	m_stackedLayout->setCurrentWidget(m_previewPage);
+	m_statusLab->setText(tr("File: %1, Folder: %2").arg(m_archiveParser->getFileCount()).arg(m_archiveParser->getFolderCount()));
+}
+
+void ArchivePreviewWidget::initStatusBar()
+{
+	QLabel* archiveIconLab = new QLabel(this);
+	QPixmap archivePix(":/png/archive.png");
+	archivePix = archivePix.scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	archiveIconLab->setPixmap(archivePix);
+
+	m_statusLab = new QLabel(this);
+
+	QWidget* statusBar = new QWidget(this);
+	QFont statusBarFont("Microsoft YaHei");
+	statusBarFont.setPointSize(9);
+	statusBar->setFont(statusBarFont);
+	statusBar->setFixedHeight(50);
+	QHBoxLayout* statusBarLayout = new QHBoxLayout(statusBar);
+	statusBarLayout->setContentsMargins(10, 0, 10, 0);
+	statusBarLayout->setSpacing(10);
+
+	statusBarLayout->addWidget(archiveIconLab);
+	statusBarLayout->addWidget(m_statusLab);
+	statusBarLayout->addStretch();
+
+	m_mainLayout->addWidget(statusBar);
 }
 
 void ArchivePreviewWidget::createLoadingPage()
 {
 	m_loadingPage = new QWidget(this);
+	m_loadingPage->setStyleSheet("background-color: palette(base);");
 
 	QLabel* loadingLab = new QLabel(m_loadingPage);
 	loadingLab->setAlignment(Qt::AlignCenter);
@@ -106,6 +142,7 @@ void ArchivePreviewWidget::createLoadingPage()
 void ArchivePreviewWidget::createErrorPage()
 {
 	m_errorPage = new QWidget(this);
+	m_errorPage->setStyleSheet("background-color: palette(base);");
 
 	QLabel* errorLab = new QLabel(m_errorPage);
 	errorLab->setText(tr("Failed to load archive"));
@@ -125,6 +162,7 @@ void ArchivePreviewWidget::createErrorPage()
 void ArchivePreviewWidget::createEncryptPage()
 {
 	m_encryptPage = new QWidget(this);
+	m_encryptPage->setStyleSheet("background-color: palette(base);");
 
 	QLineEdit* passwordEdit = new QLineEdit(m_encryptPage);
 	passwordEdit->setPlaceholderText(tr("Enter password"));
@@ -144,38 +182,16 @@ void ArchivePreviewWidget::createEncryptPage()
 	encryptLayout->addWidget(okBtn);
 }
 
-void ArchivePreviewWidget::craetePreviewPage()
+void ArchivePreviewWidget::createPreviewPage()
 {
 	m_previewPage = new QWidget(this);
+	m_previewPage->setStyleSheet("background-color: palette(base);");
 
 	ArchiveTreeWidget* treeWidget = new ArchiveTreeWidget(this);
 	const ArchiveTreeNode* rootNode = m_archiveParser->getRootNode();
 	treeWidget->refresh(rootNode);
-
-	QLabel* archiveIconLab = new QLabel(this);
-	QPixmap archivePix(":/png/archive.png");
-	archivePix = archivePix.scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-	archiveIconLab->setPixmap(archivePix);
-
-	QLabel* statusLab = new QLabel(
-		tr("File: %1, Folder: %2").arg(m_archiveParser->getFileCount()).arg(m_archiveParser->getFolderCount()), this);
-
-	QWidget* bottomWidget = new QWidget(this);
-	QFont statusBarFont("Microsoft YaHei");
-	statusBarFont.setPointSize(9);
-	bottomWidget->setFont(statusBarFont);
-	bottomWidget->setFixedHeight(35);
-	QHBoxLayout* bottomLayout = new QHBoxLayout(bottomWidget);
-	bottomLayout->setContentsMargins(5, 0, 5, 0);
-	bottomLayout->setSpacing(5);
-
-	bottomLayout->addWidget(archiveIconLab);
-	bottomLayout->addWidget(statusLab);
-	bottomLayout->addStretch();
-
 	QVBoxLayout* previewPageLayout = new QVBoxLayout(m_previewPage);
 	previewPageLayout->setContentsMargins(0, 0, 0, 0);
 	previewPageLayout->setSpacing(0);
-	previewPageLayout->addWidget(bottomWidget);
 	previewPageLayout->addWidget(treeWidget);
 }

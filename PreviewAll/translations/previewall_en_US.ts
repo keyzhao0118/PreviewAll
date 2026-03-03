@@ -4,19 +4,60 @@
 <context>
     <name>ArchivePreviewWidget</name>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="44"/>
         <source>Loading...</source>
-        <translation>Loading...</translation>
+        <translation type="vanished">Loading...</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="56"/>
         <source>Failed to parse archive.</source>
-        <translation>Failed to parse archive.</translation>
+        <translation type="vanished">Failed to parse archive.</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="68"/>
         <source>The archive is encrypted.</source>
-        <translation>The archive is encrypted.</translation>
+        <translation type="vanished">The archive is encrypted.</translation>
+    </message>
+    <message>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="58"/>
+        <source>Loading</source>
+        <translation>Loading</translation>
+    </message>
+    <message>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="70"/>
+        <source>Error</source>
+        <translation>Error</translation>
+    </message>
+    <message>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="82"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="168"/>
+        <source>Enter password</source>
+        <translation>Enter password</translation>
+    </message>
+    <message>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="94"/>
+        <source>File: %1, Folder: %2</source>
+        <translation>File: %1, Folder: %2</translation>
+    </message>
+    <message>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="148"/>
+        <source>Failed to load archive</source>
+        <translation>Failed to load archive</translation>
+    </message>
+    <message>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="171"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+</context>
+<context>
+    <name>CodePreviewWidget</name>
+    <message>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="101"/>
+        <source>Line: %1, Char: %2</source>
+        <translation>Line: %1, Char: %2</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="111"/>
+        <source>Failed to load file.</source>
+        <translation>Failed to load file.</translation>
     </message>
 </context>
 <context>
@@ -33,34 +74,57 @@
     </message>
 </context>
 <context>
+    <name>PreviewAllMenu</name>
+    <message>
+        <location filename="../previewallmenu.cpp" line="19"/>
+        <source>Preview Image</source>
+        <translation>Preview Image</translation>
+    </message>
+    <message>
+        <location filename="../previewallmenu.cpp" line="20"/>
+        <source>Preview Archive</source>
+        <translation>Preview Archive</translation>
+    </message>
+    <message>
+        <location filename="../previewallmenu.cpp" line="21"/>
+        <source>Preview Code</source>
+        <translation>Preview Code</translation>
+    </message>
+    <message>
+        <location filename="../previewallmenu.cpp" line="28"/>
+        <source>Help</source>
+        <translation>Help</translation>
+    </message>
+    <message>
+        <location filename="../previewallmenu.cpp" line="30"/>
+        <source>Exit</source>
+        <translation>Exit</translation>
+    </message>
+</context>
+<context>
     <name>PreviewOptionPanel</name>
     <message>
-        <location filename="../previewoptionpanel.cpp" line="26"/>
         <source>Image Files</source>
-        <translation>Image Files</translation>
+        <translation type="vanished">Image Files</translation>
     </message>
     <message>
-        <location filename="../previewoptionpanel.cpp" line="27"/>
         <source>Archive Files</source>
-        <translation>Archive Files</translation>
+        <translation type="vanished">Archive Files</translation>
     </message>
     <message>
-        <location filename="../previewoptionpanel.cpp" line="28"/>
         <source>Source Code</source>
-        <translation>Source Code</translation>
+        <translation type="vanished">Source Code</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../main.cpp" line="23"/>
         <source>Option</source>
-        <translation>Options</translation>
+        <translation type="vanished">Options</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="24"/>
         <source>Exit</source>
-        <translation>Exit</translation>
+        <translation type="vanished">Exit</translation>
     </message>
 </context>
 </TS>

@@ -4,19 +4,60 @@
 <context>
     <name>ArchivePreviewWidget</name>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="44"/>
         <source>Loading...</source>
-        <translation>加载中...</translation>
+        <translation type="vanished">加载中...</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="56"/>
         <source>Failed to parse archive.</source>
-        <translation>压缩包解析失败。</translation>
+        <translation type="vanished">压缩包解析失败。</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="68"/>
         <source>The archive is encrypted.</source>
-        <translation>压缩包已加密。</translation>
+        <translation type="vanished">压缩包已加密。</translation>
+    </message>
+    <message>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="58"/>
+        <source>Loading</source>
+        <translation>加载中</translation>
+    </message>
+    <message>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="70"/>
+        <source>Error</source>
+        <translation>错误</translation>
+    </message>
+    <message>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="82"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="168"/>
+        <source>Enter password</source>
+        <translation>输入密码</translation>
+    </message>
+    <message>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="94"/>
+        <source>File: %1, Folder: %2</source>
+        <translation>文件: %1, 文件夹: %2</translation>
+    </message>
+    <message>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="148"/>
+        <source>Failed to load archive</source>
+        <translation>压缩文件加载失败</translation>
+    </message>
+    <message>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="171"/>
+        <source>OK</source>
+        <translation>确定</translation>
+    </message>
+</context>
+<context>
+    <name>CodePreviewWidget</name>
+    <message>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="101"/>
+        <source>Line: %1, Char: %2</source>
+        <translation>行数: %1, 字符数: %2</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="111"/>
+        <source>Failed to load file.</source>
+        <translation>文件加载失败</translation>
     </message>
 </context>
 <context>
@@ -33,34 +74,57 @@
     </message>
 </context>
 <context>
+    <name>PreviewAllMenu</name>
+    <message>
+        <location filename="../previewallmenu.cpp" line="19"/>
+        <source>Preview Image</source>
+        <translation>图片预览</translation>
+    </message>
+    <message>
+        <location filename="../previewallmenu.cpp" line="20"/>
+        <source>Preview Archive</source>
+        <translation>压缩包预览</translation>
+    </message>
+    <message>
+        <location filename="../previewallmenu.cpp" line="21"/>
+        <source>Preview Code</source>
+        <translation>源文件预览</translation>
+    </message>
+    <message>
+        <location filename="../previewallmenu.cpp" line="28"/>
+        <source>Help</source>
+        <translation>帮助</translation>
+    </message>
+    <message>
+        <location filename="../previewallmenu.cpp" line="30"/>
+        <source>Exit</source>
+        <translation>退出</translation>
+    </message>
+</context>
+<context>
     <name>PreviewOptionPanel</name>
     <message>
-        <location filename="../previewoptionpanel.cpp" line="26"/>
         <source>Image Files</source>
-        <translation>图片文件</translation>
+        <translation type="vanished">图片文件</translation>
     </message>
     <message>
-        <location filename="../previewoptionpanel.cpp" line="27"/>
         <source>Archive Files</source>
-        <translation>压缩文件</translation>
+        <translation type="vanished">压缩文件</translation>
     </message>
     <message>
-        <location filename="../previewoptionpanel.cpp" line="28"/>
         <source>Source Code</source>
-        <translation>源代码</translation>
+        <translation type="vanished">源代码</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../main.cpp" line="23"/>
         <source>Option</source>
-        <translation>选项</translation>
+        <translation type="vanished">选项</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="24"/>
         <source>Exit</source>
-        <translation>退出</translation>
+        <translation type="vanished">退出</translation>
     </message>
 </context>
 </TS>

@@ -9,20 +9,22 @@
 
 #define MyAppName      "PreviewAll"
 #define MyAppVersion   "1.0.0"
-#define MyAppPublisher "zhaokai3"
+#define MyAppPublisher "freedomkey"
 #define MyAppURL       "https://github.com/keyzhao0118/PreviewAll"
 #define MyAppExeName   "PreviewAll.exe"
 
 ; ★ Modify this to point to your actual bin directory (relative to this .iss file)
-#define BinDir         "..\bin"
+#define BinDir         "..\out\build\x64-release-user\bin"
 
 [Setup]
+; 显式指定源目录为 .iss 文件所在目录（确保相对路径始终正确）
+SourceDir=.
 ; Generate a unique GUID via Inno Setup menu: Tools → Generate GUID
-AppId={{PUT-YOUR-GUID-HERE}
+AppId={{BF9C67AD-2D1B-4755-A865-76FDACCD0C29}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-AppURL={#MyAppURL}
+AppPublisherURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 ; License file
@@ -48,12 +50,15 @@ UninstallDisplayIcon={app}\{#MyAppExeName}
 ; ================================================================
 ShowLanguageDialog=auto
 LanguageDetectionMethod=uilanguage
+; ...existing settings...
+CloseApplications=force
+RestartApplications=yes
 
 [Languages]
 ; English first = default language
 Name: "english"; MessagesFile: "compiler:Default.isl"
 ; Simplified Chinese
-Name: "chinese"; MessagesFile: "compiler:Languages\Chinese.isl"
+;Name: "chinese"; MessagesFile: "compiler:Languages\Chinese.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"

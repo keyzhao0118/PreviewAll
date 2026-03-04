@@ -58,7 +58,7 @@ RestartApplications=yes
 ; English first = default language
 Name: "english"; MessagesFile: "compiler:Default.isl"
 ; Simplified Chinese
-;Name: "chinese"; MessagesFile: "compiler:Languages\Chinese.isl"
+Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -83,21 +83,44 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#MyAppName}}
 
 [Registry]
 ; ================================================================
-; ★ RESERVED: Fill in your HKLM registry entries below
-;
-; Examples:
-;
-; Root: HKLM; Subkey: "SOFTWARE\{#MyAppPublisher}\{#MyAppName}"; \
-;     ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"; \
-;     Flags: uninsdeletekey
-;
-; Root: HKLM; Subkey: "SOFTWARE\{#MyAppPublisher}\{#MyAppName}"; \
-;     ValueType: string; ValueName: "Version"; ValueData: "{#MyAppVersion}"; \
-;     Flags: uninsdeletekey
-;
+; PreviewAllHandler COM registration — HKLM
 ; ================================================================
+Root: HKLM; Subkey: "Software\Classes\CLSID\{{A26D5A00-AF3F-47B7-B075-A3282DE904E6}"; \
+    ValueType: string; ValueName: ""; ValueData: "PreviewAllHandler"; \
+    Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\CLSID\{{A26D5A00-AF3F-47B7-B075-A3282DE904E6}"; \
+    ValueType: string; ValueName: "AppID"; ValueData: "{{6d2b5079-2f0b-48dd-ab7f-97cec514d30b}"
+Root: HKLM; Subkey: "Software\Classes\CLSID\{{A26D5A00-AF3F-47B7-B075-A3282DE904E6}"; \
+    ValueType: dword; ValueName: "DisableLowILProcessIsolation"; ValueData: "1"
+Root: HKLM; Subkey: "Software\Classes\CLSID\{{A26D5A00-AF3F-47B7-B075-A3282DE904E6}\InProcServer32"; \
+    ValueType: string; ValueName: ""; ValueData: "{app}\PreviewAllHandler.dll"; \
+    Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\CLSID\{{A26D5A00-AF3F-47B7-B075-A3282DE904E6}\InProcServer32"; \
+    ValueType: string; ValueName: "ThreadingModel"; ValueData: "Apartment"
+Root: HKLM; Subkey: "Software\Microsoft\Windows\CurrentVersion\PreviewHandlers"; \
+    ValueType: string; ValueName: "{{A26D5A00-AF3F-47B7-B075-A3282DE904E6}"; ValueData: "PreviewAllHandler"; \
+    Flags: uninsdeletevalue
+
+; ================================================================
+; PreviewAllHandler COM registration — HKCU
+; ================================================================
+Root: HKCU; Subkey: "Software\Classes\CLSID\{{A26D5A00-AF3F-47B7-B075-A3282DE904E6}"; \
+    ValueType: string; ValueName: ""; ValueData: "PreviewAllHandler"; \
+    Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\CLSID\{{A26D5A00-AF3F-47B7-B075-A3282DE904E6}"; \
+    ValueType: string; ValueName: "AppID"; ValueData: "{{6d2b5079-2f0b-48dd-ab7f-97cec514d30b}"
+Root: HKCU; Subkey: "Software\Classes\CLSID\{{A26D5A00-AF3F-47B7-B075-A3282DE904E6}"; \
+    ValueType: dword; ValueName: "DisableLowILProcessIsolation"; ValueData: "1"
+Root: HKCU; Subkey: "Software\Classes\CLSID\{{A26D5A00-AF3F-47B7-B075-A3282DE904E6}\InProcServer32"; \
+    ValueType: string; ValueName: ""; ValueData: "{app}\PreviewAllHandler.dll"; \
+    Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\CLSID\{{A26D5A00-AF3F-47B7-B075-A3282DE904E6}\InProcServer32"; \
+    ValueType: string; ValueName: "ThreadingModel"; ValueData: "Apartment"
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\PreviewHandlers"; \
+    ValueType: string; ValueName: "{{A26D5A00-AF3F-47B7-B075-A3282DE904E6}"; ValueData: "PreviewAllHandler"; \
+    Flags: uninsdeletevalue
 
 [UninstallDelete]
 ; Clean up logs/cache on uninstall (if any)
-Type: filesandordirs; Name: "{app}\logs"
-Type: filesandordirs; Name: "{app}\cache"
+; Type: filesandordirs; Name: "{app}\logs"
+; Type: filesandordirs; Name: "{app}\cache"

@@ -115,6 +115,12 @@ void ImageViewStatusBar::addAdaptiveBtn()
 {
 	m_adaptiveBtn = new QPushButton(this);
 	m_adaptiveBtn->setIcon(QIcon(":/svg/expand.svg"));
+	m_adaptiveBtn->setToolTip(tr("Adaptive window"));
+	m_adaptiveBtn->setStyleSheet(
+		"QPushButton { border: none; border-radius: 4px; padding: 4px; background: transparent; }"
+		"QPushButton:hover { background-color: rgba(128, 128, 128, 50); }"
+		"QPushButton:pressed { background-color: rgba(128, 128, 128, 100); }"
+	);
 	connect(m_adaptiveBtn, &QPushButton::clicked, this, &ImageViewStatusBar::adaptiveScale);
 	m_mainLayout->addWidget(m_adaptiveBtn);
 }

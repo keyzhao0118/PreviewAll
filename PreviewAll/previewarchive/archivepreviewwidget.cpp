@@ -98,6 +98,15 @@ void ArchivePreviewWidget::showPreviewPage()
 
 void ArchivePreviewWidget::initStatusBar()
 {
+	QWidget* statusBar = new QWidget(this);
+	QFont statusBarFont("Microsoft YaHei");
+	statusBarFont.setPointSize(9);
+	statusBar->setFont(statusBarFont);
+	statusBar->setFixedHeight(50);
+	QHBoxLayout* statusBarLayout = new QHBoxLayout(statusBar);
+	statusBarLayout->setContentsMargins(10, 0, 10, 0);
+	statusBarLayout->setSpacing(10);
+
 	QLabel* archiveIconLab = new QLabel(this);
 	QSvgRenderer svgRenderer(QString(":/svg/archive.svg"));
 	QPixmap archivePix(30, 30);
@@ -109,20 +118,27 @@ void ArchivePreviewWidget::initStatusBar()
 
 	m_statusLab = new QLabel(this);
 
-	QWidget* statusBar = new QWidget(this);
-	QFont statusBarFont("Microsoft YaHei");
-	statusBarFont.setPointSize(9);
-	statusBar->setFont(statusBarFont);
-	statusBar->setFixedHeight(50);
-	QHBoxLayout* statusBarLayout = new QHBoxLayout(statusBar);
-	statusBarLayout->setContentsMargins(10, 0, 10, 0);
-	statusBarLayout->setSpacing(10);
+	m_extractBtn = new QPushButton(statusBar);
+	m_extractBtn->setIcon(QIcon(":/svg/extract.svg"));
+	m_extractBtn->setToolTip(tr("Extract"));
+	m_extractBtn->setStyleSheet(
+		"QPushButton { border: none; border-radius: 4px; padding: 4px; background: transparent; }"
+		"QPushButton:hover { background-color: rgba(128, 128, 128, 50); }"
+		"QPushButton:pressed { background-color: rgba(128, 128, 128, 100); }"
+	);
+	connect(m_extractBtn, &QPushButton::clicked, this, &ArchivePreviewWidget::onExtract);
 
 	statusBarLayout->addWidget(archiveIconLab);
 	statusBarLayout->addWidget(m_statusLab);
 	statusBarLayout->addStretch();
+	statusBarLayout->addWidget(m_extractBtn);
 
 	m_mainLayout->addWidget(statusBar);
+}
+
+void ArchivePreviewWidget::onExtract()
+{
+	// TODO: implement extraction
 }
 
 void ArchivePreviewWidget::createLoadingPage()

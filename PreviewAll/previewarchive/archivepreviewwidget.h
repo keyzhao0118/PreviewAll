@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QTreeWidget>
 #include <QStackedLayout>
+#include <QPushButton>
 
 class ArchiveParser;
 
@@ -21,6 +22,7 @@ private slots:
 	void showErrorPage();
 	void showEncryptPage();
 	void showPreviewPage();
+	void onExtract();
 
 private:
 	void initStatusBar();
@@ -40,6 +42,7 @@ private:
 	QWidget* m_encryptPage = nullptr;
 	QWidget* m_previewPage = nullptr;
 	QLabel* m_statusLab = nullptr;
+	QPushButton* m_extractBtn = nullptr;
 
 	ArchiveParser* m_archiveParser = nullptr;
 	QThread* m_parserThread = nullptr;

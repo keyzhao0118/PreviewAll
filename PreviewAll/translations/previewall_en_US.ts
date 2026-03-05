@@ -27,7 +27,7 @@
     </message>
     <message>
         <location filename="../previewarchive/archivepreviewwidget.cpp" line="84"/>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="174"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="190"/>
         <source>Enter password</source>
         <translation>Enter password</translation>
     </message>
@@ -37,12 +37,17 @@
         <translation>File: %1, Folder: %2</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="154"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="123"/>
+        <source>Extract</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="170"/>
         <source>Failed to load archive</source>
         <translation>Failed to load archive</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="177"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="193"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -71,6 +76,14 @@
         <location filename="../previewimage/imageviewportwidget.cpp" line="96"/>
         <source>Loading failed</source>
         <translation>Loading failed</translation>
+    </message>
+</context>
+<context>
+    <name>ImageViewStatusBar</name>
+    <message>
+        <location filename="../previewimage/imageviewstatusbar.cpp" line="118"/>
+        <source>Adaptive window</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

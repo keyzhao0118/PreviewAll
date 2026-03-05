@@ -8,7 +8,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Widgets Network OpenGL LinguistTools REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Network OpenGL Svg LinguistTools REQUIRED)
 find_package(7zip CONFIG REQUIRED)
 find_package(KF5SyntaxHighlighting REQUIRED)
 
@@ -56,6 +56,7 @@ target_link_libraries(PreviewAll
 		Qt5::Widgets
 		Qt5::Network
 		Qt5::OpenGL
+		Qt5::Svg
 		7zip::7zip
 		KF5::SyntaxHighlighting
 )

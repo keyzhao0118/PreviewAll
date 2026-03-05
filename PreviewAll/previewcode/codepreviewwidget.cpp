@@ -7,6 +7,8 @@
 #include <QThread>
 #include <QPointer>
 #include <QTimer>
+#include <QSvgRenderer>
+#include <QPainter>
 #include <KSyntaxHighlighting/Definition>
 #include <KSyntaxHighlighting/Theme>
 
@@ -37,8 +39,12 @@ void CodePreviewWidget::initUi()
 	statusLayout->setSpacing(10);
 
 	QLabel* codeIconLab = new QLabel(this);
-	QPixmap codePix(":/png/code.png");
-	codePix = codePix.scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	QSvgRenderer svgRenderer(QString(":/svg/code.svg"));
+	QPixmap codePix(30, 30);
+	codePix.fill(Qt::transparent);
+	QPainter painter(&codePix);
+	svgRenderer.render(&painter);
+	painter.end();
 	codeIconLab->setPixmap(codePix);
 
 	m_infoLab = new QLabel(this);

@@ -16,33 +16,33 @@
         <translation type="vanished">The archive is encrypted.</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="58"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="60"/>
         <source>Loading</source>
         <translation>Loading</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="70"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="72"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="82"/>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="168"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="84"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="174"/>
         <source>Enter password</source>
         <translation>Enter password</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="94"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="96"/>
         <source>File: %1, Folder: %2</source>
         <translation>File: %1, Folder: %2</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="148"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="154"/>
         <source>Failed to load archive</source>
         <translation>Failed to load archive</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="171"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="177"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -50,12 +50,12 @@
 <context>
     <name>CodePreviewWidget</name>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="101"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="107"/>
         <source>Line: %1, Char: %2</source>
         <translation>Line: %1, Char: %2</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="111"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="117"/>
         <source>Failed to load file.</source>
         <translation>Failed to load file.</translation>
     </message>

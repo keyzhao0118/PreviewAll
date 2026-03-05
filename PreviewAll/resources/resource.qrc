@@ -1,16 +1,16 @@
 ﻿<RCC>
 	<qresource prefix="/svg">
-		<file>maximize.svg</file>
+		<file>expand.svg</file>
 		<file>zoom-in.svg</file>
 		<file>zoom-out.svg</file>
-		<file>settings.svg</file>
+		<file>search.svg</file>
 		<file>extract.svg</file>
+		<file>previewall.svg</file>
+		<file>image.svg</file>
+		<file>archive.svg</file>
+		<file>code.svg</file>
 	</qresource>
 	<qresource prefix="/png">
-		<file>previewall.png</file>
-		<file>image.png</file>
-		<file>archive.png</file>
-		<file>code.png</file>
 		<file>check.png</file>
 	</qresource>
 	<qresource prefix="/gif">

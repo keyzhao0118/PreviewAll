@@ -5,6 +5,8 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QMovie>
+#include <QSvgRenderer>
+#include <QPainter>
 
 ArchivePreviewWidget::ArchivePreviewWidget(const QString& filePath, QWidget* parent)
 	: QWidget(parent)
@@ -97,8 +99,12 @@ void ArchivePreviewWidget::showPreviewPage()
 void ArchivePreviewWidget::initStatusBar()
 {
 	QLabel* archiveIconLab = new QLabel(this);
-	QPixmap archivePix(":/png/archive.png");
-	archivePix = archivePix.scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	QSvgRenderer svgRenderer(QString(":/svg/archive.svg"));
+	QPixmap archivePix(30, 30);
+	archivePix.fill(Qt::transparent);
+	QPainter painter(&archivePix);
+	svgRenderer.render(&painter);
+	painter.end();
 	archiveIconLab->setPixmap(archivePix);
 
 	m_statusLab = new QLabel(this);

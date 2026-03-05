@@ -5,6 +5,8 @@
 #include <QLabel>
 #include <QFileInfo>
 #include <QImageReader>
+#include <QSvgRenderer>
+#include <QPainter>
 
 
 ImageViewStatusBar::ImageViewStatusBar(const QString& imagePath, QWidget* parent)
@@ -93,8 +95,12 @@ void ImageViewStatusBar::resizeEvent(QResizeEvent* resizeEvent)
 void ImageViewStatusBar::addResolutionLab()
 {
 	QLabel* imageIconLab = new QLabel(this);
-	QPixmap imagePix(":/png/image.png");
-	imagePix = imagePix.scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	QSvgRenderer svgRenderer(QString(":/svg/image.svg"));
+	QPixmap imagePix(30, 30);
+	imagePix.fill(Qt::transparent);
+	QPainter painter(&imagePix);
+	svgRenderer.render(&painter);
+	painter.end();
 	imageIconLab->setPixmap(imagePix);
 
 	QImageReader reader(m_imagePath);
@@ -108,7 +114,7 @@ void ImageViewStatusBar::addResolutionLab()
 void ImageViewStatusBar::addAdaptiveBtn()
 {
 	m_adaptiveBtn = new QPushButton(this);
-	m_adaptiveBtn->setIcon(QIcon(":/svg/maximize.svg"));
+	m_adaptiveBtn->setIcon(QIcon(":/svg/expand.svg"));
 	connect(m_adaptiveBtn, &QPushButton::clicked, this, &ImageViewStatusBar::adaptiveScale);
 	m_mainLayout->addWidget(m_adaptiveBtn);
 }

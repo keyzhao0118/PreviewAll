@@ -17,14 +17,20 @@ public:
 
 private:
 	void initUi();
+	void initStatusBar();
+	void initTextEditor();
 	void initHighlighter();
 	void loadFile();
+
+private slots:
+	void onSearchBtnClicked();
 
 private:
 	QString m_filePath;
 
+	QWidget* m_statusBar = nullptr;
 	QLabel* m_infoLab = nullptr;
-	QPlainTextEdit* m_editor = nullptr;
+	QPlainTextEdit* m_textEditor = nullptr;
 
 	KSyntaxHighlighting::Repository* m_repository = nullptr;
 	KSyntaxHighlighting::SyntaxHighlighter* m_highlighter = nullptr;

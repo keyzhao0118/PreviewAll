@@ -39,7 +39,7 @@
     <message>
         <location filename="../previewarchive/archivepreviewwidget.cpp" line="124"/>
         <source>Extract</source>
-        <translation type="unfinished"></translation>
+        <translation>Extract</translation>
     </message>
     <message>
         <location filename="../previewarchive/archivepreviewwidget.cpp" line="171"/>
@@ -55,14 +55,23 @@
 <context>
     <name>CodePreviewWidget</name>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="107"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="66"/>
+        <source>Search</source>
+        <translation>Search</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="126"/>
         <source>Line: %1, Char: %2</source>
         <translation>Line: %1, Char: %2</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="117"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="136"/>
+        <source>Failed to load file</source>
+        <translation>Failed to load file</translation>
+    </message>
+    <message>
         <source>Failed to load file.</source>
-        <translation>Failed to load file.</translation>
+        <translation type="vanished">Failed to load file.</translation>
     </message>
 </context>
 <context>
@@ -83,7 +92,7 @@
     <message>
         <location filename="../previewimage/imageviewstatusbar.cpp" line="119"/>
         <source>Adaptive window</source>
-        <translation type="unfinished"></translation>
+        <translation>Adaptive window</translation>
     </message>
 </context>
 <context>

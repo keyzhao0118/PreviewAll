@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QLabel>
+#include <QPushButton>
 #include <QPlainTextEdit>
 #include <QThread>
 #include <QPointer>
@@ -31,14 +32,24 @@ void CodePreviewWidget::initUi()
 	auto* mainLayout = new QVBoxLayout(this);
 	mainLayout->setContentsMargins(0, 0, 0, 0);
 	mainLayout->setSpacing(0);
+	
+	initStatusBar();
+	initTextEditor();
 
-	QWidget* statusWidget = new QWidget(this);
-	statusWidget->setFixedHeight(50);
-	auto statusLayout = new QHBoxLayout(statusWidget);
+	mainLayout->addWidget(m_statusBar);
+	mainLayout->addWidget(m_textEditor);
+}
+
+void CodePreviewWidget::initStatusBar()
+{
+	m_statusBar = new QWidget(this);
+	m_statusBar->setFixedHeight(50);
+
+	auto statusLayout = new QHBoxLayout(m_statusBar);
 	statusLayout->setContentsMargins(10, 0, 10, 0);
 	statusLayout->setSpacing(10);
 
-	QLabel* codeIconLab = new QLabel(this);
+	QLabel* codeIconLab = new QLabel(m_statusBar);
 	QSvgRenderer svgRenderer(QString(":/svg/code.svg"));
 	QPixmap codePix(30, 30);
 	codePix.fill(Qt::transparent);
@@ -47,40 +58,48 @@ void CodePreviewWidget::initUi()
 	painter.end();
 	codeIconLab->setPixmap(codePix);
 
-	m_infoLab = new QLabel(this);
+	m_infoLab = new QLabel(m_statusBar);
+
+	QPushButton* searchBtn = new QPushButton(m_statusBar);
+	searchBtn->setIcon(QIcon(":/svg/search.svg"));
+	searchBtn->setIconSize(QSize(30, 30));
+	searchBtn->setToolTip(tr("Search"));
+	searchBtn->setStyleSheet(
+		"QPushButton { border: none; border-radius: 4px; padding: 4px; background: transparent; }"
+		"QPushButton:hover { background-color: rgba(128, 128, 128, 50); }"
+		"QPushButton:pressed { background-color: rgba(128, 128, 128, 100); }"
+	);
+	connect(searchBtn, &QPushButton::clicked, this, &CodePreviewWidget::onSearchBtnClicked);
 
 	statusLayout->addWidget(codeIconLab);
 	statusLayout->addWidget(m_infoLab);
 	statusLayout->addStretch();
-
-	m_editor = new QPlainTextEdit(this);
-	m_editor->setFrameShape(QFrame::NoFrame);
-	m_editor->setReadOnly(true);
-	m_editor->setLineWrapMode(QPlainTextEdit::NoWrap);
+	statusLayout->addWidget(searchBtn);
 
 	QFont font("Microsoft YaHei");
 	font.setPointSize(9);
-	m_infoLab->setFont(font);
+	m_statusBar->setFont(font);
+}
 
+void CodePreviewWidget::initTextEditor()
+{
+	m_textEditor = new QPlainTextEdit(this);
+	m_textEditor->setFrameShape(QFrame::NoFrame);
+	m_textEditor->setReadOnly(true);
+	m_textEditor->setLineWrapMode(QPlainTextEdit::NoWrap);
+
+	QFont font("Microsoft YaHei");
 	font.setFamily("Consolas");
 	font.setPointSize(12);
-	m_editor->setFont(font);
-
-	mainLayout->addWidget(statusWidget);
-	mainLayout->addWidget(m_editor);
+	m_textEditor->setFont(font);
 }
 
 void CodePreviewWidget::initHighlighter()
 {
 	m_repository = new KSyntaxHighlighting::Repository;
-
-	// 根据文件名自动识别语法
 	const auto def = m_repository->definitionForFileName(m_filePath);
-
-	m_highlighter = new KSyntaxHighlighting::SyntaxHighlighter(m_editor->document());
+	m_highlighter = new KSyntaxHighlighting::SyntaxHighlighter(m_textEditor->document());
 	m_highlighter->setDefinition(def);
-
-	// 主题可选：Dark / Light
 	m_highlighter->setTheme(m_repository->defaultTheme());
 }
 
@@ -101,8 +120,8 @@ void CodePreviewWidget::loadFile()
 			QMetaObject::invokeMethod(that, [that, content]() {
 				if (!that)
 					return;
-				that->m_editor->setPlainText(content);
-				int lineCount = that->m_editor->blockCount();
+				that->m_textEditor->setPlainText(content);
+				int lineCount = that->m_textEditor->blockCount();
 				int charCount = content.length();
 				that->m_infoLab->setText(tr("Line: %1, Char: %2").arg(lineCount).arg(charCount));
 				}, Qt::QueuedConnection);
@@ -113,8 +132,8 @@ void CodePreviewWidget::loadFile()
 			QMetaObject::invokeMethod(that, [that]() {
 				if (that)
 				{
-					that->m_editor->setPlainText(QString());
-					that->m_infoLab->setText(tr("Failed to load file."));
+					that->m_textEditor->setPlainText(QString());
+					that->m_infoLab->setText(tr("Failed to load file"));
 				}
 			}, Qt::QueuedConnection);
 		}
@@ -122,4 +141,9 @@ void CodePreviewWidget::loadFile()
 
 	connect(loadThread, &QThread::finished, loadThread, &QObject::deleteLater);
 	loadThread->start();
+}
+
+void CodePreviewWidget::onSearchBtnClicked()
+{
+	// 这里可以实现搜索功能，例如弹出一个搜索框，或者在编辑器上方显示一个搜索栏
 }

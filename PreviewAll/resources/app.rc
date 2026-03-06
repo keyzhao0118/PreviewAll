@@ -1,0 +1,2 @@
+// Application icon — index 0 is used by Windows Explorer for the EXE icon
+IDI_ICON1 ICON "previewall.ico"

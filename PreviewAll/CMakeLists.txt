@@ -14,6 +14,7 @@ find_package(KF5SyntaxHighlighting REQUIRED)
 
 add_executable(PreviewAll WIN32
 	resources/resource.qrc
+	resources/app.rc
 
 	main.cpp
 	previewallmenu.h

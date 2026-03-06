@@ -32,6 +32,8 @@ LicenseFile=..\LICENSE
 ; Output
 OutputDir=.\Output
 OutputBaseFilename={#MyAppName}_Setup_{#MyAppVersion}
+; Installer icon
+SetupIconFile=..\PreviewAll\resources\previewall.ico
 ; Compression
 Compression=lzma2/ultra64
 SolidCompression=yes
@@ -71,10 +73,10 @@ Source: "{#BinDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs cre
 
 [Icons]
 ; Start menu
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppExeName}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 ; Desktop shortcut (based on user task selection)
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
 ; Launch after install

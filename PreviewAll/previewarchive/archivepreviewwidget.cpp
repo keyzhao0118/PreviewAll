@@ -120,13 +120,14 @@ void ArchivePreviewWidget::initStatusBar()
 
 	m_extractBtn = new QPushButton(statusBar);
 	m_extractBtn->setIcon(QIcon(":/svg/extract.svg"));
+	m_extractBtn->setIconSize(QSize(30, 30));
 	m_extractBtn->setToolTip(tr("Extract"));
 	m_extractBtn->setStyleSheet(
 		"QPushButton { border: none; border-radius: 4px; padding: 4px; background: transparent; }"
 		"QPushButton:hover { background-color: rgba(128, 128, 128, 50); }"
 		"QPushButton:pressed { background-color: rgba(128, 128, 128, 100); }"
 	);
-	connect(m_extractBtn, &QPushButton::clicked, this, &ArchivePreviewWidget::onExtract);
+	connect(m_extractBtn, &QPushButton::clicked, this, &ArchivePreviewWidget::onExtractBtnClicked);
 
 	statusBarLayout->addWidget(archiveIconLab);
 	statusBarLayout->addWidget(m_statusLab);
@@ -136,7 +137,7 @@ void ArchivePreviewWidget::initStatusBar()
 	m_mainLayout->addWidget(statusBar);
 }
 
-void ArchivePreviewWidget::onExtract()
+void ArchivePreviewWidget::onExtractBtnClicked()
 {
 	// TODO: implement extraction
 }

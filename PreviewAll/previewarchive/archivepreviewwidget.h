@@ -22,7 +22,7 @@ private slots:
 	void showErrorPage();
 	void showEncryptPage();
 	void showPreviewPage();
-	void onExtract();
+	void onExtractBtnClicked();
 
 private:
 	void initStatusBar();

@@ -1,14 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14" id="Upload-Box-1--Streamline-Core" height="14" width="14">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14" id="Expand-Window-2--Streamline-Core" height="14" width="14">
   <desc>
-    Upload Box 1 Streamline Icon: https://streamlinehq.com
+    Expand Window 2 Streamline Icon: https://streamlinehq.com
   </desc>
-  <g id="upload-box-1--arrow-box-download-internet-network-server-up-upload">
-    <g id="Vector 1269">
-      <path fill="#2859c5" d="M3.383 0h7.234a1.5 1.5 0 0 1 1.312 0.772L14 4.5H0L2.071 0.772A1.5 1.5 0 0 1 3.383 0Z" stroke-width="1"></path>
-    </g>
-    <path id="Union" fill="#8fbffa" fill-rule="evenodd" d="M7.625 4.5V0h-1.25v4.5H0v8A1.5 1.5 0 0 0 1.5 14h11a1.5 1.5 0 0 0 1.5 -1.5v-8H7.625Z" clip-rule="evenodd" stroke-width="1"></path>
-    <g id="Vector 1267">
-      <path fill="#2859c5" d="M6.646 6.647 4.354 8.939a0.5 0.5 0 0 0 0.353 0.854H6v2a1 1 0 1 0 2 0v-2h1.293a0.5 0.5 0 0 0 0.353 -0.854L7.354 6.647a0.5 0.5 0 0 0 -0.708 0Z" stroke-width="1"></path>
-    </g>
+  <g id="expand-window-2--expand-small-bigger-retract-smaller-big">
+    <path id="Rectangle 700 (Stroke)" fill="#8fbffa" fill-rule="evenodd" d="M14 11.5a2.5 2.5 0 0 1 -2.5 2.5h-9A2.5 2.5 0 0 1 0 11.5l0 -9A2.5 2.5 0 0 1 2.5 0L7 0a1 1 0 0 1 0 2L2.5 2a0.5 0.5 0 0 0 -0.5 0.5l0 9a0.5 0.5 0 0 0 0.5 0.5h9a0.5 0.5 0 0 0 0.5 -0.5L12 7a1 1 0 1 1 2 0l0 4.5Z" clip-rule="evenodd" stroke-width="1"></path>
+    <path id="Union" fill="#2859c5" d="M6.293 6.293a1 1 0 0 0 1.414 1.414l4.397 -4.396 1.042 1.043A0.5 0.5 0 0 0 14 4V0.5a0.5 0.5 0 0 0 -0.5 -0.5L10 0a0.5 0.5 0 0 0 -0.354 0.854l1.043 1.042 -4.396 4.397Z" stroke-width="1"></path>
   </g>
 </svg>

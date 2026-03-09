@@ -55,23 +55,61 @@
 <context>
     <name>CodePreviewWidget</name>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="66"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="75"/>
         <source>Search</source>
         <translation>搜索</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="126"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="284"/>
         <source>Line: %1, Char: %2</source>
         <translation>行数: %1, 字符数: %2</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="136"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="288"/>
+        <source>Line: %1/%2, Char: %3</source>
+        <translation>行数: %1/%2, 字符数: %3</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="156"/>
         <source>Failed to load file</source>
         <translation>文件加载失败</translation>
     </message>
     <message>
         <source>Failed to load file.</source>
         <translation type="vanished">文件加载失败</translation>
+    </message>
+</context>
+<context>
+    <name>CodeSearchBar</name>
+    <message>
+        <location filename="../previewcode/codesearchbar.cpp" line="18"/>
+        <source>Search...</source>
+        <translation>搜索...</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codesearchbar.cpp" line="38"/>
+        <source>Match Case</source>
+        <translation>区分大小写</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codesearchbar.cpp" line="51"/>
+        <source>Previous Match</source>
+        <translation>上一个匹配</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codesearchbar.cpp" line="60"/>
+        <source>Next Match</source>
+        <translation>下一个匹配</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codesearchbar.cpp" line="67"/>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codesearchbar.cpp" line="107"/>
+        <source>No matches</source>
+        <translation>无匹配</translation>
     </message>
 </context>
 <context>

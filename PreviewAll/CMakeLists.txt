@@ -50,6 +50,10 @@ add_executable(PreviewAll WIN32
 
 	previewcode/codepreviewwidget.cpp
 	previewcode/codepreviewwidget.h
+	previewcode/codeeditorwidget.cpp
+	previewcode/codeeditorwidget.h
+	previewcode/codesearchbar.cpp
+	previewcode/codesearchbar.h
 )
 
 target_link_libraries(PreviewAll

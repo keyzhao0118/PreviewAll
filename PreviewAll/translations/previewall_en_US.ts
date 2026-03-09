@@ -55,23 +55,61 @@
 <context>
     <name>CodePreviewWidget</name>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="66"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="75"/>
         <source>Search</source>
         <translation>Search</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="126"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="284"/>
         <source>Line: %1, Char: %2</source>
         <translation>Line: %1, Char: %2</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="136"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="288"/>
+        <source>Line: %1/%2, Char: %3</source>
+        <translation>Line: %1/%2, Char: %3</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="156"/>
         <source>Failed to load file</source>
         <translation>Failed to load file</translation>
     </message>
     <message>
         <source>Failed to load file.</source>
         <translation type="vanished">Failed to load file.</translation>
+    </message>
+</context>
+<context>
+    <name>CodeSearchBar</name>
+    <message>
+        <location filename="../previewcode/codesearchbar.cpp" line="18"/>
+        <source>Search...</source>
+        <translation>Search...</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codesearchbar.cpp" line="38"/>
+        <source>Match Case</source>
+        <translation>Match Case</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codesearchbar.cpp" line="51"/>
+        <source>Previous Match</source>
+        <translation>Previous Match</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codesearchbar.cpp" line="60"/>
+        <source>Next Match</source>
+        <translation>Next Match</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codesearchbar.cpp" line="67"/>
+        <source>Close</source>
+        <translation>Close</translation>
+    </message>
+    <message>
+        <location filename="../previewcode/codesearchbar.cpp" line="107"/>
+        <source>No matches</source>
+        <translation>No matches</translation>
     </message>
 </context>
 <context>

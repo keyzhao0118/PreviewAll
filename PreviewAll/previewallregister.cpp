@@ -9,6 +9,7 @@ const QString PreviewAllRegister::NAME_PreviewAllHandler = "PreviewAllHandler";
 
 const QStringList PreviewAllRegister::imageExtList = { ".png",".jpg",".jpeg",".tif",".tiff",".bmp",".webp",".ico",".svg",".gif" };
 const QStringList PreviewAllRegister::archiveExtList = { ".zip", ".rar", ".7z" };
+const QStringList PreviewAllRegister::pdfExtList = { ".pdf" };
 const QStringList PreviewAllRegister::codeExtList = {
 	".c",".h",".hpp",".cpp",".cxx",".cc",".mm",".m",".swift",
 	".java",".kt",".kts",".cs",".fs",
@@ -63,6 +64,7 @@ void PreviewAllRegister::unregisterAllExtentions()
 	unregisterExtentions(imageExtList);
 	unregisterExtentions(archiveExtList);
 	unregisterExtentions(codeExtList);
+	unregisterExtentions(pdfExtList);
 }
 
 

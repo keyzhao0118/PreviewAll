@@ -9,6 +9,7 @@
 		<file>image.svg</file>
 		<file>archive.svg</file>
 		<file>code.svg</file>
+		<file>pdf.svg</file>
 	</qresource>
 	<qresource prefix="/png">
 		<file>check.png</file>

@@ -24,6 +24,7 @@ private:
 	QAction* m_actImagePreview = nullptr;
 	QAction* m_actArchivePreview = nullptr;
 	QAction* m_actCodePreview = nullptr;
+	QAction* m_actPdfPreview = nullptr;
 
 	QAction* m_actHelp = nullptr;
 

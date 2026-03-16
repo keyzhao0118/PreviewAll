@@ -1,4 +1,4 @@
-﻿#include "archivetree.h"
+#include "archivetree.h"
 #include <QDir>
 
 ArchiveTreeNode::ArchiveTreeNode(const QString& name, bool bIsDir)

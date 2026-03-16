@@ -1,4 +1,4 @@
-﻿#include "imageviewstatusbar.h"
+#include "imageviewstatusbar.h"
 #include <QApplication>
 #include <QStyleHints>
 #include <QLineEdit>

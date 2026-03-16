@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Common/MyCom.h>
 #include <7zip/IStream.h>

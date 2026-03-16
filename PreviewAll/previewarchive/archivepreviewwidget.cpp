@@ -1,4 +1,4 @@
-﻿#include "archivepreviewwidget.h"
+#include "archivepreviewwidget.h"
 #include "archiveparser.h"
 #include "archivetreewidget.h"
 #include <QThread>

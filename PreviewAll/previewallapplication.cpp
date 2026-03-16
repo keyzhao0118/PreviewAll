@@ -1,4 +1,4 @@
-﻿#include "previewallapplication.h"
+#include "previewallapplication.h"
 #include "previewallregister.h"
 #include "previewarchive/archivepreviewwidget.h"
 #include "previewimage/imageviewerwidget.h"

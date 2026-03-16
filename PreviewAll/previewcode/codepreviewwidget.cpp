@@ -1,4 +1,4 @@
-﻿#include "codepreviewwidget.h"
+#include "codepreviewwidget.h"
 #include "codeeditorwidget.h"
 #include "codesearchbar.h"
 #include <QVBoxLayout>

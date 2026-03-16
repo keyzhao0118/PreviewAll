@@ -1,4 +1,4 @@
-﻿#include "archiveopencallback.h"
+#include "archiveopencallback.h"
 
 STDMETHODIMP ArchiveOpenCallBack::SetTotal(const UInt64* files, const UInt64* bytes)
 {

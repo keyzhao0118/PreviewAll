@@ -1,4 +1,4 @@
-﻿#include "archivetreewidgetitem.h"
+#include "archivetreewidgetitem.h"
 
 bool ArchiveTreeWidgetItem::operator<(const QTreeWidgetItem& other) const
 {

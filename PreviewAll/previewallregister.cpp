@@ -1,4 +1,4 @@
-﻿#include "previewallregister.h"
+#include "previewallregister.h"
 #include <QApplication>
 #include <QDir>
 

@@ -1,4 +1,4 @@
-﻿#include "previewallapplication.h"
+#include "previewallapplication.h"
 #include "previewallmenu.h"
 #include "previewallregister.h"
 #include <QSystemTrayIcon>

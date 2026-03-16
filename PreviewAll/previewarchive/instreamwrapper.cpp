@@ -1,4 +1,4 @@
-﻿#include "instreamwrapper.h"
+#include "instreamwrapper.h"
 
 InStreamWrapper::InStreamWrapper(const QString& filePath)
 {

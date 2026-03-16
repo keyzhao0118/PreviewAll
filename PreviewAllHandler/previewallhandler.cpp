@@ -1,4 +1,4 @@
-﻿#include "previewallhandler.h"
+#include "previewallhandler.h"
 #include "previewallrequester.h"
 #include <shlwapi.h>
 

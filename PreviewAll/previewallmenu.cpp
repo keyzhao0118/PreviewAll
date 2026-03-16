@@ -1,4 +1,4 @@
-﻿#include "previewallmenu.h"
+#include "previewallmenu.h"
 #include "previewallregister.h"
 #include <QApplication>
 

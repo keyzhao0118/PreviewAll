@@ -1,4 +1,4 @@
-﻿<RCC>
+<RCC>
 	<qresource prefix="/svg">
 		<file>expand.svg</file>
 		<file>zoom-in.svg</file>

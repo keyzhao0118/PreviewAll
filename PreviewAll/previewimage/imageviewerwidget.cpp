@@ -1,4 +1,4 @@
-﻿#include "imageviewerwidget.h"
+#include "imageviewerwidget.h"
 #include <QLayout>
 
 ImageViewerWidget::ImageViewerWidget(const QString& filePath, QWidget* parent)

@@ -1,4 +1,4 @@
-﻿#include <Common/MyInitGuid.h>
+#include <Common/MyInitGuid.h>
 
 // {23170F69-40C1-278A-1000-000110070000}
 DEFINE_GUID(CLSID_CFormat7z,

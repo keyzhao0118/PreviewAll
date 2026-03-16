@@ -1,4 +1,4 @@
-﻿#include "previewallrequester.h"
+#include "previewallrequester.h"
 #include <QLocalSocket>
 
 namespace

@@ -1,4 +1,4 @@
-﻿#include "imageviewportwidget.h"
+#include "imageviewportwidget.h"
 #include <QPainter>
 #include <QWheelEvent>
 #include <QImageReader>

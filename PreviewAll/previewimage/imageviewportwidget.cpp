@@ -24,7 +24,6 @@ ImageViewPortWidget::ImageViewPortWidget(const QString& imagePath, QWidget *pare
 {
 	setUpdateBehavior(QOpenGLWidget::NoPartialUpdate);
 
-	//缩放时的过渡动画
 	m_zoomTimeLine.setDuration(140);
 	m_zoomTimeLine.setUpdateInterval(1000 / 60);
 	m_zoomTimeLine.setEasingCurve(QEasingCurve::Linear);
@@ -79,10 +78,9 @@ void ImageViewPortWidget::resizeEvent(QResizeEvent* event)
 
 void ImageViewPortWidget::paintGL()
 {
-	//清屏（避免上一帧内容残留）
 	if (auto* f = QOpenGLContext::currentContext()->functions())
 	{
-		f->glDisable(GL_SCISSOR_TEST); // 防止部分区域剪裁导致清屏不完整
+		f->glDisable(GL_SCISSOR_TEST);
 		const QColor bg = QColor("#ffffff");
 		f->glClearColor(bg.redF(), bg.greenF(), bg.blueF(), bg.alphaF());
 		f->glClear(GL_COLOR_BUFFER_BIT);
@@ -180,7 +178,6 @@ void ImageViewPortWidget::loadOriginPixmap()
 			QImage originImage = reader.read();
 			QPixmap originPixmap = QPixmap::fromImage(originImage);
 
-			// 切回 UI 线程：在这里才刷新视图
 			QMetaObject::invokeMethod(that, [that, originPixmap]() {
 				if (that)
 				{
@@ -193,7 +190,6 @@ void ImageViewPortWidget::loadOriginPixmap()
 		}
 		else
 		{
-			// 切回 UI 线程：在这里才刷新视图
 			QMetaObject::invokeMethod(that, [that]() {
 				if (that)
 				{
@@ -222,7 +218,6 @@ void ImageViewPortWidget::loadGifFramePixmap()
 		{
 			QByteArray gifData = gifFile.readAll();
 
-			// 切回 UI 线程：在这里才刷新视图
 			QMetaObject::invokeMethod(that, [that, gifData]() {
 				if (!that)
 					return;
@@ -255,7 +250,6 @@ void ImageViewPortWidget::loadGifFramePixmap()
 		}
 		else
 		{
-			// 切回 UI 线程：在这里才刷新视图
 			QMetaObject::invokeMethod(that, [that]() {
 				if (that)
 				{

@@ -15,7 +15,6 @@ HWND PreviewAllRequester::sendCreateCmd(HWND hwndParent, const QString& filePath
 	socket.connectToServer(s_previewAllSocketName);
 	if (!socket.waitForConnected())
 	{
-		// 输出详细错误信息到调试/输出窗口
 		const QLocalSocket::LocalSocketError err = socket.error();
 		const QString errStr = socket.errorString();
 		qWarning().nospace()

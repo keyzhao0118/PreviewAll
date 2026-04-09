@@ -60,12 +60,12 @@
         <translation>搜索</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="284"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="279"/>
         <source>Line: %1, Char: %2</source>
         <translation>行数: %1, 字符数: %2</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="288"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="283"/>
         <source>Line: %1/%2, Char: %3</source>
         <translation>行数: %1/%2, 字符数: %3</translation>
     </message>
@@ -115,12 +115,12 @@
 <context>
     <name>ImageViewPortWidget</name>
     <message>
-        <location filename="../previewimage/imageviewportwidget.cpp" line="96"/>
+        <location filename="../previewimage/imageviewportwidget.cpp" line="94"/>
         <source>Loading...</source>
         <translation>加载中...</translation>
     </message>
     <message>
-        <location filename="../previewimage/imageviewportwidget.cpp" line="96"/>
+        <location filename="../previewimage/imageviewportwidget.cpp" line="94"/>
         <source>Loading failed</source>
         <translation>加载失败</translation>
     </message>

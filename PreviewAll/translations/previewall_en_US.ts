@@ -60,12 +60,12 @@
         <translation>Search</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="284"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="279"/>
         <source>Line: %1, Char: %2</source>
         <translation>Line: %1, Char: %2</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="288"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="283"/>
         <source>Line: %1/%2, Char: %3</source>
         <translation>Line: %1/%2, Char: %3</translation>
     </message>
@@ -115,12 +115,12 @@
 <context>
     <name>ImageViewPortWidget</name>
     <message>
-        <location filename="../previewimage/imageviewportwidget.cpp" line="96"/>
+        <location filename="../previewimage/imageviewportwidget.cpp" line="94"/>
         <source>Loading...</source>
         <translation>Loading...</translation>
     </message>
     <message>
-        <location filename="../previewimage/imageviewportwidget.cpp" line="96"/>
+        <location filename="../previewimage/imageviewportwidget.cpp" line="94"/>
         <source>Loading failed</source>
         <translation>Loading failed</translation>
     </message>

@@ -172,7 +172,6 @@ void CodePreviewWidget::loadFile()
 		}
 		else
 		{
-			// 分块加载：先读取首个 chunk
 			QTextStream ts(&file);
 			QString chunk;
 			int lineCount = 0;
@@ -183,7 +182,6 @@ void CodePreviewWidget::loadFile()
 			}
 			bool atEnd = ts.atEnd();
 
-			// 统计总行数（快速扫描）
 			qint64 savedPos = ts.pos();
 			int totalLines = lineCount;
 			if (!atEnd)
@@ -208,11 +206,9 @@ void CodePreviewWidget::loadFile()
 				}
 				else
 				{
-					// 保持文件打开用于后续分块读取
 					that->m_file = new QFile(that->m_filePath);
 					that->m_file->open(QIODevice::ReadOnly | QIODevice::Text);
 					that->m_textStream = new QTextStream(that->m_file);
-					// 跳过已经读取的行
 					for (int i = 0; i < lineCount; ++i)
 						that->m_textStream->readLine();
 				}
@@ -260,7 +256,6 @@ void CodePreviewWidget::loadNextChunk()
 				that->m_file = nullptr;
 			}
 
-			// 追加文本
 			QTextCursor cursor(that->m_textEditor->document());
 			cursor.movePosition(QTextCursor::End);
 			cursor.insertText(chunk);
@@ -308,7 +303,6 @@ void CodePreviewWidget::onSearchBtnClicked()
 
 	if (visible)
 	{
-		// 搜索时自动加载剩余内容
 		if (!m_isFullyLoaded && m_textStream)
 		{
 			QPointer<CodePreviewWidget> that(this);
@@ -334,7 +328,6 @@ void CodePreviewWidget::onSearchBtnClicked()
 					cursor.insertText(remaining);
 					that->updateInfoLabel();
 
-					// 触发重新搜索
 					that->performSearch(that->m_searchBar->searchText());
 				}, Qt::QueuedConnection);
 			});
@@ -397,8 +390,8 @@ void CodePreviewWidget::highlightAllMatches()
 {
 	QList<QTextEdit::ExtraSelection> selections;
 
-	QColor matchColor(255, 255, 0, 80);     // 黄色高亮
-	QColor currentColor(255, 165, 0, 120);   // 橙色当前项
+	QColor matchColor(255, 255, 0, 80);
+	QColor currentColor(255, 165, 0, 120);
 
 	for (int i = 0; i < m_matchPositions.size(); ++i)
 	{

@@ -19,12 +19,10 @@ void PreviewAllMenu::initUi()
 	m_actImagePreview = addAction(tr("Preview Image"));
 	m_actArchivePreview = addAction(tr("Preview Archive"));
 	m_actCodePreview = addAction(tr("Preview Code"));
-	m_actPdfPreview = addAction(tr("Preview PDF"));
 
 	m_actImagePreview->setCheckable(true);
 	m_actArchivePreview->setCheckable(true);
 	m_actCodePreview->setCheckable(true);
-	m_actPdfPreview->setCheckable(true);
 
 	addSeparator();
 	m_actHelp = addAction(tr("Help"));
@@ -62,15 +60,6 @@ void PreviewAllMenu::initConnect()
 		QSettings settings;
 		settings.setValue("switchState/code", checked);
 	});
-
-	connect(m_actPdfPreview, &QAction::toggled, this, [](bool checked) {
-		if (checked)
-			PreviewAllRegister::registerExtentions(PreviewAllRegister::pdfExtList);
-		else
-			PreviewAllRegister::unregisterExtentions(PreviewAllRegister::pdfExtList);
-		QSettings settings;
-		settings.setValue("switchState/pdf", checked);
-	});
 }
 
 void PreviewAllMenu::initCheckState()
@@ -79,12 +68,10 @@ void PreviewAllMenu::initCheckState()
 	bool imageState = settings.value("switchState/image", false).toBool();
 	bool archiveState = settings.value("switchState/archive", false).toBool();
 	bool codeState = settings.value("switchState/code", false).toBool();
-	bool pdfState = settings.value("switchState/pdf", false).toBool();
 
 	m_actImagePreview->setChecked(imageState);
 	m_actArchivePreview->setChecked(archiveState);
 	m_actCodePreview->setChecked(codeState);
-	m_actPdfPreview->setChecked(pdfState);
 }
 
 void PreviewAllMenu::showHelpPage()

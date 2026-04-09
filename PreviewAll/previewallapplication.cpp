@@ -3,7 +3,6 @@
 #include "previewarchive/archivepreviewwidget.h"
 #include "previewimage/imageviewerwidget.h"
 #include "previewcode/codepreviewwidget.h"
-#include "previewpdf/pdfpreviewwidget.h"
 #include <QLocalSocket>
 #include <QFileInfo>
 #include <QTranslator>
@@ -103,10 +102,6 @@ QSharedPointer<QWidget> PreviewAllApplication::createPreviewWidget(const QString
 	else if (PreviewAllRegister::codeExtList.contains(suffix, Qt::CaseInsensitive))
 	{
 		previewWidget.reset(new CodePreviewWidget(filePath));
-	}
-	else if (PreviewAllRegister::pdfExtList.contains(suffix, Qt::CaseInsensitive))
-	{
-		previewWidget.reset(new PdfPreviewWidget(filePath));
 	}
 	else
 	{

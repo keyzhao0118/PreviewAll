@@ -8,7 +8,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Widgets Network OpenGL Svg Pdf PdfWidgets LinguistTools REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Network OpenGL Svg LinguistTools REQUIRED)
 find_package(7zip CONFIG REQUIRED)
 find_package(KF5SyntaxHighlighting REQUIRED)
 
@@ -54,9 +54,6 @@ add_executable(PreviewAll WIN32
 	previewcode/codeeditorwidget.h
 	previewcode/codesearchbar.cpp
 	previewcode/codesearchbar.h
-
-	previewpdf/pdfpreviewwidget.cpp
-	previewpdf/pdfpreviewwidget.h
 )
 
 target_link_libraries(PreviewAll
@@ -65,8 +62,6 @@ target_link_libraries(PreviewAll
 		Qt5::Network
 		Qt5::OpenGL
 		Qt5::Svg
-		Qt5::Pdf
-		Qt5::PdfWidgets
 		7zip::7zip
 		KF5::SyntaxHighlighting
 )

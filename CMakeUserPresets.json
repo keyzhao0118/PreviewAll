@@ -1,0 +1,21 @@
+{
+	"version": 3,
+	"configurePresets": [
+		{
+			"name": "x64-debug-user",
+			"displayName": "x64 Debug (User)",
+			"inherits": "x64-debug",
+			"environment": {
+				"VCPKG_ROOT": "D:/vcpkg"
+			}
+		},
+		{
+			"name": "x64-release-user",
+			"displayName": "x64 Release (User)",
+			"inherits": "x64-release",
+			"environment": {
+				"VCPKG_ROOT": "D:/vcpkg"
+			}
+		}
+	]
+}

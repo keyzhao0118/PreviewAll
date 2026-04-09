@@ -9,6 +9,8 @@
 		<file>image.svg</file>
 		<file>archive.svg</file>
 		<file>code.svg</file>
+		<file>branch-closed.svg</file>
+		<file>branch-open.svg</file>
 	</qresource>
 	<qresource prefix="/png">
 		<file>check.png</file>

@@ -61,10 +61,21 @@ ArchiveTreeWidget::ArchiveTreeWidget(QWidget* parent /*= nullptr*/)
 {
 	setFrameShape(QFrame::NoFrame);
 	setAnimated(true);
-	
+
 	header()->setVisible(false);
 	verticalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
 	horizontalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
+
+	setStyleSheet(
+		"QTreeView::branch:has-children:!has-siblings:closed,"
+		"QTreeView::branch:closed:has-children:has-siblings {"
+		"  image: url(:/svg/branch-closed.svg);"
+		"}"
+		"QTreeView::branch:open:has-children:!has-siblings,"
+		"QTreeView::branch:open:has-children:has-siblings {"
+		"  image: url(:/svg/branch-open.svg);"
+		"}"
+	);
 
 	connect(this, &QTreeWidget::itemExpanded, this, &ArchiveTreeWidget::onItemExpanded);
 }

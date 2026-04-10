@@ -1,3 +1,5 @@
+# Copilot Instructions
+
 ## 提交信息风格
 
 - 使用 Conventional Commits 格式：`<type>(<scope>): <描述>`
@@ -17,3 +19,7 @@ docs: 更新 README 中的构建说明
 
 build: 升级 Qt 依赖至 6.8
 ```
+
+## 项目运行环境
+
+- 该项目当前运行环境为 Qt5，回答界面缩放和 DPI 问题时应按 Qt5 行为说明。

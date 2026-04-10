@@ -34,11 +34,6 @@
         <source>Failed to load archive</source>
         <translation>压缩文件加载失败</translation>
     </message>
-    <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="195"/>
-        <source>OK</source>
-        <translation>确定</translation>
-    </message>
 </context>
 <context>
     <name>CodePreviewWidget</name>

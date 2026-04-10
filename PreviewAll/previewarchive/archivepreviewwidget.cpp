@@ -192,18 +192,31 @@ void ArchivePreviewWidget::createEncryptPage()
 	passwordEdit->setPlaceholderText(tr("Enter password"));
 	passwordEdit->setEchoMode(QLineEdit::Password);
 
-	QPushButton* okBtn = new QPushButton(tr("OK"), m_encryptPage);
+	QPushButton* okBtn = new QPushButton(m_encryptPage);
+	okBtn->setIcon(QIcon(":/svg/chevron-right.svg"));
+	QString btnStyle =
+		"QPushButton { border: none; border-radius: 4px; padding: 4px; background: transparent; }"
+		"QPushButton:hover { background-color: rgba(128, 128, 128, 50); }"
+		"QPushButton:pressed { background-color: rgba(128, 128, 128, 100); }";
+	okBtn->setStyleSheet(btnStyle);
 	connect(okBtn, &QPushButton::clicked, this, [this, passwordEdit]() {
 		showLoadingPage();
 		QString password = passwordEdit->text();
 		m_archiveParser->setPassword(password);
 	});
 
+	QHBoxLayout* passwordLayout = new QHBoxLayout();
+	passwordLayout->addStretch();
+	passwordLayout->addWidget(passwordEdit);
+	passwordLayout->addWidget(okBtn);
+	passwordLayout->addStretch();
+
 	QVBoxLayout* encryptLayout = new QVBoxLayout(m_encryptPage);
 	encryptLayout->setContentsMargins(50, 50, 50, 50);
 	encryptLayout->setSpacing(10);
-	encryptLayout->addWidget(passwordEdit);
-	encryptLayout->addWidget(okBtn);
+	encryptLayout->addStretch();
+	encryptLayout->addLayout(passwordLayout);
+	encryptLayout->addStretch();
 }
 
 void ArchivePreviewWidget::createPreviewPage()

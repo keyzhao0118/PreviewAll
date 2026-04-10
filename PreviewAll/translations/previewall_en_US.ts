@@ -34,11 +34,6 @@
         <source>Failed to load archive</source>
         <translation>Failed to load archive</translation>
     </message>
-    <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="195"/>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
 </context>
 <context>
     <name>CodePreviewWidget</name>

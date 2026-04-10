@@ -8,11 +8,11 @@
 CodeSearchBar::CodeSearchBar(QWidget* parent)
 	: QWidget(parent)
 {
-	setFixedHeight(40);
+	setFixedHeight(30);
 
 	auto* layout = new QHBoxLayout(this);
-	layout->setContentsMargins(10, 4, 10, 4);
-	layout->setSpacing(4);
+	layout->setContentsMargins(5, 0, 5, 0);
+	layout->setSpacing(5);
 
 	m_searchInput = new QLineEdit(this);
 	m_searchInput->setPlaceholderText(tr("Search..."));
@@ -45,8 +45,8 @@ CodeSearchBar::CodeSearchBar(QWidget* parent)
 	});
 
 	m_prevBtn = new QPushButton(this);
-	m_prevBtn->setIcon(QIcon(":/svg/chevron-left.svg"));
-	m_prevBtn->setIconSize(QSize(24, 24));
+	m_prevBtn->setIcon(QIcon(":/svg/chevron-up.svg"));
+	m_prevBtn->setIconSize(QSize(20, 20));
 	m_prevBtn->setFixedSize(28, 28);
 	m_prevBtn->setToolTip(tr("Previous Match"));
 	m_prevBtn->setStyleSheet(btnStyle);
@@ -54,8 +54,8 @@ CodeSearchBar::CodeSearchBar(QWidget* parent)
 	connect(m_prevBtn, &QPushButton::clicked, this, &CodeSearchBar::findPrevious);
 
 	m_nextBtn = new QPushButton(this);
-	m_nextBtn->setIcon(QIcon(":/svg/chevron-right.svg"));
-	m_nextBtn->setIconSize(QSize(24, 24));
+	m_nextBtn->setIcon(QIcon(":/svg/chevron-down.svg"));
+	m_nextBtn->setIconSize(QSize(20, 20));
 	m_nextBtn->setFixedSize(28, 28);
 	m_nextBtn->setToolTip(tr("Next Match"));
 	m_nextBtn->setStyleSheet(btnStyle);
@@ -63,7 +63,7 @@ CodeSearchBar::CodeSearchBar(QWidget* parent)
 
 	m_closeBtn = new QPushButton(this);
 	m_closeBtn->setIcon(QIcon(":/svg/x.svg"));
-	m_closeBtn->setIconSize(QSize(24, 24));
+	m_closeBtn->setIconSize(QSize(20, 20));
 	m_closeBtn->setFixedSize(28, 28);
 	m_closeBtn->setToolTip(tr("Close"));
 	m_closeBtn->setStyleSheet(btnStyle);
@@ -80,7 +80,7 @@ CodeSearchBar::CodeSearchBar(QWidget* parent)
 	connect(m_searchInput, &QLineEdit::textChanged, this, &CodeSearchBar::searchChanged);
 
 	QFont font("Microsoft YaHei");
-	font.setPointSize(9);
+	font.setPointSize(10);
 	setFont(font);
 }
 

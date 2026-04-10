@@ -5,8 +5,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QMovie>
-#include <QSvgRenderer>
-#include <QPainter>
+#include <QSvgWidget>
 
 ArchivePreviewWidget::ArchivePreviewWidget(const QString& filePath, QWidget* parent)
 	: QWidget(parent)
@@ -100,28 +99,23 @@ void ArchivePreviewWidget::initStatusBar()
 {
 	QWidget* statusBar = new QWidget(this);
 	QFont statusBarFont("Microsoft YaHei");
-	statusBarFont.setPointSize(9);
+	statusBarFont.setPointSize(10);
 	statusBar->setFont(statusBarFont);
-	statusBar->setFixedHeight(50);
+	statusBar->setFixedHeight(30);
 	QHBoxLayout* statusBarLayout = new QHBoxLayout(statusBar);
-	statusBarLayout->setContentsMargins(10, 0, 10, 0);
-	statusBarLayout->setSpacing(10);
+	statusBarLayout->setContentsMargins(5, 0, 5, 0);
+	statusBarLayout->setSpacing(5);
 
-	QLabel* archiveIconLab = new QLabel(this);
-	QSvgRenderer svgRenderer(QString(":/svg/archive.svg"));
-	QPixmap archivePix(30, 30);
-	archivePix.fill(Qt::transparent);
-	QPainter painter(&archivePix);
-	svgRenderer.render(&painter);
-	painter.end();
-	archiveIconLab->setPixmap(archivePix);
+	QSvgWidget* svgWidget = new QSvgWidget(":/svg/archive.svg");
+	svgWidget->setFixedSize(20, 20);
 
 	m_statusLab = new QLabel(this);
 
 	m_extractBtn = new QPushButton(statusBar);
+	m_extractBtn->setFixedSize(28, 28);
 	m_extractBtn->setVisible(false);
 	m_extractBtn->setIcon(QIcon(":/svg/extract.svg"));
-	m_extractBtn->setIconSize(QSize(30, 30));
+	m_extractBtn->setIconSize(QSize(20, 20));
 	m_extractBtn->setToolTip(tr("Extract"));
 	m_extractBtn->setStyleSheet(
 		"QPushButton { border: none; border-radius: 4px; padding: 4px; background: transparent; }"
@@ -130,7 +124,7 @@ void ArchivePreviewWidget::initStatusBar()
 	);
 	connect(m_extractBtn, &QPushButton::clicked, this, &ArchivePreviewWidget::onExtractBtnClicked);
 
-	statusBarLayout->addWidget(archiveIconLab);
+	statusBarLayout->addWidget(svgWidget);
 	statusBarLayout->addWidget(m_statusLab);
 	statusBarLayout->addStretch();
 	statusBarLayout->addWidget(m_extractBtn);

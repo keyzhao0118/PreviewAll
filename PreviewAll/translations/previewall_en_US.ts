@@ -4,33 +4,33 @@
 <context>
     <name>ArchivePreviewWidget</name>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="60"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="59"/>
         <source>Loading</source>
         <translation>Loading</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="72"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="71"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="84"/>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="192"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="83"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="186"/>
         <source>Enter password</source>
         <translation>Enter password</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="96"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="95"/>
         <source>File: %1, Folder: %2</source>
         <translation>File: %1, Folder: %2</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="125"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="119"/>
         <source>Extract</source>
         <translation>Extract</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="172"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="166"/>
         <source>Failed to load archive</source>
         <translation>Failed to load archive</translation>
     </message>
@@ -38,22 +38,22 @@
 <context>
     <name>CodePreviewWidget</name>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="75"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="69"/>
         <source>Search</source>
         <translation>Search</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="279"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="273"/>
         <source>Line: %1, Char: %2</source>
         <translation>Line: %1, Char: %2</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="283"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="277"/>
         <source>Line: %1/%2, Char: %3</source>
         <translation>Line: %1/%2, Char: %3</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="156"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="150"/>
         <source>Failed to load file</source>
         <translation>Failed to load file</translation>
     </message>
@@ -107,7 +107,7 @@
 <context>
     <name>ImageViewStatusBar</name>
     <message>
-        <location filename="../previewimage/imageviewstatusbar.cpp" line="119"/>
+        <location filename="../previewimage/imageviewstatusbar.cpp" line="113"/>
         <source>Adaptive window</source>
         <translation>Adaptive window</translation>
     </message>

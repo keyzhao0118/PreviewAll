@@ -12,8 +12,7 @@
 #include <QThread>
 #include <QPointer>
 #include <QTimer>
-#include <QSvgRenderer>
-#include <QPainter>
+#include <QSvgWidget>
 #include <KSyntaxHighlighting/Definition>
 #include <KSyntaxHighlighting/Theme>
 
@@ -52,26 +51,21 @@ void CodePreviewWidget::initUi()
 void CodePreviewWidget::initStatusBar()
 {
 	m_statusBar = new QWidget(this);
-	m_statusBar->setFixedHeight(50);
+	m_statusBar->setFixedHeight(30);
 
 	auto statusLayout = new QHBoxLayout(m_statusBar);
-	statusLayout->setContentsMargins(10, 0, 10, 0);
-	statusLayout->setSpacing(10);
+	statusLayout->setContentsMargins(5, 0, 5, 0);
+	statusLayout->setSpacing(5);
 
-	QLabel* codeIconLab = new QLabel(m_statusBar);
-	QSvgRenderer svgRenderer(QString(":/svg/code.svg"));
-	QPixmap codePix(30, 30);
-	codePix.fill(Qt::transparent);
-	QPainter painter(&codePix);
-	svgRenderer.render(&painter);
-	painter.end();
-	codeIconLab->setPixmap(codePix);
+	QSvgWidget* svgWidget = new QSvgWidget(":/svg/code.svg");
+	svgWidget->setFixedSize(20, 20);
 
 	m_infoLab = new QLabel(m_statusBar);
 
 	QPushButton* searchBtn = new QPushButton(m_statusBar);
+	searchBtn->setFixedSize(28, 28);
 	searchBtn->setIcon(QIcon(":/svg/search.svg"));
-	searchBtn->setIconSize(QSize(30, 30));
+	searchBtn->setIconSize(QSize(20, 20));
 	searchBtn->setToolTip(tr("Search"));
 	searchBtn->setStyleSheet(
 		"QPushButton { border: none; border-radius: 4px; padding: 4px; background: transparent; }"
@@ -80,13 +74,13 @@ void CodePreviewWidget::initStatusBar()
 	);
 	connect(searchBtn, &QPushButton::clicked, this, &CodePreviewWidget::onSearchBtnClicked);
 
-	statusLayout->addWidget(codeIconLab);
+	statusLayout->addWidget(svgWidget);
 	statusLayout->addWidget(m_infoLab);
 	statusLayout->addStretch();
 	statusLayout->addWidget(searchBtn);
 
 	QFont font("Microsoft YaHei");
-	font.setPointSize(9);
+	font.setPointSize(10);
 	m_statusBar->setFont(font);
 }
 

@@ -4,33 +4,33 @@
 <context>
     <name>ArchivePreviewWidget</name>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="60"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="59"/>
         <source>Loading</source>
         <translation>加载中</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="72"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="71"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="84"/>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="192"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="83"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="186"/>
         <source>Enter password</source>
         <translation>输入密码</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="96"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="95"/>
         <source>File: %1, Folder: %2</source>
         <translation>文件: %1, 文件夹: %2</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="125"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="119"/>
         <source>Extract</source>
         <translation>解压</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="172"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="166"/>
         <source>Failed to load archive</source>
         <translation>压缩文件加载失败</translation>
     </message>
@@ -38,22 +38,22 @@
 <context>
     <name>CodePreviewWidget</name>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="75"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="69"/>
         <source>Search</source>
         <translation>搜索</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="279"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="273"/>
         <source>Line: %1, Char: %2</source>
         <translation>行数: %1, 字符数: %2</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="283"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="277"/>
         <source>Line: %1/%2, Char: %3</source>
         <translation>行数: %1/%2, 字符数: %3</translation>
     </message>
     <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="156"/>
+        <location filename="../previewcode/codepreviewwidget.cpp" line="150"/>
         <source>Failed to load file</source>
         <translation>文件加载失败</translation>
     </message>
@@ -107,7 +107,7 @@
 <context>
     <name>ImageViewStatusBar</name>
     <message>
-        <location filename="../previewimage/imageviewstatusbar.cpp" line="119"/>
+        <location filename="../previewimage/imageviewstatusbar.cpp" line="113"/>
         <source>Adaptive window</source>
         <translation>自适应窗口</translation>
     </message>

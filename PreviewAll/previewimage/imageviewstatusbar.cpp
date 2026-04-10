@@ -5,18 +5,17 @@
 #include <QLabel>
 #include <QFileInfo>
 #include <QImageReader>
-#include <QSvgRenderer>
-#include <QPainter>
+#include <QSvgWidget>
 
 
 ImageViewStatusBar::ImageViewStatusBar(const QString& imagePath, QWidget* parent)
 	: QWidget(parent)
 	, m_imagePath(imagePath)
 {
-	setFixedHeight(50);
+	setFixedHeight(30);
 	m_mainLayout = new QHBoxLayout(this);
-	m_mainLayout->setContentsMargins(10, 0, 10, 0);
-	m_mainLayout->setSpacing(10);
+	m_mainLayout->setContentsMargins(5, 0, 5, 0);
+	m_mainLayout->setSpacing(5);
 	addResolutionLab();
 	m_mainLayout->addStretch();
 
@@ -27,7 +26,7 @@ ImageViewStatusBar::ImageViewStatusBar(const QString& imagePath, QWidget* parent
 	addAdaptiveBtn();
 
 	QFont statusBarFont("Microsoft YaHei");
-	statusBarFont.setPointSize(9);
+	statusBarFont.setPointSize(10);
 	setFont(statusBarFont);
 }
 
@@ -94,28 +93,23 @@ void ImageViewStatusBar::resizeEvent(QResizeEvent* resizeEvent)
 
 void ImageViewStatusBar::addResolutionLab()
 {
-	QLabel* imageIconLab = new QLabel(this);
-	QSvgRenderer svgRenderer(QString(":/svg/image.svg"));
-	QPixmap imagePix(30, 30);
-	imagePix.fill(Qt::transparent);
-	QPainter painter(&imagePix);
-	svgRenderer.render(&painter);
-	painter.end();
-	imageIconLab->setPixmap(imagePix);
+	QSvgWidget* svgWidget = new QSvgWidget(":/svg/image.svg");
+	svgWidget->setFixedSize(20, 20);
 
 	QImageReader reader(m_imagePath);
 	QSize imageSize = reader.size();
 	QLabel* resolutionTextLab = new QLabel(QString("%1 x %2").arg(imageSize.width()).arg(imageSize.height()), this);
 
-	m_mainLayout->addWidget(imageIconLab);
+	m_mainLayout->addWidget(svgWidget);
 	m_mainLayout->addWidget(resolutionTextLab);
 }
 
 void ImageViewStatusBar::addAdaptiveBtn()
 {
 	m_adaptiveBtn = new QPushButton(this);
+	m_adaptiveBtn->setFixedSize(28, 28);
 	m_adaptiveBtn->setIcon(QIcon(":/svg/expand.svg"));
-	m_adaptiveBtn->setIconSize(QSize(30, 30));
+	m_adaptiveBtn->setIconSize(QSize(20, 20));
 	m_adaptiveBtn->setToolTip(tr("Adaptive window"));
 	m_adaptiveBtn->setStyleSheet(
 		"QPushButton { border: none; border-radius: 4px; padding: 4px; background: transparent; }"
@@ -129,7 +123,7 @@ void ImageViewStatusBar::addAdaptiveBtn()
 void ImageViewStatusBar::addScaleComboBox()
 {
 	m_scaleComboBox = new QComboBox(this);
-	m_scaleComboBox->setFixedHeight(30);
+	m_scaleComboBox->setFixedHeight(20);
 	m_scaleComboBox->setEditable(true);
 	m_scaleComboBox->setFocusPolicy(Qt::NoFocus);
 	m_scaleComboBox->addItems({ "10%", "25%", "50%", "75%", "100%", "200%", "400%", "800%" });
@@ -140,7 +134,10 @@ void ImageViewStatusBar::addScaleComboBox()
 void ImageViewStatusBar::addZoomOutBtn()
 {
 	m_zoomOutBtn = new QPushButton(this);
+	m_zoomOutBtn->setFixedSize(28, 28);
+	m_zoomOutBtn->setFlat(true);
 	m_zoomOutBtn->setIcon(QIcon(":/svg/zoom-out.svg"));
+	m_zoomOutBtn->setIconSize(QSize(20, 20));
 	connect(m_zoomOutBtn, &QPushButton::clicked, this, &ImageViewStatusBar::handleZoomOut);
 	m_mainLayout->addWidget(m_zoomOutBtn);
 }
@@ -148,7 +145,7 @@ void ImageViewStatusBar::addZoomOutBtn()
 void ImageViewStatusBar::addScaleSlider()
 {
 	m_scaleSlider = new QSlider(Qt::Horizontal, this);
-	m_scaleSlider->setFixedSize(80, 15);
+	m_scaleSlider->setFixedSize(80, 10);
 	m_scaleSlider->setMinimum(1);
 	m_scaleSlider->setMaximum(800);
 	connect(m_scaleSlider, &QSlider::valueChanged, this, &ImageViewStatusBar::handleSliderChanged);
@@ -158,7 +155,10 @@ void ImageViewStatusBar::addScaleSlider()
 void ImageViewStatusBar::addZoomInBtn()
 {
 	m_zoomInBtn = new QPushButton(this);
+	m_zoomInBtn->setFixedSize(28, 28);
+	m_zoomInBtn->setFlat(true);
 	m_zoomInBtn->setIcon(QIcon(":/svg/zoom-in.svg"));
+	m_zoomInBtn->setIconSize(QSize(20, 20));
 	connect(m_zoomInBtn, &QPushButton::clicked, this, &ImageViewStatusBar::handleZoomIn);
 	m_mainLayout->addWidget(m_zoomInBtn);
 }

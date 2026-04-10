@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
 {
 	PreviewAllApplication app(argc, argv);
 
+	/*
 	QStringList args = app.arguments();
 	if (args.contains("--register-preview-handler"))
 	{
@@ -63,6 +64,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 	ensureRegisterPreviewHandler();
+	*/
 
 	if (!isSingleInstance())
 		return 0;
@@ -80,7 +82,6 @@ int main(int argc, char* argv[])
 
 	app.exec();
 	PreviewAllRegister::unregisterAllExtentions();
-	// 进程退出时反注册所有文件扩展名
 
 	return 0;
 }

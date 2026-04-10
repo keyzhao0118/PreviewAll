@@ -119,6 +119,7 @@ void ArchivePreviewWidget::initStatusBar()
 	m_statusLab = new QLabel(this);
 
 	m_extractBtn = new QPushButton(statusBar);
+	m_extractBtn->setVisible(false);
 	m_extractBtn->setIcon(QIcon(":/svg/extract.svg"));
 	m_extractBtn->setIconSize(QSize(30, 30));
 	m_extractBtn->setToolTip(tr("Extract"));

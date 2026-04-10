@@ -3,31 +3,419 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PreviewAll</title>
+  <title>PreviewAll | Product & Downloads</title>
+  <meta name="description" content="PreviewAll is a Windows shell extension that adds thumbnail and preview support for many file formats.">
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; }
-    h1 { font-size: 2em; }
-    a.download-btn {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 24px;
-      background: #0078d4;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 4px;
-      font-size: 1em;
+    :root {
+      --bg: #f6f3ec;
+      --bg-surface: rgba(255, 255, 255, 0.8);
+      --ink: #1d2b2a;
+      --ink-muted: #53605f;
+      --brand: #19647e;
+      --brand-strong: #0f4f64;
+      --accent: #f29f05;
+      --line: rgba(25, 100, 126, 0.22);
+      --ring: rgba(25, 100, 126, 0.28);
+      --shadow: 0 18px 48px rgba(14, 43, 57, 0.12);
+      --radius-lg: 24px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --container: 1080px;
     }
-    a.download-btn:hover { background: #005a9e; }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI Variable Display", "Trebuchet MS", "Noto Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 12%, rgba(242, 159, 5, 0.23), transparent 35%),
+        radial-gradient(circle at 84% 18%, rgba(25, 100, 126, 0.2), transparent 37%),
+        linear-gradient(160deg, #f8f6f0 0%, #eff4f7 48%, #f7f2e9 100%);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .ambient-grid {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.35;
+      background-image:
+        linear-gradient(to right, rgba(25, 100, 126, 0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(25, 100, 126, 0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+      mask-image: radial-gradient(circle at center, black, transparent 75%);
+      z-index: -1;
+    }
+
+    .container {
+      width: min(var(--container), calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      padding: 64px 0 32px;
+      animation: rise-in 720ms ease-out both;
+    }
+
+    .hero-card {
+      display: grid;
+      gap: 24px;
+      grid-template-columns: 1.25fr 0.95fr;
+      background: linear-gradient(130deg, rgba(255, 255, 255, 0.88), rgba(245, 249, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: clamp(24px, 5vw, 44px);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 7px 12px;
+      color: var(--brand-strong);
+      background: rgba(25, 100, 126, 0.12);
+      border: 1px solid rgba(25, 100, 126, 0.24);
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-family: "Bahnschrift", "Segoe UI Variable Display", sans-serif;
+      margin: 0;
+      font-size: clamp(34px, 6vw, 52px);
+      line-height: 1.08;
+      letter-spacing: 0.01em;
+    }
+
+    .lead {
+      margin: 18px 0 24px;
+      font-size: clamp(17px, 2.5vw, 20px);
+      color: var(--ink-muted);
+      max-width: 56ch;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      border: 1px solid transparent;
+      transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+    }
+
+    .button-primary {
+      color: #ffffff;
+      background: linear-gradient(160deg, var(--brand), var(--brand-strong));
+      box-shadow: 0 9px 20px rgba(25, 100, 126, 0.28);
+    }
+
+    .button-secondary {
+      color: var(--brand-strong);
+      background: rgba(255, 255, 255, 0.72);
+      border-color: rgba(25, 100, 126, 0.26);
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .hero-panel {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(25, 100, 126, 0.24);
+      border-radius: 18px;
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      animation: float-up 1s ease-out both;
+      animation-delay: 130ms;
+    }
+
+    .hero-panel h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .hero-panel ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--ink-muted);
+    }
+
+    .section {
+      padding: 22px 0;
+      animation: rise-in 780ms ease-out both;
+      animation-delay: 100ms;
+    }
+
+    .section-title {
+      margin: 0 0 14px;
+      font-size: clamp(24px, 3.2vw, 32px);
+      font-family: "Bahnschrift", "Segoe UI Variable Display", sans-serif;
+    }
+
+    .section-subtitle {
+      margin: 0;
+      color: var(--ink-muted);
+      max-width: 72ch;
+    }
+
+    .download-board {
+      margin-top: 20px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .download-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      box-shadow: 0 8px 20px rgba(13, 49, 63, 0.08);
+      opacity: 0;
+      transform: translateY(14px);
+      animation: stagger-in 460ms ease forwards;
+    }
+
+    .download-meta {
+      display: grid;
+      gap: 2px;
+    }
+
+    .download-version {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 760;
+      letter-spacing: 0.01em;
+    }
+
+    .download-note {
+      margin: 0;
+      color: var(--ink-muted);
+      font-size: 14px;
+    }
+
+    .download-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .chip {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #754804;
+      background: rgba(242, 159, 5, 0.2);
+      border: 1px solid rgba(242, 159, 5, 0.35);
+      border-radius: 999px;
+      padding: 4px 10px;
+      width: fit-content;
+      margin-bottom: 5px;
+    }
+
+    .footer {
+      padding: 28px 0 54px;
+      color: var(--ink-muted);
+      font-size: 14px;
+    }
+
+    .code-inline {
+      display: block;
+      margin-top: 6px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(29, 43, 42, 0.07);
+      color: #223a39;
+      border: 1px solid rgba(29, 43, 42, 0.12);
+      overflow-x: auto;
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 13px;
+    }
+
+    @keyframes rise-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes float-up {
+      from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes stagger-in {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 920px) {
+      .hero-card {
+        grid-template-columns: 1fr;
+      }
+
+      .download-card {
+        grid-template-columns: 1fr;
+      }
+
+      .download-actions {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .hero {
+        padding-top: 44px;
+      }
+
+      .container {
+        width: min(var(--container), calc(100% - 26px));
+      }
+
+      .button {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>PreviewAll</h1>
-  <p>PreviewAll is a Windows shell extension that enables thumbnail and preview support for a wide range of file formats.</p>
-  <p>Download the installer below to get started:</p>
-  <a class="download-btn" href="downloads/PreviewAll_Setup_1.0.0.exe">Download PreviewAll v1.0.0</a>
-  <p style="margin-top:32px;font-size:0.9em;color:#555;">
-    Direct download URL (no redirects):<br>
-    <code>https://keyzhao0118.github.io/PreviewAll/downloads/PreviewAll_Setup_1.0.0.exe</code>
-  </p>
+  <div class="ambient-grid" aria-hidden="true"></div>
+
+  <header class="hero">
+    <div class="container hero-card">
+      <div>
+        <span class="badge">Windows Shell Extension</span>
+        <h1>PreviewAll</h1>
+        <p class="lead">
+          PreviewAll extends File Explorer with richer file previews and thumbnails for a broad set of formats,
+          helping you inspect files faster without opening heavyweight apps.
+        </p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#downloads">Get Latest Version</a>
+          <a class="button button-secondary" href="https://github.com/keyzhao0118/PreviewAll" target="_blank" rel="noopener noreferrer">View Source</a>
+        </div>
+      </div>
+
+      <aside class="hero-panel" aria-label="Product highlights">
+        <h2>Why PreviewAll</h2>
+        <ul>
+          <li>Integrates directly into Windows Explorer workflow.</li>
+          <li>Supports archive, code, and image preview modules.</li>
+          <li>Designed for fast response and lightweight usage.</li>
+          <li>Easy installer for quick setup and updates.</li>
+        </ul>
+      </aside>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="section" id="downloads">
+      <h2 class="section-title">Downloads</h2>
+      <p class="section-subtitle">
+        New releases will appear here as version cards. To add future versions, append one object in the
+        downloads array near the bottom of this file.
+      </p>
+
+      <div class="download-board" id="downloadBoard" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="container footer">
+    Direct download URL (no redirects):
+    <span class="code-inline" id="latestDirectUrl"></span>
+  </footer>
+
+  <script>
+    // Add new versions here. The first item should always be the latest release.
+    const downloads = [
+      {
+        version: "1.0.0",
+        fileName: "PreviewAll_Setup_1.0.0.exe",
+        date: "2026-04-10",
+        notes: "Initial public release",
+        recommended: true
+      }
+    ];
+
+    const baseUrl = "https://keyzhao0118.github.io/PreviewAll/downloads/";
+    const board = document.getElementById("downloadBoard");
+    const latestDirectUrl = document.getElementById("latestDirectUrl");
+
+    downloads.forEach((item, index) => {
+      const card = document.createElement("article");
+      card.className = "download-card";
+      card.style.animationDelay = `${index * 100}ms`;
+
+      const versionTitle = `v${item.version}`;
+      const relativeHref = `downloads/${item.fileName}`;
+      const absoluteHref = `${baseUrl}${item.fileName}`;
+
+      card.innerHTML = `
+        <div class="download-meta">
+          ${item.recommended ? '<span class="chip">Latest</span>' : ""}
+          <h3 class="download-version">${versionTitle}</h3>
+          <p class="download-note">Released: ${item.date}</p>
+          <p class="download-note">${item.notes}</p>
+        </div>
+        <div class="download-actions">
+          <a class="button button-primary" href="${relativeHref}">Download</a>
+          <a class="button button-secondary" href="${absoluteHref}" target="_blank" rel="noopener noreferrer">Copyable Link</a>
+        </div>
+      `;
+
+      board.appendChild(card);
+    });
+
+    if (downloads.length > 0) {
+      latestDirectUrl.textContent = `${baseUrl}${downloads[0].fileName}`;
+    }
+  </script>
 </body>
 </html>

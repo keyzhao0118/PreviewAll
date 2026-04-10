@@ -4,18 +4,6 @@
 <context>
     <name>ArchivePreviewWidget</name>
     <message>
-        <source>Loading...</source>
-        <translation type="vanished">加载中...</translation>
-    </message>
-    <message>
-        <source>Failed to parse archive.</source>
-        <translation type="vanished">压缩包解析失败。</translation>
-    </message>
-    <message>
-        <source>The archive is encrypted.</source>
-        <translation type="vanished">压缩包已加密。</translation>
-    </message>
-    <message>
         <location filename="../previewarchive/archivepreviewwidget.cpp" line="60"/>
         <source>Loading</source>
         <translation>加载中</translation>
@@ -27,7 +15,7 @@
     </message>
     <message>
         <location filename="../previewarchive/archivepreviewwidget.cpp" line="84"/>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="191"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="192"/>
         <source>Enter password</source>
         <translation>输入密码</translation>
     </message>
@@ -37,17 +25,17 @@
         <translation>文件: %1, 文件夹: %2</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="124"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="125"/>
         <source>Extract</source>
         <translation>解压</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="171"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="172"/>
         <source>Failed to load archive</source>
         <translation>压缩文件加载失败</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="194"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="195"/>
         <source>OK</source>
         <translation>确定</translation>
     </message>
@@ -74,10 +62,6 @@
         <source>Failed to load file</source>
         <translation>文件加载失败</translation>
     </message>
-    <message>
-        <source>Failed to load file.</source>
-        <translation type="vanished">文件加载失败</translation>
-    </message>
 </context>
 <context>
     <name>CodeSearchBar</name>
@@ -102,12 +86,12 @@
         <translation>下一个匹配</translation>
     </message>
     <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="67"/>
+        <location filename="../previewcode/codesearchbar.cpp" line="68"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="107"/>
+        <location filename="../previewcode/codesearchbar.cpp" line="108"/>
         <source>No matches</source>
         <translation>无匹配</translation>
     </message>
@@ -159,32 +143,6 @@
         <location filename="../previewallmenu.cpp" line="30"/>
         <source>Exit</source>
         <translation>退出</translation>
-    </message>
-</context>
-<context>
-    <name>PreviewOptionPanel</name>
-    <message>
-        <source>Image Files</source>
-        <translation type="vanished">图片文件</translation>
-    </message>
-    <message>
-        <source>Archive Files</source>
-        <translation type="vanished">压缩文件</translation>
-    </message>
-    <message>
-        <source>Source Code</source>
-        <translation type="vanished">源代码</translation>
-    </message>
-</context>
-<context>
-    <name>QObject</name>
-    <message>
-        <source>Option</source>
-        <translation type="vanished">选项</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation type="vanished">退出</translation>
     </message>
 </context>
 </TS>

@@ -45,8 +45,8 @@ CodeSearchBar::CodeSearchBar(QWidget* parent)
 	});
 
 	m_prevBtn = new QPushButton(this);
-	m_prevBtn->setIcon(QIcon(":/svg/expand.svg"));
-	m_prevBtn->setIconSize(QSize(18, 18));
+	m_prevBtn->setIcon(QIcon(":/svg/chevron-left.svg"));
+	m_prevBtn->setIconSize(QSize(24, 24));
 	m_prevBtn->setFixedSize(28, 28);
 	m_prevBtn->setToolTip(tr("Previous Match"));
 	m_prevBtn->setStyleSheet(btnStyle);
@@ -54,15 +54,16 @@ CodeSearchBar::CodeSearchBar(QWidget* parent)
 	connect(m_prevBtn, &QPushButton::clicked, this, &CodeSearchBar::findPrevious);
 
 	m_nextBtn = new QPushButton(this);
-	m_nextBtn->setIcon(QIcon(":/svg/expand.svg"));
-	m_nextBtn->setIconSize(QSize(18, 18));
+	m_nextBtn->setIcon(QIcon(":/svg/chevron-right.svg"));
+	m_nextBtn->setIconSize(QSize(24, 24));
 	m_nextBtn->setFixedSize(28, 28);
 	m_nextBtn->setToolTip(tr("Next Match"));
 	m_nextBtn->setStyleSheet(btnStyle);
 	connect(m_nextBtn, &QPushButton::clicked, this, &CodeSearchBar::findNext);
 
 	m_closeBtn = new QPushButton(this);
-	m_closeBtn->setText(QString::fromUtf8("\u00D7"));
+	m_closeBtn->setIcon(QIcon(":/svg/x.svg"));
+	m_closeBtn->setIconSize(QSize(24, 24));
 	m_closeBtn->setFixedSize(28, 28);
 	m_closeBtn->setToolTip(tr("Close"));
 	m_closeBtn->setStyleSheet(btnStyle);

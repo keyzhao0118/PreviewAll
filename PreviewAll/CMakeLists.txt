@@ -79,7 +79,7 @@ set(TS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/translations)
 set(QM_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/translations)
 
 add_custom_target(PreviewAll_translations ALL
-	COMMAND Qt5::lupdate -extensions cpp,h ${CMAKE_CURRENT_SOURCE_DIR} -ts
+	COMMAND Qt5::lupdate -extensions cpp,h -no-obsolete ${CMAKE_CURRENT_SOURCE_DIR} -ts
 		${TS_DIR}/previewall_zh_CN.ts
 		${TS_DIR}/previewall_en_US.ts
 	COMMAND ${CMAKE_COMMAND} -E make_directory ${QM_DIR}

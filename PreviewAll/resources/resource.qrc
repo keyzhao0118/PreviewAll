@@ -11,6 +11,12 @@
 		<file>code.svg</file>
 		<file>branch-closed.svg</file>
 		<file>branch-open.svg</file>
+		<file>check.svg</file>
+		<file>chevron-down.svg</file>
+		<file>chevron-left.svg</file>
+		<file>chevron-up.svg</file>
+		<file>chevron-right.svg</file>
+		<file>x.svg</file>
 	</qresource>
 	<qresource prefix="/png">
 		<file>check.png</file>

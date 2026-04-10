@@ -4,18 +4,6 @@
 <context>
     <name>ArchivePreviewWidget</name>
     <message>
-        <source>Loading...</source>
-        <translation type="vanished">Loading...</translation>
-    </message>
-    <message>
-        <source>Failed to parse archive.</source>
-        <translation type="vanished">Failed to parse archive.</translation>
-    </message>
-    <message>
-        <source>The archive is encrypted.</source>
-        <translation type="vanished">The archive is encrypted.</translation>
-    </message>
-    <message>
         <location filename="../previewarchive/archivepreviewwidget.cpp" line="60"/>
         <source>Loading</source>
         <translation>Loading</translation>
@@ -27,7 +15,7 @@
     </message>
     <message>
         <location filename="../previewarchive/archivepreviewwidget.cpp" line="84"/>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="191"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="192"/>
         <source>Enter password</source>
         <translation>Enter password</translation>
     </message>
@@ -37,17 +25,17 @@
         <translation>File: %1, Folder: %2</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="124"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="125"/>
         <source>Extract</source>
         <translation>Extract</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="171"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="172"/>
         <source>Failed to load archive</source>
         <translation>Failed to load archive</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="194"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="195"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -74,10 +62,6 @@
         <source>Failed to load file</source>
         <translation>Failed to load file</translation>
     </message>
-    <message>
-        <source>Failed to load file.</source>
-        <translation type="vanished">Failed to load file.</translation>
-    </message>
 </context>
 <context>
     <name>CodeSearchBar</name>
@@ -102,12 +86,12 @@
         <translation>Next Match</translation>
     </message>
     <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="67"/>
+        <location filename="../previewcode/codesearchbar.cpp" line="68"/>
         <source>Close</source>
         <translation>Close</translation>
     </message>
     <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="107"/>
+        <location filename="../previewcode/codesearchbar.cpp" line="108"/>
         <source>No matches</source>
         <translation>No matches</translation>
     </message>
@@ -159,32 +143,6 @@
         <location filename="../previewallmenu.cpp" line="30"/>
         <source>Exit</source>
         <translation>Exit</translation>
-    </message>
-</context>
-<context>
-    <name>PreviewOptionPanel</name>
-    <message>
-        <source>Image Files</source>
-        <translation type="vanished">Image Files</translation>
-    </message>
-    <message>
-        <source>Archive Files</source>
-        <translation type="vanished">Archive Files</translation>
-    </message>
-    <message>
-        <source>Source Code</source>
-        <translation type="vanished">Source Code</translation>
-    </message>
-</context>
-<context>
-    <name>QObject</name>
-    <message>
-        <source>Option</source>
-        <translation type="vanished">Options</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation type="vanished">Exit</translation>
     </message>
 </context>
 </TS>

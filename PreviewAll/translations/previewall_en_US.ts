@@ -76,17 +76,17 @@
         <translation>Previous Match</translation>
     </message>
     <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="60"/>
+        <location filename="../previewcode/codesearchbar.cpp" line="59"/>
         <source>Next Match</source>
         <translation>Next Match</translation>
     </message>
     <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="68"/>
+        <location filename="../previewcode/codesearchbar.cpp" line="67"/>
         <source>Close</source>
         <translation>Close</translation>
     </message>
     <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="108"/>
+        <location filename="../previewcode/codesearchbar.cpp" line="107"/>
         <source>No matches</source>
         <translation>No matches</translation>
     </message>

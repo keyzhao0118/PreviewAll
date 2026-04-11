@@ -36,7 +36,7 @@ CodeSearchBar::CodeSearchBar(QWidget* parent)
 
 	m_caseBtn = new QPushButton("Aa", this);
 	m_caseBtn->setToolTip(tr("Match Case"));
-	m_caseBtn->setFixedSize(28, 28);
+	m_caseBtn->setFixedSize(24, 24);
 	m_caseBtn->setCheckable(true);
 	m_caseBtn->setStyleSheet(toggleStyle);
 	connect(m_caseBtn, &QPushButton::toggled, this, [this](bool checked) {
@@ -46,36 +46,35 @@ CodeSearchBar::CodeSearchBar(QWidget* parent)
 
 	m_prevBtn = new QPushButton(this);
 	m_prevBtn->setIcon(QIcon(":/svg/chevron-up.svg"));
-	m_prevBtn->setIconSize(QSize(20, 20));
-	m_prevBtn->setFixedSize(28, 28);
+	m_prevBtn->setIconSize(QSize(16, 16));
+	m_prevBtn->setFixedSize(24, 24);
 	m_prevBtn->setToolTip(tr("Previous Match"));
 	m_prevBtn->setStyleSheet(btnStyle);
-	// Rotate icon 180 degrees for "up" arrow
 	connect(m_prevBtn, &QPushButton::clicked, this, &CodeSearchBar::findPrevious);
 
 	m_nextBtn = new QPushButton(this);
 	m_nextBtn->setIcon(QIcon(":/svg/chevron-down.svg"));
-	m_nextBtn->setIconSize(QSize(20, 20));
-	m_nextBtn->setFixedSize(28, 28);
+	m_nextBtn->setIconSize(QSize(16, 16));
+	m_nextBtn->setFixedSize(24, 24);
 	m_nextBtn->setToolTip(tr("Next Match"));
 	m_nextBtn->setStyleSheet(btnStyle);
 	connect(m_nextBtn, &QPushButton::clicked, this, &CodeSearchBar::findNext);
 
 	m_closeBtn = new QPushButton(this);
 	m_closeBtn->setIcon(QIcon(":/svg/x.svg"));
-	m_closeBtn->setIconSize(QSize(20, 20));
-	m_closeBtn->setFixedSize(28, 28);
+	m_closeBtn->setIconSize(QSize(16, 16));
+	m_closeBtn->setFixedSize(24, 24);
 	m_closeBtn->setToolTip(tr("Close"));
 	m_closeBtn->setStyleSheet(btnStyle);
 	connect(m_closeBtn, &QPushButton::clicked, this, &CodeSearchBar::closed);
 
 	layout->addWidget(m_searchInput);
 	layout->addWidget(m_matchLab);
+	layout->addStretch();
 	layout->addWidget(m_caseBtn);
 	layout->addWidget(m_prevBtn);
 	layout->addWidget(m_nextBtn);
 	layout->addWidget(m_closeBtn);
-	layout->addStretch();
 
 	connect(m_searchInput, &QLineEdit::textChanged, this, &CodeSearchBar::searchChanged);
 

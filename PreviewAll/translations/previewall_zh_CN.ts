@@ -76,17 +76,17 @@
         <translation>上一个匹配</translation>
     </message>
     <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="60"/>
+        <location filename="../previewcode/codesearchbar.cpp" line="59"/>
         <source>Next Match</source>
         <translation>下一个匹配</translation>
     </message>
     <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="68"/>
+        <location filename="../previewcode/codesearchbar.cpp" line="67"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="108"/>
+        <location filename="../previewcode/codesearchbar.cpp" line="107"/>
         <source>No matches</source>
         <translation>无匹配</translation>
     </message>

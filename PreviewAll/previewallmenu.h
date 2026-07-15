@@ -23,6 +23,7 @@ private slots:
 private:
 	QAction* m_actImagePreview = nullptr;
 	QAction* m_actArchivePreview = nullptr;
+	QAction* m_actMarkdownPreview = nullptr;
 
 	QAction* m_actHelp = nullptr;
 

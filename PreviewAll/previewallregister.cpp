@@ -14,6 +14,7 @@ const QString PreviewAllRegister::NAME_PreviewAllHandler = "PreviewAllHandler";
 
 const QStringList PreviewAllRegister::imageExtList = { ".png",".jpg",".jpeg",".tif",".tiff",".bmp",".webp",".ico",".svg",".gif" };
 const QStringList PreviewAllRegister::archiveExtList = { ".zip", ".rar", ".7z" };
+const QStringList PreviewAllRegister::markdownExtList = { ".md", ".markdown" };
 bool PreviewAllRegister::registerHandler()
 {
 	registerHandler(HKEY_CURRENT_USER);
@@ -94,6 +95,7 @@ void PreviewAllRegister::unregisterAllExtentions()
 {
 	unregisterExtentions(imageExtList);
 	unregisterExtentions(archiveExtList);
+	unregisterExtentions(markdownExtList);
 }
 
 

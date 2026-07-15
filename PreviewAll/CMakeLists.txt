@@ -47,6 +47,9 @@ add_executable(PreviewAll WIN32
 	previewimage/imageviewstatusbar.cpp
 	previewimage/imageviewstatusbar.h
 
+	previewmarkdown/markdownpreviewwidget.cpp
+	previewmarkdown/markdownpreviewwidget.h
+
 )
 
 target_link_libraries(PreviewAll

@@ -113,6 +113,30 @@
     </message>
 </context>
 <context>
+    <name>MarkdownPreviewWidget</name>
+    <message>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="63"/>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="136"/>
+        <source>Show source</source>
+        <translation>Show source</translation>
+    </message>
+    <message>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="96"/>
+        <source>Markdown file is unavailable or larger than 8 MiB.</source>
+        <translation>Markdown file is unavailable or larger than 8 MiB.</translation>
+    </message>
+    <message>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="104"/>
+        <source>Failed to load Markdown file.</source>
+        <translation>Failed to load Markdown file.</translation>
+    </message>
+    <message>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="136"/>
+        <source>Show rendered Markdown</source>
+        <translation>Show rendered Markdown</translation>
+    </message>
+</context>
+<context>
     <name>PreviewAllMenu</name>
     <message>
         <location filename="../previewallmenu.cpp" line="19"/>
@@ -125,12 +149,17 @@
         <translation>Preview Archive</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="26"/>
+        <location filename="../previewallmenu.cpp" line="21"/>
+        <source>Preview Markdown</source>
+        <translation>Preview Markdown</translation>
+    </message>
+    <message>
+        <location filename="../previewallmenu.cpp" line="28"/>
         <source>Help</source>
         <translation>Help</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="28"/>
+        <location filename="../previewallmenu.cpp" line="30"/>
         <source>Exit</source>
         <translation>Exit</translation>
     </message>

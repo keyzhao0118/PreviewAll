@@ -2,6 +2,7 @@
 #include "previewallregister.h"
 #include "previewarchive/archivepreviewwidget.h"
 #include "previewimage/imageviewerwidget.h"
+#include "previewmarkdown/markdownpreviewwidget.h"
 #include <QLocalSocket>
 #include <QFileInfo>
 #include <QTranslator>
@@ -97,6 +98,10 @@ QSharedPointer<QWidget> PreviewAllApplication::createPreviewWidget(const QString
 	else if (PreviewAllRegister::imageExtList.contains(suffix, Qt::CaseInsensitive))
 	{
 		previewWidget.reset(new ImageViewerWidget(filePath));
+	}
+	else if (PreviewAllRegister::markdownExtList.contains(suffix, Qt::CaseInsensitive))
+	{
+		previewWidget.reset(new MarkdownPreviewWidget(filePath));
 	}
 	else
 	{

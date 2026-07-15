@@ -14,6 +14,7 @@ public:
 
 	const static QStringList imageExtList;
 	const static QStringList archiveExtList;
+	const static QStringList markdownExtList;
 
 	bool static registerHandler();
 	bool static ensureHandlerRegistered();

@@ -125,17 +125,12 @@
         <translation>压缩包预览</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="21"/>
-        <source>Preview Code</source>
-        <translation>源文件预览</translation>
-    </message>
-    <message>
-        <location filename="../previewallmenu.cpp" line="28"/>
+        <location filename="../previewallmenu.cpp" line="26"/>
         <source>Help</source>
         <translation>帮助</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="30"/>
+        <location filename="../previewallmenu.cpp" line="28"/>
         <source>Exit</source>
         <translation>退出</translation>
     </message>

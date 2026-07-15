@@ -1,5 +1,6 @@
 #include "previewallrequester.h"
 #include <QLocalSocket>
+#include <QDebug>
 
 namespace
 {

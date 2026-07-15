@@ -50,12 +50,9 @@ namespace
 
 int main(int argc, char* argv[])
 {
-	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
 	PreviewAllApplication app(argc, argv);
 
-	/*
 	QStringList args = app.arguments();
 	if (args.contains("--register-preview-handler"))
 	{
@@ -67,7 +64,6 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 	ensureRegisterPreviewHandler();
-	*/
 
 	if (!isSingleInstance())
 		return 0;

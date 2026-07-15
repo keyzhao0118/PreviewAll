@@ -18,11 +18,9 @@ void PreviewAllMenu::initUi()
 {
 	m_actImagePreview = addAction(tr("Preview Image"));
 	m_actArchivePreview = addAction(tr("Preview Archive"));
-	m_actCodePreview = addAction(tr("Preview Code"));
 
 	m_actImagePreview->setCheckable(true);
 	m_actArchivePreview->setCheckable(true);
-	m_actCodePreview->setCheckable(true);
 
 	addSeparator();
 	m_actHelp = addAction(tr("Help"));
@@ -52,14 +50,6 @@ void PreviewAllMenu::initConnect()
 		settings.setValue("switchState/archive", checked);
 	});
 
-	connect(m_actCodePreview, &QAction::toggled, this, [](bool checked) {
-		if (checked)
-			PreviewAllRegister::registerExtentions(PreviewAllRegister::codeExtList);
-		else
-			PreviewAllRegister::unregisterExtentions(PreviewAllRegister::codeExtList);
-		QSettings settings;
-		settings.setValue("switchState/code", checked);
-	});
 }
 
 void PreviewAllMenu::initCheckState()
@@ -67,11 +57,9 @@ void PreviewAllMenu::initCheckState()
 	QSettings settings;
 	bool imageState = settings.value("switchState/image", false).toBool();
 	bool archiveState = settings.value("switchState/archive", false).toBool();
-	bool codeState = settings.value("switchState/code", false).toBool();
 
 	m_actImagePreview->setChecked(imageState);
 	m_actArchivePreview->setChecked(archiveState);
-	m_actCodePreview->setChecked(codeState);
 }
 
 void PreviewAllMenu::showHelpPage()

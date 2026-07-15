@@ -4,7 +4,7 @@ project(PreviewAllHandler
 	LANGUAGES CXX
 )
 
-find_package(Qt5 COMPONENTS Network REQUIRED)
+find_package(Qt6 COMPONENTS Network REQUIRED)
 
 add_library(PreviewAllHandler SHARED
 	export.def
@@ -17,6 +17,6 @@ add_library(PreviewAllHandler SHARED
 
 target_link_libraries(PreviewAllHandler 
 	PRIVATE
-		Qt5::Network
+		Qt6::Network
 		Shlwapi
 )

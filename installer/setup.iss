@@ -14,7 +14,7 @@
 #define MyAppExeName   "PreviewAll.exe"
 
 ; ★ Modify this to point to your actual bin directory (relative to this .iss file)
-#define BinDir         "..\out\build\x64-release-user\bin"
+#define BinDir         "..\out\build\x64-release\bin"
 
 [Setup]
 ; 显式指定源目录为 .iss 文件所在目录（确保相对路径始终正确）

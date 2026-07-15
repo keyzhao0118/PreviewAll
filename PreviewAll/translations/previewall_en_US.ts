@@ -125,17 +125,12 @@
         <translation>Preview Archive</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="21"/>
-        <source>Preview Code</source>
-        <translation>Preview Code</translation>
-    </message>
-    <message>
-        <location filename="../previewallmenu.cpp" line="28"/>
+        <location filename="../previewallmenu.cpp" line="26"/>
         <source>Help</source>
         <translation>Help</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="30"/>
+        <location filename="../previewallmenu.cpp" line="28"/>
         <source>Exit</source>
         <translation>Exit</translation>
     </message>

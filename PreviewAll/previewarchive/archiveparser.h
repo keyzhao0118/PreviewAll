@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QObject>
 #include <QSharedPointer>
 #include <QMutex>
 #include <QWaitCondition>

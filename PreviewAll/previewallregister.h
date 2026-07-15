@@ -13,7 +13,6 @@ public:
 
 	const static QStringList imageExtList;
 	const static QStringList archiveExtList;
-	const static QStringList codeExtList;
 
 	void static registerHandler();
 	void static unregisterHandler();

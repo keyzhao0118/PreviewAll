@@ -2,7 +2,6 @@
 #include "previewallregister.h"
 #include "previewarchive/archivepreviewwidget.h"
 #include "previewimage/imageviewerwidget.h"
-#include "previewcode/codepreviewwidget.h"
 #include <QLocalSocket>
 #include <QFileInfo>
 #include <QTranslator>
@@ -99,15 +98,9 @@ QSharedPointer<QWidget> PreviewAllApplication::createPreviewWidget(const QString
 	{
 		previewWidget.reset(new ImageViewerWidget(filePath));
 	}
-	else if (PreviewAllRegister::codeExtList.contains(suffix, Qt::CaseInsensitive))
-	{
-		previewWidget.reset(new CodePreviewWidget(filePath));
-	}
 	else
 	{
-		previewWidget.reset(new QWidget());
-		previewWidget->setStyleSheet("background-color: red;");
-		previewWidget->setWindowFlags(Qt::FramelessWindowHint);
+		return previewWidget;
 	}
 
 	return previewWidget;

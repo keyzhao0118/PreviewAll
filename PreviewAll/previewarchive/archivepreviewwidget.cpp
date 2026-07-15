@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QMovie>
 #include <QSvgWidget>
+#include <QFileInfo>
 
 ArchivePreviewWidget::ArchivePreviewWidget(const QString& filePath, QWidget* parent)
 	: QWidget(parent)
@@ -56,7 +57,6 @@ void ArchivePreviewWidget::showLoadingPage()
 	}
 
 	m_stackedLayout->setCurrentWidget(m_loadingPage);
-	m_statusLab->setText(tr("Loading"));
 }
 
 void ArchivePreviewWidget::showErrorPage()
@@ -68,7 +68,6 @@ void ArchivePreviewWidget::showErrorPage()
 	}
 
 	m_stackedLayout->setCurrentWidget(m_errorPage);
-	m_statusLab->setText(tr("Error"));
 }
 
 void ArchivePreviewWidget::showEncryptPage()
@@ -80,7 +79,6 @@ void ArchivePreviewWidget::showEncryptPage()
 	}
 
 	m_stackedLayout->setCurrentWidget(m_encryptPage);
-	m_statusLab->setText(tr("Enter password"));
 }
 
 void ArchivePreviewWidget::showPreviewPage()
@@ -92,7 +90,6 @@ void ArchivePreviewWidget::showPreviewPage()
 	}
 
 	m_stackedLayout->setCurrentWidget(m_previewPage);
-	m_statusLab->setText(tr("File: %1, Folder: %2").arg(m_archiveParser->getFileCount()).arg(m_archiveParser->getFolderCount()));
 }
 
 void ArchivePreviewWidget::initStatusBar()
@@ -109,7 +106,8 @@ void ArchivePreviewWidget::initStatusBar()
 	QSvgWidget* svgWidget = new QSvgWidget(":/svg/archive.svg");
 	svgWidget->setFixedSize(20, 20);
 
-	m_statusLab = new QLabel(this);
+	m_fileNameLabel = new QLabel(QFileInfo(m_filePath).fileName(), this);
+	m_fileNameLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
 	m_extractBtn = new QPushButton(statusBar);
 	m_extractBtn->setFixedSize(28, 28);
@@ -125,7 +123,7 @@ void ArchivePreviewWidget::initStatusBar()
 	connect(m_extractBtn, &QPushButton::clicked, this, &ArchivePreviewWidget::onExtractBtnClicked);
 
 	statusBarLayout->addWidget(svgWidget);
-	statusBarLayout->addWidget(m_statusLab);
+	statusBarLayout->addWidget(m_fileNameLabel);
 	statusBarLayout->addStretch();
 	statusBarLayout->addWidget(m_extractBtn);
 

@@ -4,33 +4,17 @@
 <context>
     <name>ArchivePreviewWidget</name>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="59"/>
-        <source>Loading</source>
-        <translation>加载中</translation>
-    </message>
-    <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="71"/>
-        <source>Error</source>
-        <translation>错误</translation>
-    </message>
-    <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="83"/>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="186"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="184"/>
         <source>Enter password</source>
         <translation>输入密码</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="95"/>
-        <source>File: %1, Folder: %2</source>
-        <translation>文件: %1, 文件夹: %2</translation>
-    </message>
-    <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="119"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="117"/>
         <source>Extract</source>
         <translation>解压</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="166"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="164"/>
         <source>Failed to load archive</source>
         <translation>压缩文件加载失败</translation>
     </message>

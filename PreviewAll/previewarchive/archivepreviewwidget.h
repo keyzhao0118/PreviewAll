@@ -41,7 +41,7 @@ private:
 	QWidget* m_errorPage = nullptr;
 	QWidget* m_encryptPage = nullptr;
 	QWidget* m_previewPage = nullptr;
-	QLabel* m_statusLab = nullptr;
+	QLabel* m_fileNameLabel = nullptr;
 	QPushButton* m_extractBtn = nullptr;
 
 	ArchiveParser* m_archiveParser = nullptr;

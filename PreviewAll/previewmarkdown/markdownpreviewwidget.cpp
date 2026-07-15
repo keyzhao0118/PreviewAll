@@ -1,4 +1,5 @@
 #include "markdownpreviewwidget.h"
+#include "previewtoolbarstyle.h"
 
 #include <QDir>
 #include <QFile>
@@ -20,12 +21,6 @@
 namespace
 {
 	constexpr qint64 MaxMarkdownFileSize = 8 * 1024 * 1024;
-
-	const char* SourceButtonStyle =
-		"QPushButton { border: 1px solid transparent; border-radius: 4px; padding: 4px; background: transparent; }"
-		"QPushButton:hover { background-color: rgba(128, 128, 128, 50); }"
-		"QPushButton:pressed { background-color: rgba(128, 128, 128, 100); }"
-		"QPushButton:checked { border-color: rgba(128, 128, 128, 150); background-color: rgba(128, 128, 128, 40); }";
 }
 
 MarkdownPreviewWidget::MarkdownPreviewWidget(const QString& filePath, QWidget* parent)
@@ -44,25 +39,22 @@ void MarkdownPreviewWidget::initUi()
 	mainLayout->setSpacing(0);
 
 	auto* toolBar = new QWidget(this);
-	toolBar->setFixedHeight(34);
 	auto* toolBarLayout = new QHBoxLayout(toolBar);
-	toolBarLayout->setContentsMargins(6, 2, 6, 2);
-	toolBarLayout->setSpacing(4);
+	PreviewToolbarStyle::apply(toolBar, toolBarLayout);
 
 	auto* typeIcon = new QLabel(toolBar);
-	typeIcon->setFixedSize(22, 22);
-	typeIcon->setPixmap(QIcon(":/svg/code.svg").pixmap(20, 20));
+	typeIcon->setFixedSize(PreviewToolbarStyle::ContentIconSize, PreviewToolbarStyle::ContentIconSize);
+	typeIcon->setPixmap(QIcon(":/svg/code.svg").pixmap(
+		PreviewToolbarStyle::ContentIconSize, PreviewToolbarStyle::ContentIconSize));
 
 	auto* fileLabel = new QLabel(QFileInfo(m_filePath).fileName(), toolBar);
 	fileLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
 	m_sourceButton = new QPushButton(toolBar);
-	m_sourceButton->setFixedSize(28, 28);
 	m_sourceButton->setIcon(QIcon(":/svg/code.svg"));
-	m_sourceButton->setIconSize(QSize(18, 18));
 	m_sourceButton->setToolTip(tr("Show source"));
 	m_sourceButton->setCheckable(true);
-	m_sourceButton->setStyleSheet(SourceButtonStyle);
+	PreviewToolbarStyle::applyButton(m_sourceButton);
 
 	toolBarLayout->addWidget(typeIcon);
 	toolBarLayout->addWidget(fileLabel);

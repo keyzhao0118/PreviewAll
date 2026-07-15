@@ -4,17 +4,17 @@
 <context>
     <name>ArchivePreviewWidget</name>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="184"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="174"/>
         <source>Enter password</source>
         <translation>输入密码</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="117"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="111"/>
         <source>Extract</source>
         <translation>解压</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="164"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="154"/>
         <source>Failed to load archive</source>
         <translation>压缩文件加载失败</translation>
     </message>
@@ -91,7 +91,7 @@
 <context>
     <name>ImageViewStatusBar</name>
     <message>
-        <location filename="../previewimage/imageviewstatusbar.cpp" line="29"/>
+        <location filename="../previewimage/imageviewstatusbar.cpp" line="25"/>
         <source>Adaptive window</source>
         <translation>自适应窗口</translation>
     </message>
@@ -99,23 +99,23 @@
 <context>
     <name>MarkdownPreviewWidget</name>
     <message>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="63"/>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="136"/>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="55"/>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="128"/>
         <source>Show source</source>
         <translation>显示源文件</translation>
     </message>
     <message>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="96"/>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="88"/>
         <source>Markdown file is unavailable or larger than 8 MiB.</source>
         <translation>Markdown 文件不可用或大于 8 MiB。</translation>
     </message>
     <message>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="104"/>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="96"/>
         <source>Failed to load Markdown file.</source>
         <translation>Markdown 文件加载失败。</translation>
     </message>
     <message>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="136"/>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="128"/>
         <source>Show rendered Markdown</source>
         <translation>显示渲染效果</translation>
     </message>

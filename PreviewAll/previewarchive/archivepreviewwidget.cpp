@@ -1,6 +1,7 @@
 #include "archivepreviewwidget.h"
 #include "archiveparser.h"
 #include "archivetreewidget.h"
+#include "previewtoolbarstyle.h"
 #include <QThread>
 #include <QLineEdit>
 #include <QPushButton>
@@ -95,31 +96,20 @@ void ArchivePreviewWidget::showPreviewPage()
 void ArchivePreviewWidget::initStatusBar()
 {
 	QWidget* statusBar = new QWidget(this);
-	QFont statusBarFont("Microsoft YaHei");
-	statusBarFont.setPointSize(10);
-	statusBar->setFont(statusBarFont);
-	statusBar->setFixedHeight(30);
 	QHBoxLayout* statusBarLayout = new QHBoxLayout(statusBar);
-	statusBarLayout->setContentsMargins(5, 0, 5, 0);
-	statusBarLayout->setSpacing(5);
+	PreviewToolbarStyle::apply(statusBar, statusBarLayout);
 
 	QSvgWidget* svgWidget = new QSvgWidget(":/svg/archive.svg");
-	svgWidget->setFixedSize(20, 20);
+	svgWidget->setFixedSize(PreviewToolbarStyle::ContentIconSize, PreviewToolbarStyle::ContentIconSize);
 
 	m_fileNameLabel = new QLabel(QFileInfo(m_filePath).fileName(), this);
 	m_fileNameLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
 	m_extractBtn = new QPushButton(statusBar);
-	m_extractBtn->setFixedSize(28, 28);
 	m_extractBtn->setVisible(false);
 	m_extractBtn->setIcon(QIcon(":/svg/extract.svg"));
-	m_extractBtn->setIconSize(QSize(20, 20));
 	m_extractBtn->setToolTip(tr("Extract"));
-	m_extractBtn->setStyleSheet(
-		"QPushButton { border: none; border-radius: 4px; padding: 4px; background: transparent; }"
-		"QPushButton:hover { background-color: rgba(128, 128, 128, 50); }"
-		"QPushButton:pressed { background-color: rgba(128, 128, 128, 100); }"
-	);
+	PreviewToolbarStyle::applyButton(m_extractBtn);
 	connect(m_extractBtn, &QPushButton::clicked, this, &ArchivePreviewWidget::onExtractBtnClicked);
 
 	statusBarLayout->addWidget(svgWidget);

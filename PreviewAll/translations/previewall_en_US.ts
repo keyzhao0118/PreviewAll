@@ -4,17 +4,17 @@
 <context>
     <name>ArchivePreviewWidget</name>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="184"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="174"/>
         <source>Enter password</source>
         <translation>Enter password</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="117"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="111"/>
         <source>Extract</source>
         <translation>Extract</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="164"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="154"/>
         <source>Failed to load archive</source>
         <translation>Failed to load archive</translation>
     </message>
@@ -91,7 +91,7 @@
 <context>
     <name>ImageViewStatusBar</name>
     <message>
-        <location filename="../previewimage/imageviewstatusbar.cpp" line="29"/>
+        <location filename="../previewimage/imageviewstatusbar.cpp" line="25"/>
         <source>Adaptive window</source>
         <translation>Adaptive window</translation>
     </message>
@@ -99,23 +99,23 @@
 <context>
     <name>MarkdownPreviewWidget</name>
     <message>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="63"/>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="136"/>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="55"/>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="128"/>
         <source>Show source</source>
         <translation>Show source</translation>
     </message>
     <message>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="96"/>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="88"/>
         <source>Markdown file is unavailable or larger than 8 MiB.</source>
         <translation>Markdown file is unavailable or larger than 8 MiB.</translation>
     </message>
     <message>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="104"/>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="96"/>
         <source>Failed to load Markdown file.</source>
         <translation>Failed to load Markdown file.</translation>
     </message>
     <message>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="136"/>
+        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="128"/>
         <source>Show rendered Markdown</source>
         <translation>Show rendered Markdown</translation>
     </message>

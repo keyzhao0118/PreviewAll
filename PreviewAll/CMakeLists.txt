@@ -23,6 +23,7 @@ add_executable(PreviewAll WIN32
 	previewallapplication.h
 	previewallregister.cpp
 	previewallregister.h
+	previewtoolbarstyle.h
 
 	previewarchive/guiddef.cpp
 	previewarchive/archiveparser.cpp
@@ -52,6 +53,10 @@ add_executable(PreviewAll WIN32
 
 )
 
+target_include_directories(PreviewAll
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}
+)
 target_link_libraries(PreviewAll
 	PRIVATE
 		Qt6::Widgets

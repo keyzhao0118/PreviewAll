@@ -1,7 +1,12 @@
 #include "previewallregister.h"
 #include <QApplication>
 #include <QDir>
+#include <QDebug>
+#include <cstdlib>
+#include <string>
+#include <shellapi.h>
 
+const QString PreviewAllRegister::REGISTER_HANDLER_ARGUMENT = "--register-preview-handler";
 const QString PreviewAllRegister::CLSID_PreviewHandlerCategory = "{8895b1c6-b41f-4c1c-a562-0d564250836f}";
 const QString PreviewAllRegister::CLSID_PreviewAllHandler = "{A26D5A00-AF3F-47B7-B075-A3282DE904E6}";
 const QString PreviewAllRegister::APPID_PREVHOST64 = "{6d2b5079-2f0b-48dd-ab7f-97cec514d30b}";
@@ -9,10 +14,49 @@ const QString PreviewAllRegister::NAME_PreviewAllHandler = "PreviewAllHandler";
 
 const QStringList PreviewAllRegister::imageExtList = { ".png",".jpg",".jpeg",".tif",".tiff",".bmp",".webp",".ico",".svg",".gif" };
 const QStringList PreviewAllRegister::archiveExtList = { ".zip", ".rar", ".7z" };
-void PreviewAllRegister::registerHandler()
+bool PreviewAllRegister::registerHandler()
 {
 	registerHandler(HKEY_CURRENT_USER);
 	registerHandler(HKEY_LOCAL_MACHINE);
+	return isRegisteredHandler();
+}
+
+bool PreviewAllRegister::ensureHandlerRegistered()
+{
+	if (isRegisteredHandler())
+		return true;
+
+	const std::wstring executable = QDir::toNativeSeparators(QCoreApplication::applicationFilePath()).toStdWString();
+	const std::wstring arguments = REGISTER_HANDLER_ARGUMENT.toStdWString();
+
+	SHELLEXECUTEINFOW executeInfo{};
+	executeInfo.cbSize = sizeof(executeInfo);
+	executeInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+	executeInfo.lpVerb = L"runas";
+	executeInfo.lpFile = executable.c_str();
+	executeInfo.lpParameters = arguments.c_str();
+	executeInfo.nShow = SW_HIDE;
+
+	if (!ShellExecuteExW(&executeInfo) || !executeInfo.hProcess)
+	{
+		qWarning() << "Failed to launch elevated preview handler registration. Windows error:" << GetLastError();
+		return false;
+	}
+
+	const DWORD waitResult = WaitForSingleObject(executeInfo.hProcess, INFINITE);
+	DWORD exitCode = EXIT_FAILURE;
+	const bool exitedSuccessfully = waitResult == WAIT_OBJECT_0
+		&& GetExitCodeProcess(executeInfo.hProcess, &exitCode)
+		&& exitCode == EXIT_SUCCESS;
+	CloseHandle(executeInfo.hProcess);
+
+	if (!exitedSuccessfully || !isRegisteredHandler())
+	{
+		qWarning() << "Elevated preview handler registration failed.";
+		return false;
+	}
+
+	return true;
 }
 
 void PreviewAllRegister::unregisterHandler()

@@ -57,6 +57,7 @@ target_link_libraries(PreviewAll
 		Qt6::Svg
 		Qt6::SvgWidgets
 		7zip::7zip
+		Shell32
 )
 
 # 添加此命令以在构建后复制 DLL

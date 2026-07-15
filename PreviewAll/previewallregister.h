@@ -6,6 +6,7 @@
 class PreviewAllRegister
 {
 public:
+	const static QString REGISTER_HANDLER_ARGUMENT;
 	const static QString CLSID_PreviewHandlerCategory;
 	const static QString CLSID_PreviewAllHandler;
 	const static QString APPID_PREVHOST64;
@@ -14,7 +15,8 @@ public:
 	const static QStringList imageExtList;
 	const static QStringList archiveExtList;
 
-	void static registerHandler();
+	bool static registerHandler();
+	bool static ensureHandlerRegistered();
 	void static unregisterHandler();
 	bool static isRegisteredHandler();
 

@@ -13,8 +13,6 @@ ImageViewerWidget::ImageViewerWidget(const QString& filePath, QWidget* parent)
 	mainLayout->addWidget(m_statusBar);
 	mainLayout->addWidget(m_imageViewPort);
 
-	connect(m_imageViewPort, &ImageViewPortWidget::scaleFactorChanged, m_statusBar, &ImageViewStatusBar::onScaleFactorChanged);
-	connect(m_statusBar, &ImageViewStatusBar::scaleFactorChanged, m_imageViewPort, &ImageViewPortWidget::onScaleFactorChanged);
 	connect(m_statusBar, &ImageViewStatusBar::adaptiveScale, m_imageViewPort, &ImageViewPortWidget::onAdaptiveScale);
 }
 

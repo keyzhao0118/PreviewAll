@@ -1,209 +1,41 @@
 #include "imageviewstatusbar.h"
-#include <QApplication>
-#include <QStyleHints>
-#include <QLineEdit>
-#include <QLabel>
-#include <QFileInfo>
-#include <QImageReader>
-#include <QSvgWidget>
 
+#include <QFileInfo>
+#include <QHBoxLayout>
+#include <QIcon>
+#include <QLabel>
+#include <QPushButton>
+#include <QSvgWidget>
 
 ImageViewStatusBar::ImageViewStatusBar(const QString& imagePath, QWidget* parent)
 	: QWidget(parent)
-	, m_imagePath(imagePath)
 {
-	setFixedHeight(30);
-	m_mainLayout = new QHBoxLayout(this);
-	m_mainLayout->setContentsMargins(5, 0, 5, 0);
-	m_mainLayout->setSpacing(5);
-	addResolutionLab();
-	m_mainLayout->addStretch();
+	setFixedHeight(34);
 
-	addZoomOutBtn();
-	addScaleSlider();
-	addZoomInBtn();
-	addScaleComboBox();
-	addAdaptiveBtn();
+	auto* layout = new QHBoxLayout(this);
+	layout->setContentsMargins(6, 2, 6, 2);
+	layout->setSpacing(4);
 
-	QFont statusBarFont("Microsoft YaHei");
-	statusBarFont.setPointSize(10);
-	setFont(statusBarFont);
-}
+	auto* typeIcon = new QSvgWidget(":/svg/image.svg", this);
+	typeIcon->setFixedSize(22, 22);
 
-ImageViewStatusBar::~ImageViewStatusBar()
-{}
+	auto* fileLabel = new QLabel(QFileInfo(imagePath).fileName(), this);
+	fileLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
-void ImageViewStatusBar::onScaleFactorChanged(qreal scaleFactor)
-{
-	int percent = qRound(scaleFactor * devicePixelRatioF() * 100);
-	m_bIsInternalChange = true;
-	m_scaleComboBox->setCurrentText(QString("%1%").arg(percent));
-	m_scaleSlider->setValue(percent);
-	m_bIsInternalChange = false;
-}
-
-void ImageViewStatusBar::resizeEvent(QResizeEvent* resizeEvent)
-{
-	QWidget::resizeEvent(resizeEvent);
-
-	QList<QWidget*> controls
-	{
-		m_zoomOutBtn,
-		m_scaleSlider,
-		m_zoomInBtn,
-		m_scaleComboBox,
-	};
-
-	QMargins margins = m_mainLayout->contentsMargins();
-	int usedWidth = margins.left() + margins.right();
-	int spacing = m_mainLayout->spacing();
-
-	for (int i = 0; i < m_mainLayout->count(); ++i)
-	{
-		QWidget* w = m_mainLayout->itemAt(i)->widget();
-		if (!w) 
-			continue;
-		if (controls.contains(w))
-		{
-			w->setVisible(false);
-		}
-		else
-		{
-			w->setVisible(true);
-			usedWidth += w->width() + spacing;
-		}
-	}
-
-	int stretchWidth = 20;
-
-	if (m_scaleComboBox && usedWidth + m_scaleComboBox->width() <= width() - stretchWidth)
-	{
-		m_scaleComboBox->setVisible(true);
-		usedWidth += m_scaleComboBox->width() + spacing;
-	}
-
-	if (m_zoomOutBtn && m_scaleSlider && m_zoomInBtn &&
-		usedWidth + m_zoomOutBtn->width() + spacing + m_scaleSlider->width() + spacing + m_zoomInBtn->width() <= width() - stretchWidth)
-	{
-		m_zoomOutBtn->setVisible(true);
-		m_scaleSlider->setVisible(true);
-		m_zoomInBtn->setVisible(true);
-	}
-}
-
-void ImageViewStatusBar::addResolutionLab()
-{
-	QSvgWidget* svgWidget = new QSvgWidget(":/svg/image.svg");
-	svgWidget->setFixedSize(20, 20);
-
-	QImageReader reader(m_imagePath);
-	QSize imageSize = reader.size();
-	QLabel* resolutionTextLab = new QLabel(QString("%1 x %2").arg(imageSize.width()).arg(imageSize.height()), this);
-
-	m_mainLayout->addWidget(svgWidget);
-	m_mainLayout->addWidget(resolutionTextLab);
-}
-
-void ImageViewStatusBar::addAdaptiveBtn()
-{
-	m_adaptiveBtn = new QPushButton(this);
-	m_adaptiveBtn->setFixedSize(28, 28);
-	m_adaptiveBtn->setIcon(QIcon(":/svg/expand.svg"));
-	m_adaptiveBtn->setIconSize(QSize(20, 20));
-	m_adaptiveBtn->setToolTip(tr("Adaptive window"));
-	m_adaptiveBtn->setStyleSheet(
-		"QPushButton { border: none; border-radius: 4px; padding: 4px; background: transparent; }"
+	auto* adaptiveButton = new QPushButton(this);
+	adaptiveButton->setFixedSize(28, 28);
+	adaptiveButton->setIcon(QIcon(":/svg/expand.svg"));
+	adaptiveButton->setIconSize(QSize(18, 18));
+	adaptiveButton->setToolTip(tr("Adaptive window"));
+	adaptiveButton->setStyleSheet(
+		"QPushButton { border: 1px solid transparent; border-radius: 4px; padding: 4px; background: transparent; }"
 		"QPushButton:hover { background-color: rgba(128, 128, 128, 50); }"
 		"QPushButton:pressed { background-color: rgba(128, 128, 128, 100); }"
 	);
-	connect(m_adaptiveBtn, &QPushButton::clicked, this, &ImageViewStatusBar::adaptiveScale);
-	m_mainLayout->addWidget(m_adaptiveBtn);
-}
+	connect(adaptiveButton, &QPushButton::clicked, this, &ImageViewStatusBar::adaptiveScale);
 
-void ImageViewStatusBar::addScaleComboBox()
-{
-	m_scaleComboBox = new QComboBox(this);
-	m_scaleComboBox->setFixedHeight(20);
-	m_scaleComboBox->setEditable(true);
-	m_scaleComboBox->setFocusPolicy(Qt::NoFocus);
-	m_scaleComboBox->addItems({ "10%", "25%", "50%", "75%", "100%", "200%", "400%", "800%" });
-	connect(m_scaleComboBox, &QComboBox::currentTextChanged, this, &ImageViewStatusBar::handleComboBoxChanged);
-	m_mainLayout->addWidget(m_scaleComboBox);
-}
-
-void ImageViewStatusBar::addZoomOutBtn()
-{
-	m_zoomOutBtn = new QPushButton(this);
-	m_zoomOutBtn->setFixedSize(28, 28);
-	m_zoomOutBtn->setFlat(true);
-	m_zoomOutBtn->setIcon(QIcon(":/svg/zoom-out.svg"));
-	m_zoomOutBtn->setIconSize(QSize(20, 20));
-	connect(m_zoomOutBtn, &QPushButton::clicked, this, &ImageViewStatusBar::handleZoomOut);
-	m_mainLayout->addWidget(m_zoomOutBtn);
-}
-
-void ImageViewStatusBar::addScaleSlider()
-{
-	m_scaleSlider = new QSlider(Qt::Horizontal, this);
-	m_scaleSlider->setFixedSize(80, 10);
-	m_scaleSlider->setMinimum(1);
-	m_scaleSlider->setMaximum(800);
-	connect(m_scaleSlider, &QSlider::valueChanged, this, &ImageViewStatusBar::handleSliderChanged);
-	m_mainLayout->addWidget(m_scaleSlider);
-}
-
-void ImageViewStatusBar::addZoomInBtn()
-{
-	m_zoomInBtn = new QPushButton(this);
-	m_zoomInBtn->setFixedSize(28, 28);
-	m_zoomInBtn->setFlat(true);
-	m_zoomInBtn->setIcon(QIcon(":/svg/zoom-in.svg"));
-	m_zoomInBtn->setIconSize(QSize(20, 20));
-	connect(m_zoomInBtn, &QPushButton::clicked, this, &ImageViewStatusBar::handleZoomIn);
-	m_mainLayout->addWidget(m_zoomInBtn);
-}
-
-void ImageViewStatusBar::handleComboBoxChanged(const QString& text)
-{
-	if (m_bIsInternalChange)
-		return;
-
-	bool ok = false;
-	int percent = QString(text).replace("%", "").toInt(&ok);
-
-	m_bIsInternalChange = true;
-	m_scaleSlider->setValue(percent);
-	m_bIsInternalChange = false;
-	emit scaleFactorChanged(percent / 100.0 / devicePixelRatioF());
-}
-
-void ImageViewStatusBar::handleSliderChanged(int value)
-{
-	if (m_bIsInternalChange)
-		return;
-
-	m_bIsInternalChange = true;
-	m_scaleComboBox->setCurrentText(QString("%1%").arg(value));
-	m_bIsInternalChange = false;
-	emit scaleFactorChanged(value / 100.0 / devicePixelRatioF());
-}
-
-void ImageViewStatusBar::handleZoomOut()
-{
-	int curPercent = m_scaleSlider->value();
-	int newPercent = curPercent % 10 == 0 ? curPercent - 10 : curPercent - (curPercent % 10);
-	if (newPercent < m_scaleSlider->minimum())
-		newPercent = m_scaleSlider->minimum();
-
-	m_scaleSlider->setValue(newPercent);
-}
-
-void ImageViewStatusBar::handleZoomIn()
-{
-	int curPercent = m_scaleSlider->value();
-	int newPercent = curPercent % 10 == 0 ? curPercent + 10 : curPercent - (curPercent % 10) + 10;
-	if (newPercent > m_scaleSlider->maximum())
-		newPercent = m_scaleSlider->maximum();
-
-	m_scaleSlider->setValue(newPercent);
+	layout->addWidget(typeIcon);
+	layout->addWidget(fileLabel);
+	layout->addStretch();
+	layout->addWidget(adaptiveButton);
 }

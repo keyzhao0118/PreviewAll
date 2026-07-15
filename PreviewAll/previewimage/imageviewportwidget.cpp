@@ -37,7 +37,6 @@ ImageViewPortWidget::ImageViewPortWidget(const QString& imagePath, QWidget *pare
 		update();
 	});
 	connect(&m_zoomTimeLine, &QTimeLine::finished, this, [this]() {
-		emit scaleFactorChanged(m_curScaleFactor);
 		consumeAccumulateZoomSteps();
 	});
 
@@ -50,13 +49,6 @@ ImageViewPortWidget::ImageViewPortWidget(const QString& imagePath, QWidget *pare
 ImageViewPortWidget::~ImageViewPortWidget()
 {}
 
-void ImageViewPortWidget::onScaleFactorChanged(qreal scaleFactor)
-{
-	m_zoomTimeLine.stop();
-	m_zoomStartScaleFactor = m_curScaleFactor;
-	m_zoomStopScaleFactor = scaleFactor;
-	m_zoomTimeLine.start();
-}
 
 void ImageViewPortWidget::onAdaptiveScale()
 {
@@ -277,7 +269,6 @@ void ImageViewPortWidget::resizeToFit()
 	updatePaintOffset();
 	updateCursor();
 	update();
-	emit scaleFactorChanged(m_curScaleFactor);
 }
 
 void ImageViewPortWidget::updateScaleFactor()

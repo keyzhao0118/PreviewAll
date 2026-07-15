@@ -94,12 +94,12 @@
 <context>
     <name>ImageViewPortWidget</name>
     <message>
-        <location filename="../previewimage/imageviewportwidget.cpp" line="94"/>
+        <location filename="../previewimage/imageviewportwidget.cpp" line="86"/>
         <source>Loading...</source>
         <translation>加载中...</translation>
     </message>
     <message>
-        <location filename="../previewimage/imageviewportwidget.cpp" line="94"/>
+        <location filename="../previewimage/imageviewportwidget.cpp" line="86"/>
         <source>Loading failed</source>
         <translation>加载失败</translation>
     </message>
@@ -107,7 +107,7 @@
 <context>
     <name>ImageViewStatusBar</name>
     <message>
-        <location filename="../previewimage/imageviewstatusbar.cpp" line="113"/>
+        <location filename="../previewimage/imageviewstatusbar.cpp" line="29"/>
         <source>Adaptive window</source>
         <translation>自适应窗口</translation>
     </message>

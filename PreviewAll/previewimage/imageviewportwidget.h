@@ -11,11 +11,7 @@ public:
 	ImageViewPortWidget(const QString& imagePath, QWidget *parent);
 	~ImageViewPortWidget();
 
-signals:
-	void scaleFactorChanged(qreal scaleFactor);
-
 public slots:
-	void onScaleFactorChanged(qreal scaleFactor);
 	void onAdaptiveScale();
 
 protected:

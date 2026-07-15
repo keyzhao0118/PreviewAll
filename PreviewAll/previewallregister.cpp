@@ -1,10 +1,36 @@
 #include "previewallregister.h"
+
 #include <QApplication>
-#include <QDir>
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
 #include <cstdlib>
-#include <string>
 #include <shellapi.h>
+#include <string>
+
+namespace
+{
+	QString registryRootName(HKEY hkey)
+	{
+		if (hkey == HKEY_CURRENT_USER)
+			return "HKEY_CURRENT_USER";
+		if (hkey == HKEY_LOCAL_MACHINE)
+			return "HKEY_LOCAL_MACHINE";
+		return {};
+	}
+
+	QString handlerPath()
+	{
+		return QDir::toNativeSeparators(
+			QDir(QCoreApplication::applicationDirPath()).filePath("PreviewAllHandler.dll"));
+	}
+
+	bool pathsMatch(const QString& actual, const QString& expected)
+	{
+		return QDir::cleanPath(QDir::fromNativeSeparators(actual)).compare(
+			QDir::cleanPath(QDir::fromNativeSeparators(expected)), Qt::CaseInsensitive) == 0;
+	}
+}
 
 const QString PreviewAllRegister::REGISTER_HANDLER_ARGUMENT = "--register-preview-handler";
 const QString PreviewAllRegister::CLSID_PreviewHandlerCategory = "{8895b1c6-b41f-4c1c-a562-0d564250836f}";
@@ -15,11 +41,12 @@ const QString PreviewAllRegister::NAME_PreviewAllHandler = "PreviewAllHandler";
 const QStringList PreviewAllRegister::imageExtList = { ".png",".jpg",".jpeg",".tif",".tiff",".bmp",".webp",".ico",".svg",".gif" };
 const QStringList PreviewAllRegister::archiveExtList = { ".zip", ".rar", ".7z" };
 const QStringList PreviewAllRegister::markdownExtList = { ".md", ".markdown" };
+
 bool PreviewAllRegister::registerHandler()
 {
-	registerHandler(HKEY_CURRENT_USER);
-	registerHandler(HKEY_LOCAL_MACHINE);
-	return isRegisteredHandler();
+	const bool currentUserWritten = registerHandler(HKEY_CURRENT_USER);
+	const bool localMachineWritten = registerHandler(HKEY_LOCAL_MACHINE);
+	return currentUserWritten && localMachineWritten && isRegisteredHandler();
 }
 
 bool PreviewAllRegister::ensureHandlerRegistered()
@@ -68,27 +95,21 @@ void PreviewAllRegister::unregisterHandler()
 
 bool PreviewAllRegister::isRegisteredHandler()
 {
-	QSettings previewHandlers("HKEY_CLASSES_ROOT\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
-	bool bClassRootRegistered = previewHandlers.value(".").toString() == NAME_PreviewAllHandler;
-	bool bCurrentUserRegistered = isRegisteredHandler(HKEY_CURRENT_USER);
-	bool bLocalMachineRegistered = isRegisteredHandler(HKEY_LOCAL_MACHINE);
-	return bClassRootRegistered && bCurrentUserRegistered && bLocalMachineRegistered;
+	return QFileInfo(handlerPath()).isFile()
+		&& isRegisteredHandler(HKEY_CURRENT_USER)
+		&& isRegisteredHandler(HKEY_LOCAL_MACHINE);
 }
 
 void PreviewAllRegister::registerExtentions(const QStringList& extList)
 {
 	for (const QString& suffix : extList)
-	{
 		registerExtention(suffix, HKEY_CURRENT_USER);
-	}
 }
 
 void PreviewAllRegister::unregisterExtentions(const QStringList& extList)
 {
 	for (const QString& suffix : extList)
-	{
 		unregisterExtention(suffix, HKEY_CURRENT_USER);
-	}
 }
 
 void PreviewAllRegister::unregisterAllExtentions()
@@ -98,44 +119,42 @@ void PreviewAllRegister::unregisterAllExtentions()
 	unregisterExtentions(markdownExtList);
 }
 
-
-void PreviewAllRegister::registerHandler(HKEY hkey)
+bool PreviewAllRegister::registerHandler(HKEY hkey)
 {
-	QString rootName;
-	if (hkey == HKEY_CURRENT_USER)
-		rootName = "HKEY_CURRENT_USER";
-	else if (hkey == HKEY_LOCAL_MACHINE)
-		rootName = "HKEY_LOCAL_MACHINE";
-	else
-		return;
+	const QString rootName = registryRootName(hkey);
+	if (rootName.isEmpty())
+		return false;
 
+	QSettings clsidRoot(rootName + "\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
+	clsidRoot.setValue(".", NAME_PreviewAllHandler);
+	clsidRoot.setValue("AppID", APPID_PREVHOST64);
+	clsidRoot.setValue("DisableLowILProcessIsolation", 1);
+
+	QSettings inproc(rootName + "\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler + "\\InProcServer32", QSettings::NativeFormat);
+	inproc.setValue(".", handlerPath());
+	inproc.setValue("ThreadingModel", "Apartment");
+
+	QSettings previewHandlers(rootName + "\\Software\\Microsoft\\Windows\\CurrentVersion\\PreviewHandlers", QSettings::NativeFormat);
+	previewHandlers.setValue(CLSID_PreviewAllHandler, NAME_PreviewAllHandler);
+
+	clsidRoot.sync();
+	inproc.sync();
+	previewHandlers.sync();
+
+	if (clsidRoot.status() != QSettings::NoError
+		|| inproc.status() != QSettings::NoError
+		|| previewHandlers.status() != QSettings::NoError)
 	{
-		QSettings clsidRoot(rootName + "\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
-		clsidRoot.setValue(".", NAME_PreviewAllHandler);
-		clsidRoot.setValue("AppID", APPID_PREVHOST64);
-		clsidRoot.setValue("DisableLowILProcessIsolation", 1);
-
-		QSettings inproc(rootName + "\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler + "\\InProcServer32", QSettings::NativeFormat);
-		QString curPath = QDir::toNativeSeparators(QCoreApplication::applicationDirPath());
-		QString handlerPath = curPath + QDir::separator() + "PreviewAllHandler.dll";
-		inproc.setValue(".", handlerPath);
-		inproc.setValue("ThreadingModel", "Apartment");
+		return false;
 	}
 
-	{
-		QSettings previewHandlers(rootName + "\\Software\\Microsoft\\Windows\\CurrentVersion\\PreviewHandlers", QSettings::NativeFormat);
-		previewHandlers.setValue(CLSID_PreviewAllHandler, NAME_PreviewAllHandler);
-	}
+	return isRegisteredHandler(hkey);
 }
 
 void PreviewAllRegister::unregisterHandler(HKEY hkey)
 {
-	QString rootName;
-	if (hkey == HKEY_CURRENT_USER)
-		rootName = "HKEY_CURRENT_USER";
-	else if (hkey == HKEY_LOCAL_MACHINE)
-		rootName = "HKEY_LOCAL_MACHINE";
-	else
+	const QString rootName = registryRootName(hkey);
+	if (rootName.isEmpty())
 		return;
 
 	QSettings inproc(rootName + "\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler + "\\InProcServer32", QSettings::NativeFormat);
@@ -150,12 +169,8 @@ void PreviewAllRegister::unregisterHandler(HKEY hkey)
 
 void PreviewAllRegister::registerExtention(const QString& suffix, HKEY hkey)
 {
-	QString rootName;
-	if (hkey == HKEY_CURRENT_USER)
-		rootName = "HKEY_CURRENT_USER";
-	else if (hkey == HKEY_LOCAL_MACHINE)
-		rootName = "HKEY_LOCAL_MACHINE";
-	else
+	const QString rootName = registryRootName(hkey);
+	if (rootName.isEmpty())
 		return;
 
 	QSettings shellExKey(rootName + "\\Software\\Classes\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
@@ -164,12 +179,8 @@ void PreviewAllRegister::registerExtention(const QString& suffix, HKEY hkey)
 
 void PreviewAllRegister::unregisterExtention(const QString& suffix, HKEY hkey)
 {
-	QString rootName;
-	if (hkey == HKEY_CURRENT_USER)
-		rootName = "HKEY_CURRENT_USER";
-	else if (hkey == HKEY_LOCAL_MACHINE)
-		rootName = "HKEY_LOCAL_MACHINE";
-	else
+	const QString rootName = registryRootName(hkey);
+	if (rootName.isEmpty())
 		return;
 
 	QSettings shellExKey(rootName + "\\Software\\Classes\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
@@ -178,16 +189,22 @@ void PreviewAllRegister::unregisterExtention(const QString& suffix, HKEY hkey)
 
 bool PreviewAllRegister::isRegisteredHandler(HKEY hkey)
 {
-	QString rootName;
-	if (hkey == HKEY_CURRENT_USER)
-		rootName = "HKEY_CURRENT_USER";
-	else if (hkey == HKEY_LOCAL_MACHINE)
-		rootName = "HKEY_LOCAL_MACHINE";
-	else
+	const QString rootName = registryRootName(hkey);
+	if (rootName.isEmpty())
 		return false;
 
-	QSettings previewHandlers(rootName + "\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
-	return previewHandlers.value(".").toString() == NAME_PreviewAllHandler;
+	QSettings clsidRoot(rootName + "\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
+	QSettings inproc(rootName + "\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler + "\\InProcServer32", QSettings::NativeFormat);
+	QSettings previewHandlers(rootName + "\\Software\\Microsoft\\Windows\\CurrentVersion\\PreviewHandlers", QSettings::NativeFormat);
+
+	const QVariant isolationValue = clsidRoot.value("DisableLowILProcessIsolation");
+	const bool isolationValueMatches = isolationValue.metaType().id() == QMetaType::Int
+		&& isolationValue.toInt() == 1;
+
+	return clsidRoot.value(".").toString() == NAME_PreviewAllHandler
+		&& clsidRoot.value("AppID").toString() == APPID_PREVHOST64
+		&& isolationValueMatches
+		&& pathsMatch(inproc.value(".").toString(), handlerPath())
+		&& inproc.value("ThreadingModel").toString() == "Apartment"
+		&& previewHandlers.value(CLSID_PreviewAllHandler).toString() == NAME_PreviewAllHandler;
 }
-
-

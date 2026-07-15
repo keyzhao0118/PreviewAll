@@ -1,6 +1,7 @@
 #include "previewallmenu.h"
 #include "previewallregister.h"
 #include <QApplication>
+#include <QSettings>
 
 PreviewAllMenu::PreviewAllMenu(QWidget* parent /*= nullptr*/)
 	: QMenu(parent)

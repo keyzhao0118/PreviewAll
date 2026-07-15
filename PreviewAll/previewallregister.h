@@ -1,34 +1,44 @@
 #pragma once
 
-#include <QSettings>
-#include <Windows.h>
+#include <QString>
+#include <QStringList>
 
 class PreviewAllRegister
 {
 public:
-	const static QString REGISTER_HANDLER_ARGUMENT;
-	const static QString CLSID_PreviewHandlerCategory;
-	const static QString CLSID_PreviewAllHandler;
-	const static QString APPID_PREVHOST64;
-	const static QString NAME_PreviewAllHandler;
+	static const QString REGISTER_HANDLER_ARGUMENT;
 
-	const static QStringList imageExtList;
-	const static QStringList archiveExtList;
-	const static QStringList markdownExtList;
+	static const QStringList imageExtList;
+	static const QStringList archiveExtList;
+	static const QStringList markdownExtList;
 
-	bool static registerHandler();
-	bool static ensureHandlerRegistered();
-	void static unregisterHandler();
-	bool static isRegisteredHandler();
+	static bool ensureHandlerRegistered();
+	static bool registerHandler();
+	static void unregisterHandler();
 
-	void static registerExtentions(const QStringList& extList);
-	void static unregisterExtentions(const QStringList& extList);
-	void static unregisterAllExtentions();
+	static void registerExtentions(const QStringList& extList);
+	static void unregisterExtentions(const QStringList& extList);
+	static void unregisterAllExtentions();
 
 private:
-	bool static registerHandler(HKEY hkey);
-	void static unregisterHandler(HKEY hkey);
-	void static registerExtention(const QString& suffix, HKEY hkey);
-	void static unregisterExtention(const QString& suffix, HKEY hkey);
-	bool static isRegisteredHandler(HKEY hkey);
+	enum class RegistryScope
+	{
+		CurrentUser,
+		LocalMachine
+	};
+
+	static const QString CLSID_PreviewHandlerCategory;
+	static const QString CLSID_PreviewAllHandler;
+	static const QString APPID_PREVHOST64;
+	static const QString NAME_PreviewAllHandler;
+
+	static bool isRegisteredHandler();
+	static QString registryRootName(RegistryScope scope);
+
+	static bool registerHandler(RegistryScope scope);
+	static void unregisterHandler(RegistryScope scope);
+	static bool isRegisteredHandler(RegistryScope scope);
+
+	static void registerExtention(const QString& suffix, RegistryScope scope);
+	static void unregisterExtention(const QString& suffix, RegistryScope scope);
 };

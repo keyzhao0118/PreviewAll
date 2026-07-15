@@ -4,21 +4,14 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QSettings>
+#include <Windows.h>
 #include <cstdlib>
 #include <shellapi.h>
 #include <string>
 
 namespace
 {
-	QString registryRootName(HKEY hkey)
-	{
-		if (hkey == HKEY_CURRENT_USER)
-			return "HKEY_CURRENT_USER";
-		if (hkey == HKEY_LOCAL_MACHINE)
-			return "HKEY_LOCAL_MACHINE";
-		return {};
-	}
-
 	QString handlerPath()
 	{
 		return QDir::toNativeSeparators(
@@ -33,21 +26,15 @@ namespace
 }
 
 const QString PreviewAllRegister::REGISTER_HANDLER_ARGUMENT = "--register-preview-handler";
-const QString PreviewAllRegister::CLSID_PreviewHandlerCategory = "{8895b1c6-b41f-4c1c-a562-0d564250836f}";
-const QString PreviewAllRegister::CLSID_PreviewAllHandler = "{A26D5A00-AF3F-47B7-B075-A3282DE904E6}";
-const QString PreviewAllRegister::APPID_PREVHOST64 = "{6d2b5079-2f0b-48dd-ab7f-97cec514d30b}";
-const QString PreviewAllRegister::NAME_PreviewAllHandler = "PreviewAllHandler";
 
 const QStringList PreviewAllRegister::imageExtList = { ".png",".jpg",".jpeg",".tif",".tiff",".bmp",".webp",".ico",".svg",".gif" };
 const QStringList PreviewAllRegister::archiveExtList = { ".zip", ".rar", ".7z" };
 const QStringList PreviewAllRegister::markdownExtList = { ".md", ".markdown" };
 
-bool PreviewAllRegister::registerHandler()
-{
-	const bool currentUserWritten = registerHandler(HKEY_CURRENT_USER);
-	const bool localMachineWritten = registerHandler(HKEY_LOCAL_MACHINE);
-	return currentUserWritten && localMachineWritten && isRegisteredHandler();
-}
+const QString PreviewAllRegister::CLSID_PreviewHandlerCategory = "{8895b1c6-b41f-4c1c-a562-0d564250836f}";
+const QString PreviewAllRegister::CLSID_PreviewAllHandler = "{A26D5A00-AF3F-47B7-B075-A3282DE904E6}";
+const QString PreviewAllRegister::APPID_PREVHOST64 = "{6d2b5079-2f0b-48dd-ab7f-97cec514d30b}";
+const QString PreviewAllRegister::NAME_PreviewAllHandler = "PreviewAllHandler";
 
 bool PreviewAllRegister::ensureHandlerRegistered()
 {
@@ -87,29 +74,29 @@ bool PreviewAllRegister::ensureHandlerRegistered()
 	return true;
 }
 
-void PreviewAllRegister::unregisterHandler()
+bool PreviewAllRegister::registerHandler()
 {
-	unregisterHandler(HKEY_CURRENT_USER);
-	unregisterHandler(HKEY_LOCAL_MACHINE);
+	const bool currentUserWritten = registerHandler(RegistryScope::CurrentUser);
+	const bool localMachineWritten = registerHandler(RegistryScope::LocalMachine);
+	return currentUserWritten && localMachineWritten && isRegisteredHandler();
 }
 
-bool PreviewAllRegister::isRegisteredHandler()
+void PreviewAllRegister::unregisterHandler()
 {
-	return QFileInfo(handlerPath()).isFile()
-		&& isRegisteredHandler(HKEY_CURRENT_USER)
-		&& isRegisteredHandler(HKEY_LOCAL_MACHINE);
+	unregisterHandler(RegistryScope::CurrentUser);
+	unregisterHandler(RegistryScope::LocalMachine);
 }
 
 void PreviewAllRegister::registerExtentions(const QStringList& extList)
 {
 	for (const QString& suffix : extList)
-		registerExtention(suffix, HKEY_CURRENT_USER);
+		registerExtention(suffix, RegistryScope::CurrentUser);
 }
 
 void PreviewAllRegister::unregisterExtentions(const QStringList& extList)
 {
 	for (const QString& suffix : extList)
-		unregisterExtention(suffix, HKEY_CURRENT_USER);
+		unregisterExtention(suffix, RegistryScope::CurrentUser);
 }
 
 void PreviewAllRegister::unregisterAllExtentions()
@@ -119,11 +106,29 @@ void PreviewAllRegister::unregisterAllExtentions()
 	unregisterExtentions(markdownExtList);
 }
 
-bool PreviewAllRegister::registerHandler(HKEY hkey)
+bool PreviewAllRegister::isRegisteredHandler()
 {
-	const QString rootName = registryRootName(hkey);
-	if (rootName.isEmpty())
-		return false;
+	return QFileInfo(handlerPath()).isFile()
+		&& isRegisteredHandler(RegistryScope::CurrentUser)
+		&& isRegisteredHandler(RegistryScope::LocalMachine);
+}
+
+QString PreviewAllRegister::registryRootName(RegistryScope scope)
+{
+	switch (scope)
+	{
+	case RegistryScope::CurrentUser:
+		return "HKEY_CURRENT_USER";
+	case RegistryScope::LocalMachine:
+		return "HKEY_LOCAL_MACHINE";
+	}
+
+	return {};
+}
+
+bool PreviewAllRegister::registerHandler(RegistryScope scope)
+{
+	const QString rootName = registryRootName(scope);
 
 	QSettings clsidRoot(rootName + "\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
 	clsidRoot.setValue(".", NAME_PreviewAllHandler);
@@ -148,14 +153,12 @@ bool PreviewAllRegister::registerHandler(HKEY hkey)
 		return false;
 	}
 
-	return isRegisteredHandler(hkey);
+	return isRegisteredHandler(scope);
 }
 
-void PreviewAllRegister::unregisterHandler(HKEY hkey)
+void PreviewAllRegister::unregisterHandler(RegistryScope scope)
 {
-	const QString rootName = registryRootName(hkey);
-	if (rootName.isEmpty())
-		return;
+	const QString rootName = registryRootName(scope);
 
 	QSettings inproc(rootName + "\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler + "\\InProcServer32", QSettings::NativeFormat);
 	inproc.remove("");
@@ -167,31 +170,9 @@ void PreviewAllRegister::unregisterHandler(HKEY hkey)
 	previewHandlers.remove(CLSID_PreviewAllHandler);
 }
 
-void PreviewAllRegister::registerExtention(const QString& suffix, HKEY hkey)
+bool PreviewAllRegister::isRegisteredHandler(RegistryScope scope)
 {
-	const QString rootName = registryRootName(hkey);
-	if (rootName.isEmpty())
-		return;
-
-	QSettings shellExKey(rootName + "\\Software\\Classes\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
-	shellExKey.setValue(".", CLSID_PreviewAllHandler);
-}
-
-void PreviewAllRegister::unregisterExtention(const QString& suffix, HKEY hkey)
-{
-	const QString rootName = registryRootName(hkey);
-	if (rootName.isEmpty())
-		return;
-
-	QSettings shellExKey(rootName + "\\Software\\Classes\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
-	shellExKey.remove("");
-}
-
-bool PreviewAllRegister::isRegisteredHandler(HKEY hkey)
-{
-	const QString rootName = registryRootName(hkey);
-	if (rootName.isEmpty())
-		return false;
+	const QString rootName = registryRootName(scope);
 
 	QSettings clsidRoot(rootName + "\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler, QSettings::NativeFormat);
 	QSettings inproc(rootName + "\\Software\\Classes\\CLSID\\" + CLSID_PreviewAllHandler + "\\InProcServer32", QSettings::NativeFormat);
@@ -207,4 +188,18 @@ bool PreviewAllRegister::isRegisteredHandler(HKEY hkey)
 		&& pathsMatch(inproc.value(".").toString(), handlerPath())
 		&& inproc.value("ThreadingModel").toString() == "Apartment"
 		&& previewHandlers.value(CLSID_PreviewAllHandler).toString() == NAME_PreviewAllHandler;
+}
+
+void PreviewAllRegister::registerExtention(const QString& suffix, RegistryScope scope)
+{
+	const QString rootName = registryRootName(scope);
+	QSettings shellExKey(rootName + "\\Software\\Classes\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
+	shellExKey.setValue(".", CLSID_PreviewAllHandler);
+}
+
+void PreviewAllRegister::unregisterExtention(const QString& suffix, RegistryScope scope)
+{
+	const QString rootName = registryRootName(scope);
+	QSettings shellExKey(rootName + "\\Software\\Classes\\" + suffix + "\\ShellEx\\" + CLSID_PreviewHandlerCategory, QSettings::NativeFormat);
+	shellExKey.remove("");
 }

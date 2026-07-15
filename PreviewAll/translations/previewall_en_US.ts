@@ -123,27 +123,27 @@
 <context>
     <name>PreviewAllMenu</name>
     <message>
-        <location filename="../previewallmenu.cpp" line="19"/>
+        <location filename="../previewallmenu.cpp" line="20"/>
         <source>Preview Image</source>
         <translation>Preview Image</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="20"/>
+        <location filename="../previewallmenu.cpp" line="21"/>
         <source>Preview Archive</source>
         <translation>Preview Archive</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="21"/>
+        <location filename="../previewallmenu.cpp" line="22"/>
         <source>Preview Markdown</source>
         <translation>Preview Markdown</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="28"/>
+        <location filename="../previewallmenu.cpp" line="29"/>
         <source>Help</source>
         <translation>Help</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="30"/>
+        <location filename="../previewallmenu.cpp" line="31"/>
         <source>Exit</source>
         <translation>Exit</translation>
     </message>

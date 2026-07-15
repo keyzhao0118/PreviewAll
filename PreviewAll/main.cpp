@@ -5,6 +5,7 @@
 #include <QMenu>
 #include <QAction>
 #include <cstdlib>
+#include <Windows.h>
 
 namespace
 {

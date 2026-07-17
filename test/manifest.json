@@ -1,0 +1,317 @@
+{
+  "archivePassword": "PreviewAll-Test-123!",
+  "fixtures": [
+    {
+      "scenario": "Truncated 7Z",
+      "path": "archives/corrupt-truncated.7z",
+      "category": "archive",
+      "expected": "load failure",
+      "bytes": 4260,
+      "sha256": "e1957057821056a13b4792aefaee31db95c6815f67ddf449d10076f427fa0981"
+    },
+    {
+      "scenario": "Truncated RAR5",
+      "path": "archives/corrupt-truncated.rar",
+      "category": "archive",
+      "expected": "load failure",
+      "bytes": 66984,
+      "sha256": "b9fd2f91e1e10138295f4a7f75a366c6e9b7a953d11437a1f3ae128ca9464043"
+    },
+    {
+      "path": "archives/empty.zip",
+      "category": "archive",
+      "scenario": "Empty ZIP",
+      "expected": "empty tree preview",
+      "bytes": 22,
+      "sha256": "8739c76e681f900923b900c9df0ef75cf421d39cabb54650c4b9ad19b6a76d85"
+    },
+    {
+      "scenario": "ZIP AES-256 encryption",
+      "path": "archives/password-aes.zip",
+      "category": "archive",
+      "expected": "password prompt then tree preview",
+      "bytes": 224260,
+      "sha256": "29b6c77dd23d48d554ab3d0a65f2dbb5bffe15cd9f027ebc2cf1060e4db4b21f"
+    },
+    {
+      "scenario": "7Z encrypted content, visible headers",
+      "path": "archives/password-content.7z",
+      "category": "archive",
+      "expected": "password prompt then tree preview",
+      "bytes": 7137,
+      "sha256": "8ef21ca39e1137a59271532defc283c745903c12c453bf5e38f1e57935558c50"
+    },
+    {
+      "scenario": "RAR5 encrypted content, visible headers",
+      "path": "archives/password-content.rar",
+      "category": "archive",
+      "expected": "password prompt then tree preview",
+      "bytes": 183040,
+      "sha256": "9379e0ec5c54f955bef462ea2b3f5df58a8a6665dcaf7fde3562bd70ba643320"
+    },
+    {
+      "scenario": "7Z encrypted content and headers",
+      "path": "archives/password-header.7z",
+      "category": "archive",
+      "expected": "password prompt before file list",
+      "bytes": 7168,
+      "sha256": "4dfa972145f6c43b20020fd7ba8da10ea80fbb7691a25bbb8f350801094761f9"
+    },
+    {
+      "scenario": "RAR5 encrypted content and headers",
+      "path": "archives/password-header.rar",
+      "category": "archive",
+      "expected": "password prompt before file list",
+      "bytes": 209294,
+      "sha256": "93fb64806c319188587bce8d9503f33b43fb63c387404db27b9e62ff60e48f5a"
+    },
+    {
+      "scenario": "ZIP legacy ZipCrypto encryption",
+      "path": "archives/password-zipcrypto.zip",
+      "category": "archive",
+      "expected": "password prompt then tree preview",
+      "bytes": 186108,
+      "sha256": "98fa1f664d6e21b7fd144e5484a4db0493baa58552c0e8366def29c657e389dc"
+    },
+    {
+      "scenario": "Plain RAR5",
+      "path": "archives/plain-rar5.rar",
+      "category": "archive",
+      "expected": "tree preview",
+      "bytes": 111640,
+      "sha256": "058f5796d2e297e30c458f8aef3fde0a4555da549c2b329da0309dc34f42c525"
+    },
+    {
+      "scenario": "Plain 7Z",
+      "path": "archives/plain.7z",
+      "category": "archive",
+      "expected": "tree preview",
+      "bytes": 7101,
+      "sha256": "c4b2a28b5f5f050583ccee7d26858f9769384096f34aef307912cb8defbac02c"
+    },
+    {
+      "path": "archives/plain.zip",
+      "category": "archive",
+      "scenario": "ZIP with nested, Unicode, empty, and 1000 files",
+      "expected": "tree preview",
+      "bytes": 139471,
+      "sha256": "d31612c66291139023908f5217acde073f97868fb0321b1386a589b45219659f"
+    },
+    {
+      "path": "archives/unicode-nested.zip",
+      "category": "archive",
+      "scenario": "Small Unicode and nested ZIP",
+      "expected": "tree preview",
+      "bytes": 581,
+      "sha256": "1e033b65722821da56f566bf21965c53c419bae57d954e5411450428ea547c1c"
+    },
+    {
+      "path": "images/animated.gif",
+      "category": "image",
+      "scenario": "Animated GIF",
+      "expected": "animated preview",
+      "bytes": 4219,
+      "sha256": "3b3f61cc5fe692a106766491cd9a3a10e38bc9d29eb6a77b38c21407644e07cc"
+    },
+    {
+      "path": "images/animated.webp",
+      "category": "image",
+      "scenario": "Animated WebP",
+      "expected": "preview first/animated frame depending on Qt plugin",
+      "bytes": 72844,
+      "sha256": "accf0f754ce9a2e5552e57163c8938c57746eb84ee2dff57edcd8029e6d9d3bf"
+    },
+    {
+      "path": "images/bitmap.bmp",
+      "category": "image",
+      "scenario": "BMP",
+      "expected": "preview",
+      "bytes": 921654,
+      "sha256": "d137a5d7c192727884f3d924df84d3cee0e1c05d84f9bcecf8885b456fe85d83"
+    },
+    {
+      "path": "images/corrupt-truncated.png",
+      "category": "image",
+      "scenario": "Truncated PNG",
+      "expected": "load failure",
+      "bytes": 1771,
+      "sha256": "9d990beeccd9144bbc33f4673b3e037a9e520ae53c02a78f2513492c10a0e8f4"
+    },
+    {
+      "path": "images/icon-multisize.ico",
+      "category": "image",
+      "scenario": "Multi-size ICO",
+      "expected": "preview",
+      "bytes": 4545,
+      "sha256": "c43fce828a93704dc1216fbbdb356e86460fe3cca6705207cbaa2c59f7c66417"
+    },
+    {
+      "path": "images/jpeg-baseline.jpg",
+      "category": "image",
+      "scenario": "Baseline JPEG",
+      "expected": "preview",
+      "bytes": 28001,
+      "sha256": "12d0ddfc18610e063d7fd8f33fcb2e8a833bcb1cdf6848e2fb144fe72287ba76"
+    },
+    {
+      "path": "images/jpeg-cmyk.jpg",
+      "category": "image",
+      "scenario": "CMYK JPEG",
+      "expected": "preview",
+      "bytes": 76701,
+      "sha256": "14666100513fe6342f58acd3e32dbb0d637a9c358794ae38beb31517fb580826"
+    },
+    {
+      "path": "images/jpeg-exif-rotate.jpg",
+      "category": "image",
+      "scenario": "EXIF orientation 6",
+      "expected": "rotated preview",
+      "bytes": 22367,
+      "sha256": "2ad76f9f88fa1c20dfde950650831e464c5a0519834556d67f332138c205d6b0"
+    },
+    {
+      "path": "images/jpeg-progressive.jpeg",
+      "category": "image",
+      "scenario": "Progressive JPEG",
+      "expected": "preview",
+      "bytes": 14397,
+      "sha256": "e8b4c3e83de767b102a8e49d6ca07481467ad96c88caa7b41bc69eed43f69d78"
+    },
+    {
+      "path": "images/large-memory-9000x9000.png",
+      "category": "image",
+      "scenario": "324 MB decoded RGBA image",
+      "expected": "scaled preview without allocation failure",
+      "bytes": 335329,
+      "sha256": "45fd7973cf5192b8f2472c609909a2212271dcd98a43d80b5796b47690892f0f"
+    },
+    {
+      "path": "images/large-panorama-20000x2000.jpg",
+      "category": "image",
+      "scenario": "Very wide 160 MB decoded image",
+      "expected": "dimension-constrained preview",
+      "bytes": 376314,
+      "sha256": "0ead2c5469293db9b181257ca983113d9903b06b26dd7538e2f17f9e97ff49ad"
+    },
+    {
+      "path": "images/mismatched-extension.png",
+      "category": "image",
+      "scenario": "JPEG data with PNG extension",
+      "expected": "content-detected preview",
+      "bytes": 28001,
+      "sha256": "12d0ddfc18610e063d7fd8f33fcb2e8a833bcb1cdf6848e2fb144fe72287ba76"
+    },
+    {
+      "path": "images/multipage.tiff",
+      "category": "image",
+      "scenario": "Multipage TIFF",
+      "expected": "first page preview",
+      "bytes": 6291776,
+      "sha256": "93adad8292e03d4abd3b7875ca9a468a45ee2873199b106dbf1bcab6d387b923"
+    },
+    {
+      "path": "images/png-16bit-gray.png",
+      "category": "image",
+      "scenario": "16-bit grayscale PNG",
+      "expected": "preview",
+      "bytes": 2238,
+      "sha256": "50de4b1f56f51a166ff303b6ebe19e242ae72f6b43441d0d8b0986fbefcf9acf"
+    },
+    {
+      "path": "images/png-alpha.png",
+      "category": "image",
+      "scenario": "PNG transparency",
+      "expected": "preview",
+      "bytes": 3126,
+      "sha256": "e860979cf09288688229e841bafaf06f07be6300d9e1b4a18b16efb74af42dad"
+    },
+    {
+      "path": "images/png-rgb.png",
+      "category": "image",
+      "scenario": "RGB PNG",
+      "expected": "preview",
+      "bytes": 5313,
+      "sha256": "dd36ae7350fea03a19eb039ca31f13cdc41b61dba1d5624133fc0c8d20f762ed"
+    },
+    {
+      "path": "images/tiff-deflate.tif",
+      "category": "image",
+      "scenario": "Compressed TIFF",
+      "expected": "preview",
+      "bytes": 23568,
+      "sha256": "66b953beb4271e712a6deb38fe8edcedb60d6e38a95622c39210442d0c3359a2"
+    },
+    {
+      "path": "images/tiff-uncompressed.tiff",
+      "category": "image",
+      "scenario": "Uncompressed TIFF",
+      "expected": "preview",
+      "bytes": 921740,
+      "sha256": "9ef7b1641b8e66eafb2b9f67bb2f7abeb5c438c99c76648178964c131edfe2f2"
+    },
+    {
+      "path": "images/vector.svg",
+      "category": "image",
+      "scenario": "SVG vector and Unicode text",
+      "expected": "preview",
+      "bytes": 418,
+      "sha256": "66d13ed75131ae1a6c7f3c7947920693fafd5eba088684c2364c8a778f78b5e0"
+    },
+    {
+      "path": "images/webp-lossless.webp",
+      "category": "image",
+      "scenario": "Lossless WebP",
+      "expected": "preview",
+      "bytes": 972,
+      "sha256": "60861fd8a52fac55f9843dc928473860c6f5aad3723a336c71509abb904b5bcb"
+    },
+    {
+      "path": "images/webp-lossy.webp",
+      "category": "image",
+      "scenario": "Lossy WebP",
+      "expected": "preview",
+      "bytes": 3114,
+      "sha256": "1ca84570f4c34516acaa4c1c450729f1cd3013ccf28894540d0b35b8ad0d9245"
+    },
+    {
+      "path": "markdown/large-near-limit.md",
+      "category": "markdown",
+      "scenario": "Approximately 7.5 MiB",
+      "expected": "successful load",
+      "bytes": 7864318,
+      "sha256": "ab2338e9c2cc0f980c5efd456f14f18694bf031f68bcb087ed6fc24db8559f9c"
+    },
+    {
+      "path": "markdown/large-over-limit.md",
+      "category": "markdown",
+      "scenario": "Over current 8 MiB limit",
+      "expected": "intentional load failure",
+      "bytes": 9437188,
+      "sha256": "8f91e1ef6655f65762ecb4bffc718113ac3ae1ebf3df1ff3c36453367d6d9b4b"
+    },
+    {
+      "path": "markdown/long-line.md",
+      "category": "markdown",
+      "scenario": "Single 128 KiB line",
+      "expected": "render and source modes",
+      "bytes": 131089,
+      "sha256": "4d70b88c1a1557129a13e47b635a6cfc988f205742eae7897baeebdd77c78cad"
+    },
+    {
+      "path": "markdown/rich-syntax.md",
+      "category": "markdown",
+      "scenario": "CommonMark and extended rich syntax",
+      "expected": "render and source modes",
+      "bytes": 1271,
+      "sha256": "0b3384252cccbc2a31fc6b111e8f39cd2a322bcb649d320e0c7a3e92394ad250"
+    },
+    {
+      "path": "markdown/utf8-bom.markdown",
+      "category": "markdown",
+      "scenario": "UTF-8 BOM and Unicode",
+      "expected": "render without BOM artifact",
+      "bytes": 37,
+      "sha256": "51f8f4a2f97daa15bab70ff7addbe7ced0f1f797bd8265da0d8c8a2a3daca72a"
+    }
+  ]
+}

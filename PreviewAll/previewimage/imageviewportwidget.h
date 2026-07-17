@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QImage>
 #include <QOpenGLWidget>
 #include <QTimeLine>
 
@@ -23,8 +24,8 @@ protected:
 	virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
-	void loadOriginPixmap();
-	void loadGifFramePixmap();
+	void loadImage();
+	void loadGif();
 	void resizeToFit();
 	void updateScaleFactor();
 	void updatePaintBasePos();
@@ -38,7 +39,7 @@ private:
 private:
 	QString m_imagePath;
 
-	QPixmap m_originPixmap;
+	QImage m_image;
 
 	QSize m_paintSize;
 	QPoint m_paintBasePos;

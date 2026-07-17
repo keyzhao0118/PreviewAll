@@ -78,12 +78,12 @@
 <context>
     <name>ImageViewPortWidget</name>
     <message>
-        <location filename="../previewimage/imageviewportwidget.cpp" line="86"/>
+        <location filename="../previewimage/imageviewportwidget.cpp" line="110"/>
         <source>Loading...</source>
         <translation>加载中...</translation>
     </message>
     <message>
-        <location filename="../previewimage/imageviewportwidget.cpp" line="86"/>
+        <location filename="../previewimage/imageviewportwidget.cpp" line="110"/>
         <source>Loading failed</source>
         <translation>加载失败</translation>
     </message>

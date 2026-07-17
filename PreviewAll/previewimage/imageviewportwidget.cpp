@@ -2,20 +2,43 @@
 #include <QPainter>
 #include <QWheelEvent>
 #include <QImageReader>
+#include <QDebug>
 #include <QtMath>
 #include <QLayout>
 #include <QMovie>
-#include <QBuffer>
-#include <QFile>
 #include <QOpenGLFunctions>
 #include <QOpenGLContext>
 #include <QThread>
+#include <utility>
 
 namespace
 {
 	const qreal s_minScaleFactor = 0.01;
 	const qreal s_maxScaleFactor = 8.0;
 	const qreal s_zoomStepPerNotch = 1.1;
+	constexpr int s_imageAllocationLimitMb = 512;
+	constexpr qint64 s_maxDecodedPixels = 64LL * 1024 * 1024;
+	constexpr int s_maxDecodedDimension = 16384;
+
+	QSize constrainedDecodeSize(const QSize& sourceSize)
+	{
+		if (!sourceSize.isValid())
+			return sourceSize;
+
+		qreal scale = qMin(
+			1.0,
+			qreal(s_maxDecodedDimension) / qMax(sourceSize.width(), sourceSize.height()));
+		const qreal pixelCount = qreal(sourceSize.width()) * sourceSize.height();
+		if (pixelCount > s_maxDecodedPixels)
+			scale = qMin(scale, qSqrt(qreal(s_maxDecodedPixels) / pixelCount));
+
+		if (scale >= 1.0)
+			return sourceSize;
+
+		return QSize(
+			qMax(1, qFloor(sourceSize.width() * scale)),
+			qMax(1, qFloor(sourceSize.height() * scale)));
+	}
 }
 
 ImageViewPortWidget::ImageViewPortWidget(const QString& imagePath, QWidget *parent)
@@ -23,6 +46,7 @@ ImageViewPortWidget::ImageViewPortWidget(const QString& imagePath, QWidget *pare
 	, m_imagePath(imagePath)
 {
 	setUpdateBehavior(QOpenGLWidget::NoPartialUpdate);
+	QImageReader::setAllocationLimit(s_imageAllocationLimitMb);
 
 	m_zoomTimeLine.setDuration(140);
 	m_zoomTimeLine.setUpdateInterval(1000 / 60);
@@ -41,9 +65,9 @@ ImageViewPortWidget::ImageViewPortWidget(const QString& imagePath, QWidget *pare
 	});
 
 	if (imagePath.endsWith(".gif", Qt::CaseInsensitive))
-		loadGifFramePixmap();
+		loadGif();
 	else
-		loadOriginPixmap();
+		loadImage();
 }
 
 ImageViewPortWidget::~ImageViewPortWidget()
@@ -55,10 +79,10 @@ void ImageViewPortWidget::onAdaptiveScale()
 	m_zoomTimeLine.stop();
 	m_zoomStartScaleFactor = m_curScaleFactor;
 
-	if (m_originPixmap.isNull())
+	if (m_image.isNull())
 		return;
-	m_paintSize = m_originPixmap.size().scaled(size(), Qt::KeepAspectRatio);
-	m_zoomStopScaleFactor = 1.0 * m_paintSize.width() / m_originPixmap.width();
+	m_paintSize = m_image.size().scaled(size(), Qt::KeepAspectRatio);
+	m_zoomStopScaleFactor = 1.0 * m_paintSize.width() / m_image.width();
 	m_zoomTimeLine.start();
 }
 
@@ -81,7 +105,7 @@ void ImageViewPortWidget::paintGL()
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
-	if (m_originPixmap.isNull())
+	if (m_image.isNull())
 	{
 		painter.drawText(rect(), Qt::AlignCenter, m_bIsLoading ? tr("Loading...") : tr("Loading failed"));
 		return;
@@ -99,13 +123,13 @@ void ImageViewPortWidget::paintGL()
 			visibleRect.width() / m_curScaleFactor,
 			visibleRect.height() / m_curScaleFactor
 		);
-		painter.drawPixmap(visibleRect, m_originPixmap, sourceRect);
+		painter.drawImage(visibleRect, m_image, sourceRect);
 	}
 }
 
 void ImageViewPortWidget::wheelEvent(QWheelEvent* event)
 {
-	if (m_originPixmap.isNull())
+	if (m_image.isNull())
 		return;
 
 	int deltaY = event->angleDelta().y();
@@ -157,113 +181,80 @@ void ImageViewPortWidget::mouseReleaseEvent(QMouseEvent* event)
 	QOpenGLWidget::mouseReleaseEvent(event);
 }
 
-void ImageViewPortWidget::loadOriginPixmap()
+void ImageViewPortWidget::loadImage()
 {
 	QPointer<ImageViewPortWidget> that(this);
-	QThread* loadThread = QThread::create([that]() {
+	const QString imagePath = m_imagePath;
+	QThread* loadThread = QThread::create([that, imagePath]() {
 		if (!that)
 			return;
 
-		QImageReader reader(that->m_imagePath);
-		if (reader.canRead())
-		{
-			QImage originImage = reader.read();
-			QPixmap originPixmap = QPixmap::fromImage(originImage);
+		QImageReader reader(imagePath);
+		reader.setAutoTransform(true);
+		const QSize sourceSize = reader.size();
+		const QSize decodeSize = constrainedDecodeSize(sourceSize);
+		if (decodeSize.isValid() && decodeSize != sourceSize)
+			reader.setScaledSize(decodeSize);
 
-			QMetaObject::invokeMethod(that, [that, originPixmap]() {
-				if (that)
-				{
-					that->m_bIsLoading = false;
-					that->m_originPixmap = originPixmap;
-					that->resizeToFit();
-					that->update();
-				}
-			}, Qt::QueuedConnection);
-		}
-		else
-		{
-			QMetaObject::invokeMethod(that, [that]() {
-				if (that)
-				{
-					that->m_bIsLoading = false;
-					that->m_originPixmap = QPixmap();
-					that->update();
-				}
-				}, Qt::QueuedConnection);
-		}
+		QImage image = reader.read();
+		const QString error = image.isNull() ? reader.errorString() : QString();
+		QMetaObject::invokeMethod(that, [that, image = std::move(image), error]() mutable {
+			if (!that)
+				return;
 
+			that->m_bIsLoading = false;
+			that->m_image = std::move(image);
+			if (that->m_image.isNull())
+			{
+				qWarning() << "Failed to load image:" << that->m_imagePath << error;
+				that->update();
+				return;
+			}
+
+			that->resizeToFit();
+		}, Qt::QueuedConnection);
 	});
 
 	connect(loadThread, &QThread::finished, loadThread, &QObject::deleteLater);
 	loadThread->start();
 }
 
-void ImageViewPortWidget::loadGifFramePixmap()
+void ImageViewPortWidget::loadGif()
 {
-	QPointer<ImageViewPortWidget> that(this);
-	QThread* loadThread = QThread::create([that]() {
-		if (!that)
+	m_bLoadFirstGifFrame = true;
+	auto* gifMovie = new QMovie(m_imagePath, QByteArray(), this);
+	connect(gifMovie, &QMovie::frameChanged, this, [this, gifMovie]() {
+		m_bIsLoading = false;
+		m_image = gifMovie->currentImage();
+		if (m_bLoadFirstGifFrame)
+		{
+			m_bLoadFirstGifFrame = false;
+			resizeToFit();
 			return;
-
-		QFile gifFile(that->m_imagePath);
-		if (gifFile.open(QIODevice::ReadOnly))
-		{
-			QByteArray gifData = gifFile.readAll();
-
-			QMetaObject::invokeMethod(that, [that, gifData]() {
-				if (!that)
-					return;
-				that->m_bIsLoading = false;
-
-				QBuffer* gifBuffer = new QBuffer(that);
-				gifBuffer->setData(gifData);
-				gifBuffer->open(QIODevice::ReadOnly);
-				QMovie* gifMovie = new QMovie(gifBuffer, QByteArray(), that);
-				connect(gifMovie, &QMovie::frameChanged, that, [that, gifMovie]() {
-					if (!that)
-						return;
-
-					that->m_originPixmap = gifMovie->currentPixmap();
-					if (that->m_bLoadFirstGifFrame)
-					{
-						that->m_bLoadFirstGifFrame = false;
-						that->resizeToFit();
-						return;
-					}
-					that->updateScaleFactor();
-					that->updatePaintBasePos();
-					that->updatePaintOffset();
-					that->updateCursor();
-					that->update();
-				});
-				gifMovie->start();
-
-			}, Qt::QueuedConnection);
 		}
-		else
-		{
-			QMetaObject::invokeMethod(that, [that]() {
-				if (that)
-				{
-					that->m_bIsLoading = false;
-					that->m_originPixmap = QPixmap();
-					that->update();
-				}
-				}, Qt::QueuedConnection);
-		}
+
+		updateScaleFactor();
+		updatePaintBasePos();
+		updatePaintOffset();
+		updateCursor();
+		update();
 	});
-
-	connect(loadThread, &QThread::finished, loadThread, &QObject::deleteLater);
-	loadThread->start();
+	connect(gifMovie, &QMovie::error, this, [this, gifMovie](QImageReader::ImageReaderError) {
+		m_bIsLoading = false;
+		m_image = QImage();
+		qWarning() << "Failed to load GIF:" << m_imagePath << gifMovie->lastErrorString();
+		update();
+	});
+	gifMovie->start();
 }
 
 void ImageViewPortWidget::resizeToFit()
 {
-	if (m_originPixmap.isNull())
+	if (m_image.isNull())
 		return;
 
-	m_paintSize = m_originPixmap.size().scaled(size(), Qt::KeepAspectRatio);
-	m_curScaleFactor = 1.0 * m_paintSize.width() / m_originPixmap.width();
+	m_paintSize = m_image.size().scaled(size(), Qt::KeepAspectRatio);
+	m_curScaleFactor = 1.0 * m_paintSize.width() / m_image.width();
 	updateScaleFactor();
 	updatePaintBasePos();
 	updatePaintOffset();
@@ -278,10 +269,10 @@ void ImageViewPortWidget::updateScaleFactor()
 		s_minScaleFactor / devicePixelRatioF(),
 		s_maxScaleFactor / devicePixelRatioF());
 
-	if (m_originPixmap.isNull())
+	if (m_image.isNull())
 		return;
 
-	m_paintSize = m_originPixmap.size() * m_curScaleFactor;
+	m_paintSize = m_image.size() * m_curScaleFactor;
 }
 
 void ImageViewPortWidget::updatePaintBasePos()

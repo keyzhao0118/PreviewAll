@@ -16,9 +16,9 @@
 | `test` | 已提交的手工测试样本和 Python / PowerShell 再生成脚本 |
 | `docs/index.html` | 静态介绍页面，不参与 C++ 构建 |
 
-调用链为：资源管理器 → Windows COM 预览宿主 → Handler DLL → `QLocalSocket` → 托盘程序的 `QLocalServer` → 对应 Qt 预览组件。
-通信协议有 `CREATE`、`RESIZE`、`CLOSE`，文件路径使用 UTF-8 + Base64，窗口句柄使用十进制字符串；`RESIZE` 传递宿主窗口句柄和完整的预览区域 `RECT`。
-托盘程序将 Qt 预览窗口设为 Win32 子窗口，通过 `SetParent` 嵌入宿主，并按宿主给出的像素坐标调整窗口边界；不再按子窗口的 DPI 比例换算宿主尺寸。
+创建调用链为：资源管理器 → Windows COM 预览宿主 → Handler DLL → `QLocalSocket` → 托盘程序的 `QLocalServer` → 对应 Qt 预览组件。
+通信协议只有 `CREATE` 和 `CLOSE`，文件路径使用 UTF-8 + Base64，窗口句柄使用十进制字符串。
+当前实现按先 `SetWindow`、后 `DoPreview` 的流程工作：Handler 先记录宿主窗口和预览区域，托盘程序创建 Qt 预览窗口后将它设为 Win32 子窗口，通过 `SetParent` 嵌入宿主。预览宿主随后调用 `SetRect` 时，Handler 直接按宿主给出的像素坐标同步调整子窗口边界，使拖动窗格分隔线时窗口边缘及时跟随。若父窗口与记录值不一致，则跳过该次尺寸调整。不按子窗口的 DPI 比例换算宿主尺寸。
 
 当前实际注册的扩展名如下：图片 `.png`、`.jpg`、`.jpeg`、`.tif`、`.tiff`、`.bmp`、`.webp`、`.ico`、`.svg`、`.gif`；压缩包 `.zip`、`.rar`、`.7z`；Markdown `.md`、`.markdown`。三个预览共用同一个标题栏，内容区分别只提供图片缩放/拖动、压缩包树形目录和 Markdown 渲染。
 

@@ -39,6 +39,8 @@ public:
 	IFACEMETHODIMP Initialize(LPCWSTR pszFilePath, DWORD grfMode);
 
 private:
+	void resizePreview();
+
 	long m_cRef = 1;
 	HWND m_hwndParent = nullptr;
 	RECT m_rcParent = { 0 };

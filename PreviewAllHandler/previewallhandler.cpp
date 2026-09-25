@@ -79,8 +79,6 @@ HRESULT CPreviewAllHandler::SetWindow(HWND hwnd, const RECT* prc)
 
 	m_hwndParent = hwnd;
 	m_rcParent = *prc;
-	if (m_hwndPreview)
-		PreviewAllRequester::postResizeCmd(m_hwndPreview, m_hwndParent, m_rcParent);
 	return S_OK;
 }
 
@@ -127,8 +125,7 @@ HRESULT CPreviewAllHandler::SetRect(const RECT* prc)
 		return E_INVALIDARG;
 
 	m_rcParent = *prc;
-	if (m_hwndPreview)
-		PreviewAllRequester::postResizeCmd(m_hwndPreview, m_hwndParent, m_rcParent);
+	resizePreview();
 	return S_OK;
 }
 
@@ -138,8 +135,25 @@ HRESULT CPreviewAllHandler::DoPreview()
 	if (!m_hwndPreview)
 		return E_FAIL;
 
-	PreviewAllRequester::postResizeCmd(m_hwndPreview, m_hwndParent, m_rcParent);
+	resizePreview();
 	return S_OK;
+}
+
+void CPreviewAllHandler::resizePreview()
+{
+	if (!m_hwndPreview || !m_hwndParent || !IsWindow(m_hwndPreview))
+		return;
+
+	// Explorer calls SetRect repeatedly while dragging the preview splitter.
+	// Resize the embedded child before returning so its edge tracks the host.
+	// Only resize a preview still attached to the parent supplied by SetWindow.
+	if (GetParent(m_hwndPreview) != m_hwndParent)
+		return;
+
+	SetWindowPos(m_hwndPreview, nullptr, m_rcParent.left, m_rcParent.top,
+		qMax(0L, m_rcParent.right - m_rcParent.left),
+		qMax(0L, m_rcParent.bottom - m_rcParent.top),
+		SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 HRESULT CPreviewAllHandler::Unload()

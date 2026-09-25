@@ -75,23 +75,6 @@ HWND PreviewAllApplication::handleCreateCmd(HWND hwndParent, const QString& file
 	return hwndPreview;
 }
 
-void PreviewAllApplication::handleResizeCmd(HWND hwndPreview, HWND hwndParent, const RECT& rect)
-{
-	if (!m_widgetHash.contains(hwndPreview) || !IsWindow(hwndParent))
-		return;
-
-	if (GetParent(hwndPreview) != hwndParent)
-	{
-		SetLastError(ERROR_SUCCESS);
-		if (!SetParent(hwndPreview, hwndParent) && GetLastError() != ERROR_SUCCESS)
-			return;
-	}
-
-	SetWindowPos(hwndPreview, nullptr, rect.left, rect.top,
-		qMax(0L, rect.right - rect.left), qMax(0L, rect.bottom - rect.top),
-		SWP_NOZORDER | SWP_NOACTIVATE);
-}
-
 void PreviewAllApplication::handleCloseCmd(HWND hwndPreview)
 {
 	if (m_widgetHash.contains(hwndPreview))
@@ -160,13 +143,6 @@ void PreviewAllApplication::onReadyRead()
 		QByteArray response = QByteArray::number((qulonglong)hwndPreview) + "\n";
 		clientSocket->write(response);
 		clientSocket->flush();
-	}
-	else if (command == "RESIZE" && parts.size() == 7)
-	{
-		HWND hwndPreview = reinterpret_cast<HWND>(parts[1].toULongLong());
-		HWND hwndParent = reinterpret_cast<HWND>(parts[2].toULongLong());
-		RECT rect = { parts[3].toInt(), parts[4].toInt(), parts[5].toInt(), parts[6].toInt() };
-		handleResizeCmd(hwndPreview, hwndParent, rect);
 	}
 	else if (command == "CLOSE" && parts.size() == 2)
 	{

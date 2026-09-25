@@ -74,11 +74,13 @@ HRESULT CPreviewAllHandler::GetSite(REFIID riid, void** ppv)
 // IPreviewHandler
 HRESULT CPreviewAllHandler::SetWindow(HWND hwnd, const RECT* prc)
 {
-	if (hwnd && prc)
-	{
-		m_hwndParent = hwnd;
-		m_rcParent = *prc;
-	}
+	if (!hwnd || !prc)
+		return E_INVALIDARG;
+
+	m_hwndParent = hwnd;
+	m_rcParent = *prc;
+	if (m_hwndPreview)
+		PreviewAllRequester::postResizeCmd(m_hwndPreview, m_hwndParent, m_rcParent);
 	return S_OK;
 }
 
@@ -121,14 +123,13 @@ HRESULT CPreviewAllHandler::TranslateAccelerator(MSG* pmsg)
 
 HRESULT CPreviewAllHandler::SetRect(const RECT* prc)
 {
-	if (prc && m_hwndPreview)
-	{
-		m_rcParent = *prc;
-		PreviewAllRequester::postResizeCmd(m_hwndPreview, m_rcParent.right - m_rcParent.left, m_rcParent.bottom - m_rcParent.top);
-		return S_OK;
-	}
+	if (!prc)
+		return E_INVALIDARG;
 
-	return E_INVALIDARG;
+	m_rcParent = *prc;
+	if (m_hwndPreview)
+		PreviewAllRequester::postResizeCmd(m_hwndPreview, m_hwndParent, m_rcParent);
+	return S_OK;
 }
 
 HRESULT CPreviewAllHandler::DoPreview()
@@ -137,7 +138,7 @@ HRESULT CPreviewAllHandler::DoPreview()
 	if (!m_hwndPreview)
 		return E_FAIL;
 
-	PreviewAllRequester::postResizeCmd(m_hwndPreview, m_rcParent.right - m_rcParent.left, m_rcParent.bottom - m_rcParent.top);
+	PreviewAllRequester::postResizeCmd(m_hwndPreview, m_hwndParent, m_rcParent);
 	return S_OK;
 }
 

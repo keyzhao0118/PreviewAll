@@ -1,0 +1,11 @@
+if(NOT DEFINED VCPKG_RUNTIME_BIN OR NOT DEFINED OUTPUT_DIRECTORY)
+	message(FATAL_ERROR "VCPKG_RUNTIME_BIN and OUTPUT_DIRECTORY are required")
+endif()
+
+file(GLOB _vcpkg_runtime_dlls LIST_DIRECTORIES FALSE "${VCPKG_RUNTIME_BIN}/*.dll")
+foreach(_dll IN LISTS _vcpkg_runtime_dlls)
+	get_filename_component(_name "${_dll}" NAME)
+	if(NOT _name MATCHES "^Qt6")
+		file(COPY_FILE "${_dll}" "${OUTPUT_DIRECTORY}/${_name}" ONLY_IF_DIFFERENT)
+	endif()
+endforeach()

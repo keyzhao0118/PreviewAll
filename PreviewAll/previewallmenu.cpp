@@ -1,7 +1,17 @@
 #include "previewallmenu.h"
 #include "previewallregister.h"
+#include <QAction>
 #include <QApplication>
+#include <QIcon>
 #include <QSettings>
+
+namespace
+{
+	void updateCheckIcon(QAction* action, bool checked)
+	{
+		action->setIcon(checked ? QIcon(":/svg/check.svg") : QIcon());
+	}
+}
 
 PreviewAllMenu::PreviewAllMenu(QWidget* parent /*= nullptr*/)
 	: QMenu(parent)
@@ -24,6 +34,9 @@ void PreviewAllMenu::initUi()
 	m_actImagePreview->setCheckable(true);
 	m_actArchivePreview->setCheckable(true);
 	m_actMarkdownPreview->setCheckable(true);
+	m_actImagePreview->setIconVisibleInMenu(true);
+	m_actArchivePreview->setIconVisibleInMenu(true);
+	m_actMarkdownPreview->setIconVisibleInMenu(true);
 
 	addSeparator();
 	m_actHelp = addAction(tr("Help"));
@@ -35,7 +48,8 @@ void PreviewAllMenu::initConnect()
 {
 	connect(m_actExit, &QAction::triggered, qApp, &QCoreApplication::quit);
 	connect(m_actHelp, &QAction::triggered, this, &PreviewAllMenu::showHelpPage);
-	connect(m_actImagePreview, &QAction::toggled, this, [](bool checked) {
+	connect(m_actImagePreview, &QAction::toggled, this, [this](bool checked) {
+		updateCheckIcon(m_actImagePreview, checked);
 		if (checked)
 			PreviewAllRegister::registerExtentions(PreviewAllRegister::imageExtList);
 		else
@@ -44,7 +58,8 @@ void PreviewAllMenu::initConnect()
 		settings.setValue("switchState/image", checked);
 	});
 
-	connect(m_actArchivePreview, &QAction::toggled, this, [](bool checked) {
+	connect(m_actArchivePreview, &QAction::toggled, this, [this](bool checked) {
+		updateCheckIcon(m_actArchivePreview, checked);
 		if (checked)
 			PreviewAllRegister::registerExtentions(PreviewAllRegister::archiveExtList);
 		else
@@ -52,7 +67,8 @@ void PreviewAllMenu::initConnect()
 		QSettings settings;
 		settings.setValue("switchState/archive", checked);
 	});
-	connect(m_actMarkdownPreview, &QAction::toggled, this, [](bool checked) {
+	connect(m_actMarkdownPreview, &QAction::toggled, this, [this](bool checked) {
+		updateCheckIcon(m_actMarkdownPreview, checked);
 		if (checked)
 			PreviewAllRegister::registerExtentions(PreviewAllRegister::markdownExtList);
 		else

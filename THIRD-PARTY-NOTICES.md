@@ -10,7 +10,7 @@ This file contains the licenses and notices for third-party software used by thi
 - **License:** GNU LGPL v2.1 + unRAR restriction
 - **Copyright:** Copyright (C) 1999-2025 Igor Pavlov
 
-7-Zip is used for archive (`.zip`, `.rar`, `.7z`) parsing and extraction.
+7-Zip is used for archive (`.zip`, `.rar`, `.7z`) parsing.
 
 ### License Text
 
@@ -51,39 +51,4 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-```
-
----
-
-## KDE Frameworks 5 Syntax Highlighting
-
-- **Website:** https://invent.kde.org/frameworks/syntax-highlighting
-- **License:** MIT
-- **Copyright:** Copyright (C) KDE contributors
-
-KF5 Syntax Highlighting is used for code and text syntax highlighting in the preview pane.
-
-### License Text
-
-```
-MIT License
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```

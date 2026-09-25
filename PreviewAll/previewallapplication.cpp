@@ -2,7 +2,8 @@
 #include "previewallregister.h"
 #include "previewarchive/archivepreviewwidget.h"
 #include "previewimage/imageviewerwidget.h"
-#include "previewmarkdown/markdownpreviewwidget.h"
+#include "previewmd/markdownpreviewwidget.h"
+#include "previewloadpool.h"
 #include <QLocalSocket>
 #include <QFileInfo>
 #include <QTranslator>
@@ -21,7 +22,10 @@ PreviewAllApplication::PreviewAllApplication(int& argc, char** argv)
 }
 
 PreviewAllApplication::~PreviewAllApplication()
-{}
+{
+	m_widgetHash.clear();
+	previewLoadPool().waitForDone();
+}
 
 void PreviewAllApplication::initTranslations()
 {
@@ -59,20 +63,33 @@ HWND PreviewAllApplication::handleCreateCmd(HWND hwndParent, const QString& file
 		return nullptr;
 
 	HWND hwndPreview = reinterpret_cast<HWND>(previewWidget->winId());
-	SetParent(hwndPreview, hwndParent);
+	const LONG_PTR style = GetWindowLongPtrW(hwndPreview, GWL_STYLE);
+	SetWindowLongPtrW(hwndPreview, GWL_STYLE, (style & ~WS_POPUP) | WS_CHILD);
+	SetLastError(ERROR_SUCCESS);
+	if (!SetParent(hwndPreview, hwndParent) && GetLastError() != ERROR_SUCCESS)
+		return nullptr;
+	SetWindowPos(hwndPreview, nullptr, 0, 0, 0, 0,
+		SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
 	previewWidget->show();
 	m_widgetHash[hwndPreview] = previewWidget;
 	return hwndPreview;
 }
 
-void PreviewAllApplication::handleResizeCmd(HWND hwndPreview, int width, int height)
+void PreviewAllApplication::handleResizeCmd(HWND hwndPreview, HWND hwndParent, const RECT& rect)
 {
-	if (m_widgetHash.contains(hwndPreview))
+	if (!m_widgetHash.contains(hwndPreview) || !IsWindow(hwndParent))
+		return;
+
+	if (GetParent(hwndPreview) != hwndParent)
 	{
-		auto previewWidget = m_widgetHash.value(hwndPreview);
-		qreal ratio = previewWidget->devicePixelRatioF();
-		previewWidget->setGeometry(0, 0, width / ratio, height / ratio);
+		SetLastError(ERROR_SUCCESS);
+		if (!SetParent(hwndPreview, hwndParent) && GetLastError() != ERROR_SUCCESS)
+			return;
 	}
+
+	SetWindowPos(hwndPreview, nullptr, rect.left, rect.top,
+		qMax(0L, rect.right - rect.left), qMax(0L, rect.bottom - rect.top),
+		SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 void PreviewAllApplication::handleCloseCmd(HWND hwndPreview)
@@ -144,12 +161,12 @@ void PreviewAllApplication::onReadyRead()
 		clientSocket->write(response);
 		clientSocket->flush();
 	}
-	else if (command == "RESIZE" && parts.size() == 4)
+	else if (command == "RESIZE" && parts.size() == 7)
 	{
 		HWND hwndPreview = reinterpret_cast<HWND>(parts[1].toULongLong());
-		int width = parts[2].toInt();
-		int height = parts[3].toInt();
-		handleResizeCmd(hwndPreview, width, height);
+		HWND hwndParent = reinterpret_cast<HWND>(parts[2].toULongLong());
+		RECT rect = { parts[3].toInt(), parts[4].toInt(), parts[5].toInt(), parts[6].toInt() };
+		handleResizeCmd(hwndPreview, hwndParent, rect);
 	}
 	else if (command == "CLOSE" && parts.size() == 2)
 	{
@@ -158,4 +175,3 @@ void PreviewAllApplication::onReadyRead()
 	}
 
 }
-

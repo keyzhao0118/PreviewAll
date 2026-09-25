@@ -4,7 +4,7 @@
 ;  Requirements:
 ;    1. Default English, auto-detect UI language, support English + Chinese
 ;    2. Package all files from bin/ directory
-;    3. Reserved registry section for HKLM (to be filled later)
+;    3. Register the COM preview handler for HKLM and HKCU
 ; ================================================================
 
 #define MyAppName      "PreviewAll"
@@ -69,7 +69,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; ================================================================
 ; ★ Package everything in bin/ recursively
 ; ================================================================
-Source: "{#BinDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#BinDir}\*"; DestDir: "{app}"; Excludes: "PreviewAllSmoke.*,*.ilk,*.exp,*.lib,*.pdb"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 ; Start menu

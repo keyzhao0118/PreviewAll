@@ -1,0 +1,8 @@
+{
+  "name": "opengl",
+  "version-date": "2022-12-04",
+  "port-version": 4,
+  "description": "PreviewAll Windows SDK OpenGL import libraries (no full Khronos specification archive)",
+  "license": null,
+  "supports": "windows & !uwp & !mingw & !xbox"
+}

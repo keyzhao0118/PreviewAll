@@ -41,13 +41,15 @@ HWND PreviewAllRequester::sendCreateCmd(HWND hwndParent, const QString& filePath
 	return hwndPreview;
 }
 
-void PreviewAllRequester::postResizeCmd(HWND hwndPreview, int width, int height)
+void PreviewAllRequester::postResizeCmd(HWND hwndPreview, HWND hwndParent, const RECT& rect)
 {
 	QLocalSocket socket;
 	socket.connectToServer(s_previewAllSocketName);
 	if (socket.waitForConnected())
 	{
-		socket.write(QString("RESIZE %1 %2 %3\n").arg((qulonglong)hwndPreview).arg(width).arg(height).toUtf8());
+		socket.write(QString("RESIZE %1 %2 %3 %4 %5 %6\n")
+			.arg((qulonglong)hwndPreview).arg((qulonglong)hwndParent)
+			.arg(rect.left).arg(rect.top).arg(rect.right).arg(rect.bottom).toUtf8());
 		socket.flush();
 		socket.waitForBytesWritten();
 		socket.disconnectFromServer();

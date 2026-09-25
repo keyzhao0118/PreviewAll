@@ -109,7 +109,7 @@
       "path": "images/animated.gif",
       "category": "image",
       "scenario": "Animated GIF",
-      "expected": "animated preview",
+      "expected": "first-frame preview",
       "bytes": 4219,
       "sha256": "3b3f61cc5fe692a106766491cd9a3a10e38bc9d29eb6a77b38c21407644e07cc"
     },
@@ -117,7 +117,7 @@
       "path": "images/animated.webp",
       "category": "image",
       "scenario": "Animated WebP",
-      "expected": "preview first/animated frame depending on Qt plugin",
+      "expected": "first-frame preview",
       "bytes": 72844,
       "sha256": "accf0f754ce9a2e5552e57163c8938c57746eb84ee2dff57edcd8029e6d9d3bf"
     },
@@ -293,15 +293,15 @@
       "path": "markdown/long-line.md",
       "category": "markdown",
       "scenario": "Single 128 KiB line",
-      "expected": "render and source modes",
-      "bytes": 131089,
-      "sha256": "4d70b88c1a1557129a13e47b635a6cfc988f205742eae7897baeebdd77c78cad"
+      "expected": "rendered preview",
+      "bytes": 131086,
+      "sha256": "4ca276ba795f337c0b100466f2237220bfbc40f06f9d6b6b3950cfde6dadf112"
     },
     {
       "path": "markdown/rich-syntax.md",
       "category": "markdown",
       "scenario": "CommonMark and extended rich syntax",
-      "expected": "render and source modes",
+      "expected": "rendered preview",
       "bytes": 1271,
       "sha256": "0b3384252cccbc2a31fc6b111e8f39cd2a322bcb649d320e0c7a3e92394ad250"
     },
@@ -310,8 +310,8 @@
       "category": "markdown",
       "scenario": "UTF-8 BOM and Unicode",
       "expected": "render without BOM artifact",
-      "bytes": 37,
-      "sha256": "51f8f4a2f97daa15bab70ff7addbe7ced0f1f797bd8265da0d8c8a2a3daca72a"
+      "bytes": 34,
+      "sha256": "f214b44ea9fdc3c24518cb9b999271f787cf7b1d1a63bda07aad933a0e7db7df"
     }
   ]
 }

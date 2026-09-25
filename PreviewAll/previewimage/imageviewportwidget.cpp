@@ -1,14 +1,16 @@
 #include "imageviewportwidget.h"
+#include "previewloadpool.h"
+#include <QCoreApplication>
+#include <QImageReader>
 #include <QPainter>
 #include <QWheelEvent>
-#include <QImageReader>
 #include <QDebug>
+#include <QPointer>
 #include <QtMath>
 #include <QLayout>
-#include <QMovie>
 #include <QOpenGLFunctions>
 #include <QOpenGLContext>
-#include <QThread>
+#include <QRunnable>
 #include <utility>
 
 namespace
@@ -44,47 +46,18 @@ namespace
 ImageViewPortWidget::ImageViewPortWidget(const QString& imagePath, QWidget *parent)
 	: QOpenGLWidget(parent)
 	, m_imagePath(imagePath)
+	, m_loadCancelled(std::make_shared<std::atomic_bool>(false))
 {
 	setUpdateBehavior(QOpenGLWidget::NoPartialUpdate);
 	QImageReader::setAllocationLimit(s_imageAllocationLimitMb);
-
-	m_zoomTimeLine.setDuration(140);
-	m_zoomTimeLine.setUpdateInterval(1000 / 60);
-	m_zoomTimeLine.setEasingCurve(QEasingCurve::Linear);
-	connect(&m_zoomTimeLine, &QTimeLine::valueChanged, this, [this](qreal x) {
-		qreal ratio = m_zoomStopScaleFactor / m_zoomStartScaleFactor;
-		m_curScaleFactor = m_zoomStartScaleFactor * qPow(ratio, x);
-		updateScaleFactor();
-		updatePaintBasePos();
-		updatePaintOffset();
-		updateCursor();
-		update();
-	});
-	connect(&m_zoomTimeLine, &QTimeLine::finished, this, [this]() {
-		consumeAccumulateZoomSteps();
-	});
-
-	if (imagePath.endsWith(".gif", Qt::CaseInsensitive))
-		loadGif();
-	else
-		loadImage();
+	loadImage();
 }
 
 ImageViewPortWidget::~ImageViewPortWidget()
-{}
-
-
-void ImageViewPortWidget::onAdaptiveScale()
 {
-	m_zoomTimeLine.stop();
-	m_zoomStartScaleFactor = m_curScaleFactor;
-
-	if (m_image.isNull())
-		return;
-	m_paintSize = m_image.size().scaled(size(), Qt::KeepAspectRatio);
-	m_zoomStopScaleFactor = 1.0 * m_paintSize.width() / m_image.width();
-	m_zoomTimeLine.start();
+	m_loadCancelled->store(true, std::memory_order_relaxed);
 }
+
 
 void ImageViewPortWidget::resizeEvent(QResizeEvent* event)
 {
@@ -139,8 +112,13 @@ void ImageViewPortWidget::wheelEvent(QWheelEvent* event)
 		return;
 	}
 
-	int steps = deltaY / 120;
-	enqueueZoomOperation(steps);
+	const qreal steps = qreal(deltaY) / 120.0;
+	m_curScaleFactor *= qPow(s_zoomStepPerNotch, steps);
+	updateScaleFactor();
+	updatePaintBasePos();
+	updatePaintOffset();
+	updateCursor();
+	update();
 
 	event->accept();
 }
@@ -183,10 +161,11 @@ void ImageViewPortWidget::mouseReleaseEvent(QMouseEvent* event)
 
 void ImageViewPortWidget::loadImage()
 {
-	QPointer<ImageViewPortWidget> that(this);
+	QPointer<ImageViewPortWidget> receiver(this);
+	const auto cancelled = m_loadCancelled;
 	const QString imagePath = m_imagePath;
-	QThread* loadThread = QThread::create([that, imagePath]() {
-		if (!that)
+	previewLoadPool().start(QRunnable::create([receiver, cancelled, imagePath]() {
+		if (cancelled->load(std::memory_order_relaxed))
 			return;
 
 		QImageReader reader(imagePath);
@@ -198,54 +177,28 @@ void ImageViewPortWidget::loadImage()
 
 		QImage image = reader.read();
 		const QString error = image.isNull() ? reader.errorString() : QString();
-		QMetaObject::invokeMethod(that, [that, image = std::move(image), error]() mutable {
-			if (!that)
+		if (cancelled->load(std::memory_order_relaxed))
+			return;
+
+		QCoreApplication* application = QCoreApplication::instance();
+		if (!application)
+			return;
+		QMetaObject::invokeMethod(application, [receiver, cancelled, image = std::move(image), error]() mutable {
+			if (!receiver || cancelled->load(std::memory_order_relaxed))
 				return;
 
-			that->m_bIsLoading = false;
-			that->m_image = std::move(image);
-			if (that->m_image.isNull())
+			receiver->m_bIsLoading = false;
+			receiver->m_image = std::move(image);
+			if (receiver->m_image.isNull())
 			{
-				qWarning() << "Failed to load image:" << that->m_imagePath << error;
-				that->update();
+				qWarning() << "Failed to load image:" << receiver->m_imagePath << error;
+				receiver->update();
 				return;
 			}
 
-			that->resizeToFit();
+			receiver->resizeToFit();
 		}, Qt::QueuedConnection);
-	});
-
-	connect(loadThread, &QThread::finished, loadThread, &QObject::deleteLater);
-	loadThread->start();
-}
-
-void ImageViewPortWidget::loadGif()
-{
-	m_bLoadFirstGifFrame = true;
-	auto* gifMovie = new QMovie(m_imagePath, QByteArray(), this);
-	connect(gifMovie, &QMovie::frameChanged, this, [this, gifMovie]() {
-		m_bIsLoading = false;
-		m_image = gifMovie->currentImage();
-		if (m_bLoadFirstGifFrame)
-		{
-			m_bLoadFirstGifFrame = false;
-			resizeToFit();
-			return;
-		}
-
-		updateScaleFactor();
-		updatePaintBasePos();
-		updatePaintOffset();
-		updateCursor();
-		update();
-	});
-	connect(gifMovie, &QMovie::error, this, [this, gifMovie](QImageReader::ImageReaderError) {
-		m_bIsLoading = false;
-		m_image = QImage();
-		qWarning() << "Failed to load GIF:" << m_imagePath << gifMovie->lastErrorString();
-		update();
-	});
-	gifMovie->start();
+	}));
 }
 
 void ImageViewPortWidget::resizeToFit()
@@ -324,27 +277,5 @@ bool ImageViewPortWidget::canDrag()
 	return curPaintPos.x() < 0 || curPaintPos.y() < 0
 		|| curPaintPos.x() + m_paintSize.width() > width()
 		|| curPaintPos.y() + m_paintSize.height() > height();
-}
-
-void ImageViewPortWidget::enqueueZoomOperation(int steps)
-{
-	if (steps == 0)
-		return;
-
-	m_accumulateZoomSteps += steps;
-	if (m_zoomTimeLine.state() == QTimeLine::NotRunning)
-		consumeAccumulateZoomSteps();
-}
-
-void ImageViewPortWidget::consumeAccumulateZoomSteps()
-{
-	if (m_accumulateZoomSteps == 0)
-		return;
-
-	m_zoomTimeLine.stop();
-	m_zoomStartScaleFactor = m_curScaleFactor;
-	m_zoomStopScaleFactor = m_curScaleFactor * qPow(s_zoomStepPerNotch, m_accumulateZoomSteps);
-	m_accumulateZoomSteps = 0;
-	m_zoomTimeLine.start();
 }
 

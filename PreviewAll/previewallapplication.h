@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QLocalServer>
 #include <QWidget>
+#include <Windows.h>
 
 class PreviewAllApplication  : public QApplication
 {
@@ -17,7 +18,7 @@ public:
 
 private:
 	HWND handleCreateCmd(HWND hwndParent, const QString& filePath);
-	void handleResizeCmd(HWND hwndPreview, int width, int height);
+	void handleResizeCmd(HWND hwndPreview, HWND hwndParent, const RECT& rect);
 	void handleCloseCmd(HWND hwndPreview);
 	QSharedPointer<QWidget> createPreviewWidget(const QString& filePath);
 

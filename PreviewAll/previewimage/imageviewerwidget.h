@@ -2,7 +2,6 @@
 
 #include <QWidget>
 #include "imageviewportwidget.h"
-#include "imageviewstatusbar.h"
 
 class ImageViewerWidget : public QWidget
 {
@@ -13,6 +12,5 @@ public:
 
 private:
 	ImageViewPortWidget* m_imageViewPort = nullptr;
-	ImageViewStatusBar* m_statusBar = nullptr;
 };
 

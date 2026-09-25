@@ -72,9 +72,9 @@ def generate_images(root: Path) -> list[dict]:
         ImageDraw.Draw(frame).text((30, 140), f"Animated frame {index + 1}", fill="white")
         frames.append(frame)
     frames[0].save(output / "animated.gif", save_all=True, append_images=frames[1:], duration=350, loop=0)
-    records.append(record(output / "animated.gif", "image", "Animated GIF", "animated preview"))
+    records.append(record(output / "animated.gif", "image", "Animated GIF", "first-frame preview"))
     frames[0].save(output / "animated.webp", save_all=True, append_images=frames[1:], duration=350, loop=0, lossless=True)
-    records.append(record(output / "animated.webp", "image", "Animated WebP", "preview first/animated frame depending on Qt plugin"))
+    records.append(record(output / "animated.webp", "image", "Animated WebP", "first-frame preview"))
 
     rgba.save(output / "multipage.tiff", save_all=True, append_images=[rgba.transpose(Image.Transpose.FLIP_LEFT_RIGHT)], compression="raw")
     records.append(record(output / "multipage.tiff", "image", "Multipage TIFF", "first page preview"))
@@ -230,11 +230,11 @@ def generate_markdown(root: Path) -> list[dict]:
     output.mkdir(parents=True, exist_ok=True)
     records: list[dict] = []
     (output / "rich-syntax.md").write_text(RICH_MARKDOWN, encoding="utf-8", newline="\n")
-    records.append(record(output / "rich-syntax.md", "markdown", "CommonMark and extended rich syntax", "render and source modes"))
-    (output / "utf8-bom.markdown").write_text("# UTF-8 BOM\n\n中文 café 🚀\n", encoding="utf-8-sig")
+    records.append(record(output / "rich-syntax.md", "markdown", "CommonMark and extended rich syntax", "rendered preview"))
+    (output / "utf8-bom.markdown").write_text("# UTF-8 BOM\n\n中文 café 🚀\n", encoding="utf-8-sig", newline="\n")
     records.append(record(output / "utf8-bom.markdown", "markdown", "UTF-8 BOM and Unicode", "render without BOM artifact"))
-    (output / "long-line.md").write_text("# Long line\n\n" + ("0123456789abcdef" * 8192) + "\n", encoding="utf-8")
-    records.append(record(output / "long-line.md", "markdown", "Single 128 KiB line", "render and source modes"))
+    (output / "long-line.md").write_text("# Long line\n\n" + ("0123456789abcdef" * 8192) + "\n", encoding="utf-8", newline="\n")
+    records.append(record(output / "long-line.md", "markdown", "Single 128 KiB line", "rendered preview"))
     write_sized_markdown(output / "large-near-limit.md", 7 * MIB + 512 * 1024)
     records.append(record(output / "large-near-limit.md", "markdown", "Approximately 7.5 MiB", "successful load"))
     write_sized_markdown(output / "large-over-limit.md", 9 * MIB)
@@ -285,4 +285,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

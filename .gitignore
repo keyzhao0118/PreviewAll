@@ -1,3 +1,6 @@
-﻿.vs/
+.vs/
 out/
+vcpkg_installed/
 installer/Output/
+CMakeUserPresets.json
+test/.tools/

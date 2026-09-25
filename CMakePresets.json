@@ -8,10 +8,15 @@
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "environment": {
-        "VCPKG_ROOT": "D:/workspace/vcpkg"
+        "VCPKG_ROOT": "${sourceDir}/out/tools/vcpkg",
+        "VCPKG_DOWNLOADS": "${sourceDir}/out/downloads",
+        "VCPKG_BINARY_SOURCES": "clear;files,${sourceDir}/out/vcpkg-cache,readwrite",
+        "VCPKG_DISABLE_METRICS": "1"
       },
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "D:/workspace/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/out/tools/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "x64-windows",
+        "VCPKG_INSTALLED_DIR": "${sourceDir}/out/vcpkg_installed"
       },
       "condition": {
         "type": "equals",

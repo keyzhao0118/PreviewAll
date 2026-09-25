@@ -1,10 +1,10 @@
 #pragma once
 
 #include <QWidget>
-#include <QLabel>
-#include <QTreeWidget>
+#include <QSharedPointer>
 #include <QStackedLayout>
-#include <QPushButton>
+
+class QVBoxLayout;
 
 class ArchiveParser;
 
@@ -22,11 +22,8 @@ private slots:
 	void showErrorPage();
 	void showEncryptPage();
 	void showPreviewPage();
-	void onExtractBtnClicked();
 
 private:
-	void initStatusBar();
-
 	void createLoadingPage();
 	void createErrorPage();
 	void createEncryptPage();
@@ -41,10 +38,7 @@ private:
 	QWidget* m_errorPage = nullptr;
 	QWidget* m_encryptPage = nullptr;
 	QWidget* m_previewPage = nullptr;
-	QLabel* m_fileNameLabel = nullptr;
-	QPushButton* m_extractBtn = nullptr;
 
-	ArchiveParser* m_archiveParser = nullptr;
-	QThread* m_parserThread = nullptr;
+	QSharedPointer<ArchiveParser> m_archiveParser;
 
 };

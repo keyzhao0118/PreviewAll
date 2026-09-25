@@ -132,10 +132,16 @@ void ArchiveParser::parseArchive()
 
 	ArchiveOpenCallBack* openCallBackSpec = new ArchiveOpenCallBack();
 	CMyComPtr<IArchiveOpenCallback> openCallBack(openCallBackSpec);
-	connect(openCallBackSpec, &ArchiveOpenCallBack::requestPassword, this, &ArchiveParser::onRequestPassword);
+	connect(openCallBackSpec, &ArchiveOpenCallBack::requestPassword,
+		this, &ArchiveParser::onRequestPassword, Qt::DirectConnection);
+
+	if (checkStopParse())
+		return;
 
 	CMyComPtr<IInArchive> archive;
 	HRESULT hrOpen = tryOpenArchive(m_archivePath, openCallBack, archive);
+	if (checkStopParse())
+		return;
 	if (hrOpen != S_OK)
 	{
 		qDebug() << "ArchiveParser: Failed to open archive.";

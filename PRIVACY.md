@@ -29,7 +29,7 @@ PreviewAll 是一款开源免费软件。我们非常重视您的隐私。
 
 ### 联系方式
 
-如有隐私相关问题，请通过以下方式��系：
+如有隐私相关问题，请通过以下方式联系：
 
 - GitHub Issues: [https://github.com/keyzhao0118/PreviewAll/issues](https://github.com/keyzhao0118/PreviewAll/issues)
 

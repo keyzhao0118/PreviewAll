@@ -23,6 +23,7 @@ namespace
 		return QDir::cleanPath(QDir::fromNativeSeparators(actual)).compare(
 			QDir::cleanPath(QDir::fromNativeSeparators(expected)), Qt::CaseInsensitive) == 0;
 	}
+
 }
 
 const QString PreviewAllRegister::REGISTER_HANDLER_ARGUMENT = "--register-preview-handler";
@@ -40,6 +41,14 @@ bool PreviewAllRegister::ensureHandlerRegistered()
 {
 	if (isRegisteredHandler())
 		return true;
+
+	// Repair the current-user registration without elevation only when the
+	// machine-wide registration is complete and points at this build.
+	if (isRegisteredHandler(RegistryScope::LocalMachine)
+		&& registerHandler(RegistryScope::CurrentUser))
+	{
+		return true;
+	}
 
 	const std::wstring executable = QDir::toNativeSeparators(QCoreApplication::applicationFilePath()).toStdWString();
 	const std::wstring arguments = REGISTER_HANDLER_ARGUMENT.toStdWString();
@@ -179,8 +188,9 @@ bool PreviewAllRegister::isRegisteredHandler(RegistryScope scope)
 	QSettings previewHandlers(rootName + "\\Software\\Microsoft\\Windows\\CurrentVersion\\PreviewHandlers", QSettings::NativeFormat);
 
 	const QVariant isolationValue = clsidRoot.value("DisableLowILProcessIsolation");
-	const bool isolationValueMatches = isolationValue.metaType().id() == QMetaType::Int
-		&& isolationValue.toInt() == 1;
+	bool isolationValueIsNumeric = false;
+	const bool isolationValueMatches = isolationValue.toInt(&isolationValueIsNumeric) == 1
+		&& isolationValueIsNumeric;
 
 	return clsidRoot.value(".").toString() == NAME_PreviewAllHandler
 		&& clsidRoot.value("AppID").toString() == APPID_PREVHOST64

@@ -4,148 +4,82 @@
 <context>
     <name>ArchivePreviewWidget</name>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="174"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="159"/>
         <source>Enter password</source>
         <translation>Enter password</translation>
     </message>
     <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="111"/>
-        <source>Extract</source>
-        <translation>Extract</translation>
-    </message>
-    <message>
-        <location filename="../previewarchive/archivepreviewwidget.cpp" line="154"/>
+        <location filename="../previewarchive/archivepreviewwidget.cpp" line="139"/>
         <source>Failed to load archive</source>
         <translation>Failed to load archive</translation>
     </message>
 </context>
 <context>
-    <name>CodePreviewWidget</name>
-    <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="69"/>
-        <source>Search</source>
-        <translation>Search</translation>
-    </message>
-    <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="273"/>
-        <source>Line: %1, Char: %2</source>
-        <translation>Line: %1, Char: %2</translation>
-    </message>
-    <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="277"/>
-        <source>Line: %1/%2, Char: %3</source>
-        <translation>Line: %1/%2, Char: %3</translation>
-    </message>
-    <message>
-        <location filename="../previewcode/codepreviewwidget.cpp" line="150"/>
-        <source>Failed to load file</source>
-        <translation>Failed to load file</translation>
-    </message>
-</context>
-<context>
-    <name>CodeSearchBar</name>
-    <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="18"/>
-        <source>Search...</source>
-        <translation>Search...</translation>
-    </message>
-    <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="38"/>
-        <source>Match Case</source>
-        <translation>Match Case</translation>
-    </message>
-    <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="51"/>
-        <source>Previous Match</source>
-        <translation>Previous Match</translation>
-    </message>
-    <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="59"/>
-        <source>Next Match</source>
-        <translation>Next Match</translation>
-    </message>
-    <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="67"/>
-        <source>Close</source>
-        <translation>Close</translation>
-    </message>
-    <message>
-        <location filename="../previewcode/codesearchbar.cpp" line="107"/>
-        <source>No matches</source>
-        <translation>No matches</translation>
-    </message>
-</context>
-<context>
     <name>ImageViewPortWidget</name>
     <message>
-        <location filename="../previewimage/imageviewportwidget.cpp" line="110"/>
+        <location filename="../previewimage/imageviewportwidget.cpp" line="83"/>
         <source>Loading...</source>
         <translation>Loading...</translation>
     </message>
     <message>
-        <location filename="../previewimage/imageviewportwidget.cpp" line="110"/>
+        <location filename="../previewimage/imageviewportwidget.cpp" line="83"/>
         <source>Loading failed</source>
         <translation>Loading failed</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewStatusBar</name>
-    <message>
-        <location filename="../previewimage/imageviewstatusbar.cpp" line="25"/>
-        <source>Adaptive window</source>
-        <translation>Adaptive window</translation>
-    </message>
-</context>
-<context>
     <name>MarkdownPreviewWidget</name>
     <message>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="55"/>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="128"/>
-        <source>Show source</source>
-        <translation>Show source</translation>
+        <location filename="../previewmd/markdownpreviewwidget.cpp" line="151"/>
+        <source>Loading...</source>
+        <translation>Loading...</translation>
     </message>
     <message>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="88"/>
+        <location filename="../previewmd/markdownpreviewwidget.cpp" line="239"/>
         <source>Markdown file is unavailable or larger than 8 MiB.</source>
         <translation>Markdown file is unavailable or larger than 8 MiB.</translation>
     </message>
     <message>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="96"/>
+        <location filename="../previewmd/markdownpreviewwidget.cpp" line="241"/>
         <source>Failed to load Markdown file.</source>
         <translation>Failed to load Markdown file.</translation>
-    </message>
-    <message>
-        <location filename="../previewmarkdown/markdownpreviewwidget.cpp" line="128"/>
-        <source>Show rendered Markdown</source>
-        <translation>Show rendered Markdown</translation>
     </message>
 </context>
 <context>
     <name>PreviewAllMenu</name>
     <message>
-        <location filename="../previewallmenu.cpp" line="20"/>
+        <location filename="../previewallmenu.cpp" line="30"/>
         <source>Preview Image</source>
         <translation>Preview Image</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="21"/>
+        <location filename="../previewallmenu.cpp" line="31"/>
         <source>Preview Archive</source>
         <translation>Preview Archive</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="22"/>
+        <location filename="../previewallmenu.cpp" line="32"/>
         <source>Preview Markdown</source>
         <translation>Preview Markdown</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="29"/>
+        <location filename="../previewallmenu.cpp" line="42"/>
         <source>Help</source>
         <translation>Help</translation>
     </message>
     <message>
-        <location filename="../previewallmenu.cpp" line="31"/>
+        <location filename="../previewallmenu.cpp" line="44"/>
         <source>Exit</source>
         <translation>Exit</translation>
+    </message>
+</context>
+<context>
+    <name>PreviewTitleBar</name>
+    <message>
+        <location filename="../previewtitlebar.cpp" line="33"/>
+        <location filename="../previewtitlebar.cpp" line="34"/>
+        <source>Open with default application</source>
+        <translation>Open with default application</translation>
     </message>
 </context>
 </TS>

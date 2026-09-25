@@ -4,9 +4,9 @@
 #include <QString>
 #include <QWidget>
 
-class QPlainTextEdit;
-class QPushButton;
-class QStackedWidget;
+#include <atomic>
+#include <memory>
+
 class QTextBrowser;
 
 class MarkdownPreviewWidget : public QWidget
@@ -15,17 +15,20 @@ class MarkdownPreviewWidget : public QWidget
 
 public:
 	explicit MarkdownPreviewWidget(const QString& filePath, QWidget* parent = nullptr);
+	~MarkdownPreviewWidget() override;
 
 private:
-	void initUi();
+	enum class LoadError
+	{
+		None,
+		Unavailable,
+		ReadFailed,
+	};
+
 	void loadFile();
-	void setSourceMode(bool sourceMode);
-	QString decodeText(const QByteArray& bytes) const;
+	void showLoadError(LoadError error);
 
 	QString m_filePath;
-	QString m_markdown;
-	QPushButton* m_sourceButton = nullptr;
-	QStackedWidget* m_viewStack = nullptr;
+	std::shared_ptr<std::atomic_bool> m_loadCancelled;
 	QTextBrowser* m_renderedView = nullptr;
-	QPlainTextEdit* m_sourceView = nullptr;
 };

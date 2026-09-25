@@ -1,13 +1,29 @@
 #include "archivepreviewwidget.h"
 #include "archiveparser.h"
 #include "archivetreewidget.h"
-#include "previewtoolbarstyle.h"
-#include <QThread>
+#include "previewtitlebar.h"
+#include <QRunnable>
+#include <QThreadPool>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QMovie>
-#include <QSvgWidget>
-#include <QFileInfo>
+#include <QVBoxLayout>
+
+namespace
+{
+	QThreadPool& archiveParsePool()
+	{
+		static QThreadPool pool;
+		static const bool configured = [] {
+			pool.setMaxThreadCount(2);
+			pool.setExpiryTimeout(30000);
+			return true;
+		}();
+		Q_UNUSED(configured);
+		return pool;
+	}
+}
 
 ArchivePreviewWidget::ArchivePreviewWidget(const QString& filePath, QWidget* parent)
 	: QWidget(parent)
@@ -17,7 +33,7 @@ ArchivePreviewWidget::ArchivePreviewWidget(const QString& filePath, QWidget* par
 	m_mainLayout = new QVBoxLayout(this);
 	m_mainLayout->setContentsMargins(0, 0, 0, 0);
 	m_mainLayout->setSpacing(0);
-	initStatusBar();
+	m_mainLayout->addWidget(new PreviewTitleBar(m_filePath, this));
 	m_stackedLayout = new QStackedLayout();
 	m_mainLayout->addLayout(m_stackedLayout);
 
@@ -26,27 +42,28 @@ ArchivePreviewWidget::ArchivePreviewWidget(const QString& filePath, QWidget* par
 
 ArchivePreviewWidget::~ArchivePreviewWidget()
 {
-	m_archiveParser->stopParse();
-	m_parserThread->quit();
+	if (m_archiveParser)
+		m_archiveParser->stopParse();
 }
 
 void ArchivePreviewWidget::startParseArchive()
 {
 	showLoadingPage();
 
-	m_parserThread = new QThread;
-	m_archiveParser = new ArchiveParser(m_filePath);
-	m_archiveParser->moveToThread(m_parserThread);
+	m_archiveParser = QSharedPointer<ArchiveParser>(new ArchiveParser(m_filePath), [](ArchiveParser* parser) {
+		parser->deleteLater();
+	});
+	connect(m_archiveParser.data(), &ArchiveParser::requestPassword,
+		this, &ArchivePreviewWidget::showEncryptPage, Qt::QueuedConnection);
+	connect(m_archiveParser.data(), &ArchiveParser::parseFailed,
+		this, &ArchivePreviewWidget::showErrorPage, Qt::QueuedConnection);
+	connect(m_archiveParser.data(), &ArchiveParser::parseSucceed,
+		this, &ArchivePreviewWidget::showPreviewPage, Qt::QueuedConnection);
 
-	connect(m_parserThread, &QThread::started, m_archiveParser, &ArchiveParser::parseArchive);
-	connect(m_archiveParser, &ArchiveParser::requestPassword, this, &ArchivePreviewWidget::showEncryptPage);
-	connect(m_archiveParser, &ArchiveParser::parseFailed, this, &ArchivePreviewWidget::showErrorPage);
-	connect(m_archiveParser, &ArchiveParser::parseSucceed, this, &ArchivePreviewWidget::showPreviewPage);
-
-	connect(m_parserThread, &QThread::finished, m_parserThread, &QThread::deleteLater);
-	connect(m_parserThread, &QThread::finished, m_archiveParser, &ArchiveParser::deleteLater);
-
-	m_parserThread->start();
+	const QSharedPointer<ArchiveParser> parser = m_archiveParser;
+	archiveParsePool().start(QRunnable::create([parser]() {
+		parser->parseArchive();
+	}));
 }
 
 void ArchivePreviewWidget::showLoadingPage()
@@ -91,38 +108,6 @@ void ArchivePreviewWidget::showPreviewPage()
 	}
 
 	m_stackedLayout->setCurrentWidget(m_previewPage);
-}
-
-void ArchivePreviewWidget::initStatusBar()
-{
-	QWidget* statusBar = new QWidget(this);
-	QHBoxLayout* statusBarLayout = new QHBoxLayout(statusBar);
-	PreviewToolbarStyle::apply(statusBar, statusBarLayout);
-
-	QSvgWidget* svgWidget = new QSvgWidget(":/svg/archive.svg");
-	svgWidget->setFixedSize(PreviewToolbarStyle::ContentIconSize, PreviewToolbarStyle::ContentIconSize);
-
-	m_fileNameLabel = new QLabel(QFileInfo(m_filePath).fileName(), this);
-	m_fileNameLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-
-	m_extractBtn = new QPushButton(statusBar);
-	m_extractBtn->setVisible(false);
-	m_extractBtn->setIcon(QIcon(":/svg/extract.svg"));
-	m_extractBtn->setToolTip(tr("Extract"));
-	PreviewToolbarStyle::applyButton(m_extractBtn);
-	connect(m_extractBtn, &QPushButton::clicked, this, &ArchivePreviewWidget::onExtractBtnClicked);
-
-	statusBarLayout->addWidget(svgWidget);
-	statusBarLayout->addWidget(m_fileNameLabel);
-	statusBarLayout->addStretch();
-	statusBarLayout->addWidget(m_extractBtn);
-
-	m_mainLayout->addWidget(statusBar);
-}
-
-void ArchivePreviewWidget::onExtractBtnClicked()
-{
-	// TODO: implement extraction
 }
 
 void ArchivePreviewWidget::createLoadingPage()

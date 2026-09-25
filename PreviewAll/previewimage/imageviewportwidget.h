@@ -2,7 +2,9 @@
 
 #include <QImage>
 #include <QOpenGLWidget>
-#include <QTimeLine>
+
+#include <atomic>
+#include <memory>
 
 class ImageViewPortWidget  : public QOpenGLWidget
 {
@@ -11,9 +13,6 @@ class ImageViewPortWidget  : public QOpenGLWidget
 public:
 	ImageViewPortWidget(const QString& imagePath, QWidget *parent);
 	~ImageViewPortWidget();
-
-public slots:
-	void onAdaptiveScale();
 
 protected:
 	virtual void resizeEvent(QResizeEvent* event) override;
@@ -25,7 +24,6 @@ protected:
 
 private:
 	void loadImage();
-	void loadGif();
 	void resizeToFit();
 	void updateScaleFactor();
 	void updatePaintBasePos();
@@ -33,11 +31,9 @@ private:
 	void updateCursor();
 	bool canDrag();
 
-	void enqueueZoomOperation(int steps);
-	void consumeAccumulateZoomSteps();
-
 private:
 	QString m_imagePath;
+	std::shared_ptr<std::atomic_bool> m_loadCancelled;
 
 	QImage m_image;
 
@@ -50,12 +46,6 @@ private:
 	bool m_bDragging = false;
 	QPoint m_lastMousePos;
 
-	qreal m_zoomStartScaleFactor = 1.0;
-	qreal m_zoomStopScaleFactor = 1.0;
-	int m_accumulateZoomSteps = 0;
-	QTimeLine m_zoomTimeLine;
-
-	bool m_bLoadFirstGifFrame = false;
 	bool m_bIsLoading = true;
 };
 

@@ -22,11 +22,7 @@ CPreviewAllHandler::CPreviewAllHandler()
 
 CPreviewAllHandler::~CPreviewAllHandler()
 {
-	if (m_hwndPreview)
-	{
-		DestroyWindow(m_hwndPreview);
-	}
-
+	Unload();
 	SafeRelease(&m_punkSite);
 }
 
@@ -169,13 +165,11 @@ HRESULT CPreviewAllHandler::Unload()
 // IOleWindow methods
 HRESULT CPreviewAllHandler::GetWindow(HWND* phwnd)
 {
-	HRESULT hr = E_INVALIDARG;
-	if (phwnd)
-	{
-		*phwnd = m_hwndParent;
-		hr = S_OK;
-	}
-	return hr;
+	if (!phwnd)
+		return E_INVALIDARG;
+
+	*phwnd = m_hwndPreview;
+	return m_hwndPreview ? S_OK : E_FAIL;
 }
 
 HRESULT CPreviewAllHandler::ContextSensitiveHelp(BOOL)

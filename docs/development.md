@@ -40,6 +40,7 @@ Visual Studio 应安装“使用 C++ 的桌面开发”及 Windows SDK。
 | `qtsvg` | SVG 图像解码和 SVG 图标加载 |
 | `qtimageformats[tiff,webp]` | TIFF / WebP 运行时图片插件，不能仅凭 EXE 链接依赖判断是否需要 |
 | `qttools[linguist]` | lupdate / lrelease，编译中英文翻译 |
+| `qttranslations` | Qt Widgets 自带菜单等界面文字的多语言翻译，由 windeployqt 部署 |
 | `7zip` | 7-Zip 头文件、导入库、运行时 DLL |
 
 间接依赖由 vcpkg 自动安装。当前不需要 Qt Creator、QML、WebEngine 或 Python 才能编译主程序。

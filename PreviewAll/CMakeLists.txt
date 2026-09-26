@@ -93,7 +93,6 @@ if(WIN32)
 	add_custom_command(TARGET PreviewAll POST_BUILD
 		COMMAND "$<IF:$<CONFIG:Debug>,${WINDEPLOYQT_DEBUG_EXECUTABLE},${WINDEPLOYQT_EXECUTABLE}>"
 			--dir "$<TARGET_FILE_DIR:PreviewAll>"
-			--no-translations
 			--compiler-runtime
 			"$<IF:$<CONFIG:Debug>,--debug,--release>"
 			"$<TARGET_FILE:PreviewAll>"

@@ -6,6 +6,7 @@
 #include "previewloadpool.h"
 #include <QLocalSocket>
 #include <QFileInfo>
+#include <QLocale>
 #include <QTranslator>
 #include <Windows.h>
 
@@ -29,14 +30,17 @@ PreviewAllApplication::~PreviewAllApplication()
 
 void PreviewAllApplication::initTranslations()
 {
-	QTranslator* qtTranslator = new QTranslator(this);
+	const QLocale locale = QLocale::system();
+	const QString translationsDir = QCoreApplication::applicationDirPath() + "/translations";
 
-	QString locale = QLocale::system().name();
-	QString appDir = QCoreApplication::applicationDirPath();
-	QString qmFilePath = QString("%1/translations/previewall_%2.qm").arg(appDir).arg(locale);
-
-	if (qtTranslator->load(qmFilePath))
+	// Qt Widgets creates its own context menus (for example, QTextBrowser's).
+	auto* qtTranslator = new QTranslator(this);
+	if (qtTranslator->load(locale, "qt", "_", translationsDir))
 		installTranslator(qtTranslator);
+
+	auto* appTranslator = new QTranslator(this);
+	if (appTranslator->load(locale, "previewall", "_", translationsDir))
+		installTranslator(appTranslator);
 }
 
 void PreviewAllApplication::startWindowManageService()

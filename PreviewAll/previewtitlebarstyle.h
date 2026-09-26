@@ -9,7 +9,7 @@
 namespace PreviewTitleBarStyle
 {
 	inline constexpr int Height = 34;
-	inline constexpr int IconSize = 22;
+	inline constexpr int IconSize = 16;
 	inline constexpr int ButtonSize = 28;
 	inline constexpr int ButtonIconSize = 18;
 	inline constexpr int FontPointSize = 10;

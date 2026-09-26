@@ -2,6 +2,7 @@
 #include "previewarchive/archivepreviewwidget.h"
 #include "previewarchive/archivetreewidget.h"
 #include "previewmd/markdownpreviewwidget.h"
+#include <QAction>
 #include <QApplication>
 #include <QDir>
 #include <QEventLoop>
@@ -9,6 +10,8 @@
 #include <QFont>
 #include <QLibrary>
 #include <QLineEdit>
+#include <QLocale>
+#include <QMenu>
 #include <QPushButton>
 #include <QScrollBar>
 #include <QTextBrowser>
@@ -20,6 +23,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <cstdio>
+#include <memory>
 
 // Exercise deployed plugins and the actual archive parser without registry writes.
 int main(int argc, char** argv)
@@ -159,6 +163,21 @@ int main(int argc, char** argv)
         QTranslator translator;
         check(translator.load(QCoreApplication::applicationDirPath() + "/translations/previewall_" + locale + ".qm"),
               QString("Translation: ") + locale);
+    }
+    QTranslator qtTranslator;
+    const bool qtTranslationLoaded = qtTranslator.load(
+        QLocale("zh_CN"), "qt", "_", QCoreApplication::applicationDirPath() + "/translations");
+    check(qtTranslationLoaded, "Qt translation: zh_CN");
+    if (qtTranslationLoaded) {
+        app.installTranslator(&qtTranslator);
+        QTextBrowser browser;
+        browser.setPlainText("PreviewAll");
+        std::unique_ptr<QMenu> menu(browser.createStandardContextMenu());
+        bool hasChineseSelectAll = false;
+        for (const QAction* action : menu->actions())
+            hasChineseSelectAll |= action->text().contains(QString::fromUtf8("全选"));
+        check(hasChineseSelectAll, "Qt text context menu follows the Chinese UI locale");
+        app.removeTranslator(&qtTranslator);
     }
     return failures ? 1 : 0;
 }

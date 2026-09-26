@@ -18,7 +18,7 @@
 
 创建调用链为：资源管理器 → Windows COM 预览宿主 → Handler DLL → `QLocalSocket` → 托盘程序的 `QLocalServer` → 对应 Qt 预览组件。
 通信协议只有 `CREATE` 和 `CLOSE`，文件路径使用 UTF-8 + Base64，窗口句柄使用十进制字符串。
-当前实现按先 `SetWindow`、后 `DoPreview` 的流程工作：Handler 先记录宿主窗口和预览区域，托盘程序创建 Qt 预览窗口后将它设为 Win32 子窗口，通过 `SetParent` 嵌入宿主。预览宿主随后调用 `SetRect` 时，Handler 直接按宿主给出的像素坐标同步调整子窗口边界，使拖动窗格分隔线时窗口边缘及时跟随。若父窗口与记录值不一致，则跳过该次尺寸调整。不按子窗口的 DPI 比例换算宿主尺寸。
+当前实现按先 `SetWindow`、后 `DoPreview` 的流程工作：Handler 记录宿主窗口和预览区域，托盘程序通过 `QWindow::fromWinId` 包装宿主 HWND，再用 `QWindow::setParent` 建立 Qt 与 Win32 一致的父子窗口关系。宿主调用 `SetRect` 时，Handler 在临时的 Per-Monitor v2 DPI 上下文中把宿主提供的物理像素矩形同步给子窗口，然后恢复原线程上下文；拖动分隔线只走这一条尺寸更新路径。跨不同缩放屏幕时，Qt 会处理子窗口的 `WM_DPICHANGED_AFTERPARENT` 并更新原生 DPI；托盘程序随后按资源管理器顶层宿主窗口所在显示器同步外部父 `QWindow` 的 `QScreen`，让 Qt 子窗口的字体和布局使用新屏幕的缩放比例，最后按宿主客户区尺寸对齐一次。不能用预览子窗格自身的显示器归属判断，因为向左拖动时，资源管理器 DPI 已经切换，而子窗格的大部分区域可能仍留在原屏幕。普通移动、Qt 的 Resize/Move 事件和分隔线拖动均不触发额外校正，也不增加 IPC。
 
 当前实际注册的扩展名如下：图片 `.png`、`.jpg`、`.jpeg`、`.tif`、`.tiff`、`.bmp`、`.webp`、`.ico`、`.svg`、`.gif`；压缩包 `.zip`、`.rar`、`.7z`；Markdown `.md`、`.markdown`。三个预览共用同一个标题栏，内容区分别只提供图片缩放/拖动、压缩包树形目录和 Markdown 渲染。
 

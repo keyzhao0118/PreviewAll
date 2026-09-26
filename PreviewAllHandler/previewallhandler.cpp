@@ -146,10 +146,17 @@ void CPreviewAllHandler::resizePreview()
 	if (GetParent(m_hwndPreview) != m_hwndParent)
 		return;
 
+	// The preview host thread can retain the primary monitor's DPI context.
+	// SetRect already supplies physical host pixels; use a per-monitor context
+	// so SetWindowPos does not virtualize them when Explorer is on another screen.
+	const DPI_AWARENESS_CONTEXT previousDpiContext =
+		SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 	SetWindowPos(m_hwndPreview, nullptr, m_rcParent.left, m_rcParent.top,
 		qMax(0L, m_rcParent.right - m_rcParent.left),
 		qMax(0L, m_rcParent.bottom - m_rcParent.top),
 		SWP_NOZORDER | SWP_NOACTIVATE);
+	if (previousDpiContext)
+		SetThreadDpiAwarenessContext(previousDpiContext);
 }
 
 HRESULT CPreviewAllHandler::Unload()

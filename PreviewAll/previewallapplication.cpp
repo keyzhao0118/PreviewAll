@@ -6,14 +6,69 @@
 #include "previewloadpool.h"
 #include <QLocalSocket>
 #include <QFileInfo>
+#include <QGuiApplication>
 #include <QLocale>
+#include <QScreen>
 #include <QTranslator>
 #include <Windows.h>
+#include <commctrl.h>
+
+#pragma comment(lib, "Comctl32.lib")
 
 namespace
 {
 
 	const QString s_previewAllSocketName = "PreviewAllSocket_{0A869132-411F-41ED-9CD7-47659A55569F}";
+	constexpr UINT_PTR s_previewSubclassId = 1;
+
+	QScreen* screenForWindow(HWND hwnd)
+	{
+		const HMONITOR monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+		MONITORINFO info{sizeof(info)};
+		if (!GetMonitorInfoW(monitor, &info))
+			return nullptr;
+
+		// Qt preserves native monitor origins even when it scales screen sizes.
+		const QPoint origin(info.rcMonitor.left, info.rcMonitor.top);
+		for (QScreen* screen : QGuiApplication::screens())
+		{
+			if (screen->geometry().topLeft() == origin)
+				return screen;
+		}
+		return nullptr;
+	}
+
+	LRESULT CALLBACK previewWindowProc(HWND hwnd, UINT message, WPARAM wParam,
+		LPARAM lParam, UINT_PTR subclassId, DWORD_PTR refData)
+	{
+		const LRESULT result = DefSubclassProc(hwnd, message, wParam, lParam);
+		if (message == WM_DPICHANGED_AFTERPARENT)
+		{
+			auto* hostWindow = reinterpret_cast<QWindow*>(refData);
+			HWND hwndParent = reinterpret_cast<HWND>(hostWindow->winId());
+			RECT rect{};
+			if (GetParent(hwnd) == hwndParent)
+			{
+				// The native child DPI changed, but Qt children inherit the
+				// foreign parent's QScreen, which otherwise stays at its old DPI.
+				// During a drag the child can still mostly occupy the old monitor;
+				// the top-level host is the window whose DPI Windows switched.
+				HWND hwndRoot = GetAncestor(hwndParent, GA_ROOT);
+				if (QScreen* screen = screenForWindow(hwndRoot); screen && hostWindow->screen() != screen)
+					hostWindow->setScreen(screen);
+
+				// The preview host does not call SetRect for a monitor change.
+				if (GetClientRect(hwndParent, &rect))
+					SetWindowPos(hwnd, nullptr, 0, 0, rect.right, rect.bottom,
+						SWP_NOZORDER | SWP_NOACTIVATE);
+			}
+		}
+		else if (message == WM_NCDESTROY)
+		{
+			RemoveWindowSubclass(hwnd, previewWindowProc, subclassId);
+		}
+		return result;
+	}
 
 }
 
@@ -24,7 +79,7 @@ PreviewAllApplication::PreviewAllApplication(int& argc, char** argv)
 
 PreviewAllApplication::~PreviewAllApplication()
 {
-	m_widgetHash.clear();
+	m_previews.clear();
 	previewLoadPool().waitForDone();
 }
 
@@ -62,30 +117,33 @@ void PreviewAllApplication::startWindowManageService()
 
 HWND PreviewAllApplication::handleCreateCmd(HWND hwndParent, const QString& filePath)
 {
+	QSharedPointer<QWindow> hostWindow;
 	QSharedPointer<QWidget> previewWidget = createPreviewWidget(filePath);
 	if (!previewWidget)
 		return nullptr;
 
 	HWND hwndPreview = reinterpret_cast<HWND>(previewWidget->winId());
-	const LONG_PTR style = GetWindowLongPtrW(hwndPreview, GWL_STYLE);
-	SetWindowLongPtrW(hwndPreview, GWL_STYLE, (style & ~WS_POPUP) | WS_CHILD);
-	SetLastError(ERROR_SUCCESS);
-	if (!SetParent(hwndPreview, hwndParent) && GetLastError() != ERROR_SUCCESS)
+	hostWindow.reset(QWindow::fromWinId(reinterpret_cast<WId>(hwndParent)));
+	if (!hostWindow || !previewWidget->windowHandle())
 		return nullptr;
-	SetWindowPos(hwndPreview, nullptr, 0, 0, 0, 0,
-		SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+	previewWidget->windowHandle()->setParent(hostWindow.data());
+	if (GetParent(hwndPreview) != hwndParent)
+		return nullptr;
 	previewWidget->show();
-	m_widgetHash[hwndPreview] = previewWidget;
+	if (!SetWindowSubclass(hwndPreview, previewWindowProc, s_previewSubclassId,
+		reinterpret_cast<DWORD_PTR>(hostWindow.data())))
+		return nullptr;
+	m_previews.insert(hwndPreview, {hostWindow, previewWidget});
 	return hwndPreview;
 }
 
 void PreviewAllApplication::handleCloseCmd(HWND hwndPreview)
 {
-	if (m_widgetHash.contains(hwndPreview))
-	{
-		m_widgetHash[hwndPreview]->close();
-		m_widgetHash.remove(hwndPreview);
-	}
+	EmbeddedPreview preview = m_previews.take(hwndPreview);
+	if (!preview.widget)
+		return;
+	RemoveWindowSubclass(hwndPreview, previewWindowProc, s_previewSubclassId);
+	preview.widget->close();
 }
 
 QSharedPointer<QWidget> PreviewAllApplication::createPreviewWidget(const QString& filePath)

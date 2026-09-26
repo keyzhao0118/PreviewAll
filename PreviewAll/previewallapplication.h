@@ -1,8 +1,11 @@
 #pragma once
 
 #include <QApplication>
+#include <QHash>
 #include <QLocalServer>
+#include <QSharedPointer>
 #include <QWidget>
+#include <QWindow>
 #include <Windows.h>
 
 class PreviewAllApplication  : public QApplication
@@ -26,8 +29,15 @@ private slots:
 	void onReadyRead();
 
 private:
+	struct EmbeddedPreview
+	{
+		// The widget is destroyed before its foreign QWindow parent.
+		QSharedPointer<QWindow> hostWindow;
+		QSharedPointer<QWidget> widget;
+	};
+
 	QLocalServer* m_previewAllServer = nullptr;
-	QHash<HWND, QSharedPointer<QWidget>> m_widgetHash;
+	QHash<HWND, EmbeddedPreview> m_previews;
 };
 
 #ifndef previewAllApp

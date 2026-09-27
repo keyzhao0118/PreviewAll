@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import zipfile
 from pathlib import Path
@@ -125,8 +126,8 @@ def generate_images(root: Path) -> list[dict]:
     return records
 
 
-def generate_archive_payload(root: Path) -> None:
-    payload = root / "archive-payload"
+def generate_archive_payload(work_root: Path) -> None:
+    payload = work_root / "archive-payload"
     (payload / "nested" / "deep").mkdir(parents=True, exist_ok=True)
     (payload / "empty-file.txt").write_bytes(b"")
     (payload / "hello.txt").write_text("PreviewAll archive fixture\n", encoding="utf-8")
@@ -138,30 +139,38 @@ def generate_archive_payload(root: Path) -> None:
         (many / f"entry-{index:04d}.txt").write_text(f"entry {index}\n", encoding="ascii")
 
 
-def generate_base_archives(root: Path) -> list[dict]:
+def generate_base_archives(root: Path, work_root: Path, regenerate: bool) -> list[dict]:
     output = root / "archives"
-    payload = root / "archive-payload"
+    payload = work_root / "archive-payload"
     output.mkdir(parents=True, exist_ok=True)
     records: list[dict] = []
 
     def write_zip(name: str, members: list[Path]) -> None:
+        if (output / name).exists() and not regenerate:
+            return
         with zipfile.ZipFile(output / name, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
             for item in members:
                 if item.is_file():
-                    archive.write(item, item.relative_to(payload).as_posix())
+                    info = zipfile.ZipInfo(item.relative_to(payload).as_posix(), date_time=(2020, 1, 1, 0, 0, 0))
+                    info.compress_type = zipfile.ZIP_DEFLATED
+                    archive.writestr(info, item.read_bytes(), compress_type=zipfile.ZIP_DEFLATED, compresslevel=6)
 
     all_files = sorted(path for path in payload.rglob("*") if path.is_file())
     write_zip("plain.zip", all_files)
     records.append(record(output / "plain.zip", "archive", "ZIP with nested, Unicode, empty, and 1000 files", "tree preview"))
     write_zip("unicode-nested.zip", [path for path in all_files if "many-files" not in path.parts])
     records.append(record(output / "unicode-nested.zip", "archive", "Small Unicode and nested ZIP", "tree preview"))
-    with zipfile.ZipFile(output / "empty.zip", "w"):
-        pass
+    if regenerate or not (output / "empty.zip").exists():
+        with zipfile.ZipFile(output / "empty.zip", "w"):
+            pass
     records.append(record(output / "empty.zip", "archive", "Empty ZIP", "empty tree preview"))
-    with zipfile.ZipFile(output / "slow-many-entries.zip", "w", zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
-        for index in range(250000):
-            folder = index // 1000
-            archive.writestr(f"folder-{folder:03d}/entry-{index:06d}.txt", f"entry {index}\n")
+    if regenerate or not (output / "slow-many-entries.zip").exists():
+        with zipfile.ZipFile(output / "slow-many-entries.zip", "w", zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
+            for index in range(250000):
+                folder = index // 1000
+                info = zipfile.ZipInfo(f"folder-{folder:03d}/entry-{index:06d}.txt", date_time=(2020, 1, 1, 0, 0, 0))
+                info.compress_type = zipfile.ZIP_DEFLATED
+                archive.writestr(info, f"entry {index}\n", compress_type=zipfile.ZIP_DEFLATED, compresslevel=6)
     records.append(record(output / "slow-many-entries.zip", "archive",
                           "ZIP with 250,000 entries in 250 folders", "visible loading state then expandable tree"))
     return records
@@ -286,36 +295,123 @@ def record(path: Path, category: str, scenario: str, expected: str) -> dict:
     }
 
 
+SWITCH_CASES = (
+    ("01-image.png", "images/png-alpha.png"),
+    ("02-archive.zip", "archives/unicode-nested.zip"),
+    ("03-markdown.md", "markdown/rich-syntax.md"),
+    ("04-image.jpg", "images/jpeg-baseline.jpg"),
+    ("05-archive.7z", "archives/plain.7z"),
+    ("06-markdown.markdown", "markdown/utf8-bom.markdown"),
+    ("07-image.jpeg", "images/jpeg-progressive.jpeg"),
+    ("08-archive.rar", "archives/plain-rar5.rar"),
+    ("09-image.tif", "images/tiff-deflate.tif"),
+    ("10-image.tiff", "images/tiff-uncompressed.tiff"),
+    ("11-image.bmp", "images/bitmap.bmp"),
+    ("12-image.webp", "images/webp-lossy.webp"),
+    ("13-image.ico", "images/icon-multisize.ico"),
+    ("14-image.svg", "images/vector.svg"),
+    ("15-image.gif", "images/animated.gif"),
+)
+
+
+def generate_switching(root: Path) -> list[dict]:
+    output = root / "switching"
+    output.mkdir(parents=True, exist_ok=True)
+    records = []
+    for name, source in SWITCH_CASES:
+        source_path = root / source
+        if not source_path.is_file():
+            raise FileNotFoundError(f"Missing switching source: {source_path}")
+        destination = output / name
+        shutil.copyfile(source_path, destination)
+        records.append(record(destination, "switching", f"Ordered copy of {source}", "preview while switching"))
+    return records
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(MIB), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def finalize_manifest(root: Path, records: list[dict]) -> None:
     for item in records:
         path = Path(item["path"])
         item["path"] = path.relative_to(root).as_posix()
         item["bytes"] = path.stat().st_size
-        item["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        item["sha256"] = sha256_file(path)
     manifest = {"archivePassword": PASSWORD, "fixtures": sorted(records, key=lambda item: item["path"])}
     (root / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def verify(root: Path) -> None:
+    manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    entries = manifest["fixtures"]
+    paths = [item["path"] for item in entries]
+    if len(paths) != len(set(paths)):
+        raise ValueError("Duplicate fixture paths in manifest")
+    for item in entries:
+        if not {"path", "category", "scenario", "expected", "bytes", "sha256"} <= item.keys():
+            raise ValueError(f"Incomplete fixture record: {item}")
+        path = root / item["path"]
+        if not path.is_file() or path.stat().st_size != item["bytes"] or sha256_file(path) != item["sha256"]:
+            raise ValueError(f"Missing or changed fixture: {item['path']}")
+    actual = {path.relative_to(root).as_posix() for folder in ("images", "archives", "markdown", "switching")
+              for path in (root / folder).rglob("*") if path.is_file()}
+    if actual != set(paths):
+        raise ValueError(f"Unlisted/missing fixtures: {sorted(actual ^ set(paths))}")
+    factory = (root.parent / "PreviewAll/preview/previewpagefactory.cpp").read_text(encoding="utf-8")
+    supported = set(re.findall(r'"(\.[A-Za-z0-9]+)"', factory))
+    switching = {Path(path).suffix for path in paths if path.startswith("switching/")}
+    if switching != supported or len([path for path in paths if path.startswith("switching/")]) != len(supported):
+        raise ValueError(f"Switching extension mismatch: missing={sorted(supported - switching)}, extra={sorted(switching - supported)}")
+    canonical = {Path(path).suffix for path in paths if path.startswith(("images/", "archives/", "markdown/"))}
+    if canonical != supported:
+        raise ValueError(f"Canonical extension mismatch: missing={sorted(supported - canonical)}, extra={sorted(canonical - supported)}")
+    if {path for path in paths if path.startswith("switching/")} != {"switching/" + name for name, _ in SWITCH_CASES}:
+        raise ValueError("Switching file names differ from the ordered mapping")
+    for name, source in SWITCH_CASES:
+        if sha256_file(root / "switching" / name) != sha256_file(root / source):
+            raise ValueError(f"Switching file is not a copy of its source: {name}")
+    for category in ("images", "archives", "markdown"):
+        if not any(path.startswith(category + "/slow-") for path in paths):
+            raise ValueError(f"Missing slow-load fixture for {category}")
+    print(f"Verified {len(entries)} fixtures and {len(supported)} supported extensions")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parent)
+    parser.add_argument("--work-root", type=Path)
     parser.add_argument("--manifest-only", action="store_true")
+    parser.add_argument("--verify", action="store_true")
+    parser.add_argument("--regenerate-archives", action="store_true")
     args = parser.parse_args()
     root = args.root.resolve()
+    work_root = (args.work_root or root.parent / "out/test-fixture-work").resolve()
+
+    if args.verify:
+        verify(root)
+        return
 
     if not args.manifest_only:
-        generate_archive_payload(root)
+        generate_archive_payload(work_root)
         records = generate_images(root)
-        records += generate_base_archives(root)
+        records += generate_base_archives(root, work_root, args.regenerate_archives)
         records += generate_markdown(root)
-        (root / ".base-records.json").write_text(json.dumps(records, ensure_ascii=False), encoding="utf-8")
+        (work_root / ".base-records.json").write_text(json.dumps(records, ensure_ascii=False), encoding="utf-8")
+        return
     else:
-        records = json.loads((root / ".base-records.json").read_text(encoding="utf-8"))
+        records = json.loads((work_root / ".base-records.json").read_text(encoding="utf-8"))
 
-    extra_records_path = root / ".archive-records.json"
+    extra_records_path = work_root / ".archive-records.json"
     if extra_records_path.exists() and extra_records_path.stat().st_size:
         records += json.loads(extra_records_path.read_text(encoding="utf-8-sig"))
+    records += generate_switching(root)
     finalize_manifest(root, records)
+    verify(root)
 
 
 if __name__ == "__main__":

@@ -1,11 +1,13 @@
 param(
     [string]$Python,
-    [switch]$DownloadTools
+    [switch]$DownloadTools,
+    [switch]$RegenerateArchives
 )
 
 $ErrorActionPreference = 'Stop'
 $TestRoot = $PSScriptRoot
 $ToolsRoot = Join-Path $TestRoot '.tools'
+$WorkRoot = Join-Path (Split-Path $TestRoot -Parent) 'out/test-fixture-work'
 $Password = 'PreviewAll-Test-123!'
 
 function Find-Python {
@@ -32,6 +34,13 @@ function Get-SystemRarPaths {
     @(
         (Join-Path $env:ProgramFiles 'WinRAR\Rar.exe'),
         (Join-Path ${env:ProgramFiles(x86)} 'WinRAR\Rar.exe')
+    ) | Where-Object { $_ -and (Test-Path $_) }
+}
+
+function Get-SystemSevenZipPaths {
+    @(
+        (Join-Path $env:ProgramFiles '7-Zip\7z.exe'),
+        (Join-Path ${env:ProgramFiles(x86)} '7-Zip\7z.exe')
     ) | Where-Object { $_ -and (Test-Path $_) }
 }
 
@@ -77,14 +86,17 @@ function New-CorruptCopy([string]$Source, [string]$Destination) {
 }
 
 $PythonExe = Find-Python
-& $PythonExe (Join-Path $TestRoot 'generate.py') --root $TestRoot
+New-Item -ItemType Directory -Force $WorkRoot | Out-Null
+$baseArgs = @((Join-Path $TestRoot 'generate.py'), '--root', $TestRoot, '--work-root', $WorkRoot)
+if ($RegenerateArchives) { $baseArgs += '--regenerate-archives' }
+& $PythonExe @baseArgs
 if ($LASTEXITCODE -ne 0) { throw 'Base fixture generation failed.' }
 
 if ($DownloadTools) { Install-TestTools }
 
-$SevenZip = Resolve-Tool '7z' (Join-Path $ToolsRoot '7zip\7z.exe')
+$SevenZip = Resolve-Tool '7z' (Join-Path $ToolsRoot '7zip\7z.exe') @(Get-SystemSevenZipPaths)
 $Rar = Resolve-Tool 'rar' (Join-Path $ToolsRoot 'winrar\Rar.exe') @(Get-SystemRarPaths)
-$Payload = Join-Path $TestRoot 'archive-payload'
+$Payload = Join-Path $WorkRoot 'archive-payload'
 $ArchiveRoot = Join-Path $TestRoot 'archives'
 $extra = [Collections.Generic.List[object]]::new()
 
@@ -98,14 +110,19 @@ if ($SevenZip) {
     )
     foreach ($case in $sevenZipCases) {
         $destination = Join-Path $ArchiveRoot $case.Name
-        Remove-Item $destination -Force -ErrorAction SilentlyContinue
-        Invoke-ArchiveTool $SevenZip ($case.Args + @($destination, (Join-Path $Payload '*'), '-r'))
+        if ($RegenerateArchives -or -not (Test-Path $destination)) {
+            Remove-Item $destination -Force -ErrorAction SilentlyContinue
+            Invoke-ArchiveTool $SevenZip ($case.Args + @($destination, (Join-Path $Payload '*'), '-r'))
+        }
         $extra.Add(@{path=$destination; category='archive'; scenario=$case.Scenario; expected=$case.Expected})
     }
-    New-CorruptCopy (Join-Path $ArchiveRoot 'plain.7z') (Join-Path $ArchiveRoot 'corrupt-truncated.7z')
+    if ($RegenerateArchives -or -not (Test-Path (Join-Path $ArchiveRoot 'corrupt-truncated.7z'))) {
+        New-CorruptCopy (Join-Path $ArchiveRoot 'plain.7z') (Join-Path $ArchiveRoot 'corrupt-truncated.7z')
+    }
     $extra.Add(@{path=(Join-Path $ArchiveRoot 'corrupt-truncated.7z'); category='archive'; scenario='Truncated 7Z'; expected='load failure'})
 } else {
-    Write-Warning '7z.exe was not found; existing 7Z and encrypted ZIP fixtures were retained. Use -DownloadTools to regenerate them.'
+    if ($RegenerateArchives) { throw '7z.exe is required for -RegenerateArchives.' }
+    Write-Warning '7z.exe was not found; checking the committed 7Z and encrypted ZIP fixtures.'
     $existingSevenZipCases = @(
         @{ Name='plain.7z'; Scenario='Plain 7Z'; Expected='tree preview' },
         @{ Name='password-content.7z'; Scenario='7Z encrypted content, visible headers'; Expected='tree preview without password prompt' },
@@ -116,9 +133,8 @@ if ($SevenZip) {
     )
     foreach ($case in $existingSevenZipCases) {
         $destination = Join-Path $ArchiveRoot $case.Name
-        if (Test-Path $destination) {
-            $extra.Add(@{path=$destination; category='archive'; scenario=$case.Scenario; expected=$case.Expected})
-        }
+        if (-not (Test-Path $destination)) { throw "Missing fixture $destination. Install 7-Zip or use -DownloadTools." }
+        $extra.Add(@{path=$destination; category='archive'; scenario=$case.Scenario; expected=$case.Expected})
     }
 }
 
@@ -130,22 +146,38 @@ if ($Rar) {
     )
     foreach ($case in $rarCases) {
         $destination = Join-Path $ArchiveRoot $case.Name
-        Remove-Item $destination -Force -ErrorAction SilentlyContinue
-        Invoke-ArchiveTool $Rar ($case.Args + @($destination, (Join-Path $Payload '*')))
+        if ($RegenerateArchives -or -not (Test-Path $destination)) {
+            Remove-Item $destination -Force -ErrorAction SilentlyContinue
+            Invoke-ArchiveTool $Rar ($case.Args + @($destination, (Join-Path $Payload '*')))
+        }
         $extra.Add(@{path=$destination; category='archive'; scenario=$case.Scenario; expected=$case.Expected})
     }
-    New-CorruptCopy (Join-Path $ArchiveRoot 'plain-rar5.rar') (Join-Path $ArchiveRoot 'corrupt-truncated.rar')
+    if ($RegenerateArchives -or -not (Test-Path (Join-Path $ArchiveRoot 'corrupt-truncated.rar'))) {
+        New-CorruptCopy (Join-Path $ArchiveRoot 'plain-rar5.rar') (Join-Path $ArchiveRoot 'corrupt-truncated.rar')
+    }
     $extra.Add(@{path=(Join-Path $ArchiveRoot 'corrupt-truncated.rar'); category='archive'; scenario='Truncated RAR5'; expected='load failure'})
 } else {
-    Write-Warning 'Rar.exe was not found; RAR fixtures were skipped. Use -DownloadTools.'
+    if ($RegenerateArchives) { throw 'Rar.exe is required for -RegenerateArchives.' }
+    Write-Warning 'Rar.exe was not found; checking the committed RAR fixtures.'
+    $existingRarCases = @(
+        @{ Name='plain-rar5.rar'; Scenario='Plain RAR5'; Expected='tree preview' },
+        @{ Name='password-content.rar'; Scenario='RAR5 encrypted content, visible headers'; Expected='tree preview without password prompt' },
+        @{ Name='password-header.rar'; Scenario='RAR5 encrypted content and headers'; Expected='cannot preview without password prompt' },
+        @{ Name='corrupt-truncated.rar'; Scenario='Truncated RAR5'; Expected='load failure' }
+    )
+    foreach ($case in $existingRarCases) {
+        $destination = Join-Path $ArchiveRoot $case.Name
+        if (-not (Test-Path $destination)) { throw "Missing fixture $destination. Install WinRAR or use -DownloadTools." }
+        $extra.Add(@{path=$destination; category='archive'; scenario=$case.Scenario; expected=$case.Expected})
+    }
 }
 
 $extraJson = ConvertTo-Json -InputObject @($extra) -Depth 5
 [IO.File]::WriteAllText(
-    (Join-Path $TestRoot '.archive-records.json'),
+    (Join-Path $WorkRoot '.archive-records.json'),
     $extraJson,
     [Text.UTF8Encoding]::new($false))
-& $PythonExe (Join-Path $TestRoot 'generate.py') --root $TestRoot --manifest-only
+& $PythonExe (Join-Path $TestRoot 'generate.py') --root $TestRoot --work-root $WorkRoot --manifest-only
 if ($LASTEXITCODE -ne 0) { throw 'Manifest generation failed.' }
 
 Write-Host "Generated PreviewAll fixtures under $TestRoot"

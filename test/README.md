@@ -1,48 +1,49 @@
-# PreviewAll 测试文件说明
+# 预览样张目录
 
-本目录用于保存 PreviewAll 各类预览功能的手工测试文件。测试文件可重复生成，生成结果记录在 `manifest.json` 中，包括相对路径、文件大小、SHA-256、测试场景和预期结果。Markdown 样本固定使用 LF 行尾，使清单校验在 Windows 检出后仍然一致。
+这里保存可直接在资源管理器预览窗格中选择的文件。格式范围以 `PreviewAll/preview/previewpagefactory.cpp` 为准；`manifest.json` 记录每份样张的用途、预期、大小和 SHA-256。测试前启动正式 `PreviewAll.exe`，在托盘启用三类预览，并打开资源管理器预览窗格。独立窗口不能代替宿主环境验收。
 
-## 重新生成
+## 目录用途
+
+| 目录 | 内容与重点 |
+| --- | --- |
+| `images/` | PNG、JPG、JPEG、TIF、TIFF、BMP、WebP、ICO、SVG、GIF；透明度、EXIF、动画首帧、尺寸/内存边界、损坏与扩展名不符 |
+| `archives/` | ZIP、RAR、7Z；普通、空、Unicode/嵌套、内容加密、文件头加密、损坏和大量条目 |
+| `markdown/` | MD、MARKDOWN；基础与扩展语法、内嵌图片、BOM、长行、接近及超过 8 MiB 上限 |
+| `switching/` | `01`–`15` 排序的轻量样张，每个已注册扩展名恰好一份，格式交错排列，供 COM 调用链和快速切换观察 |
+
+`switching/` 中按名称排序依次为 PNG → ZIP → MD → JPG → 7Z → MARKDOWN → JPEG → RAR → TIF → TIFF → BMP → WebP → ICO → SVG → GIF。先用方向键正向、反向逐个切换，再快速跨多个文件跳选，可同时观察同类与跨类切换。该目录的样张是从其他目录复制而来，特意保持较小，以便将切换时序与大文件加载耗时分开观察。样张是实际对应格式，不靠改扩展名冒充；专门测试扩展名不符的文件只放在 `images/`。
+
+从仓库根目录直接打开切换目录：`& explorer.exe (Resolve-Path .\test\switching).Path`。在资源管理器中按 `Alt + P` 显示预览窗格。
+
+## 慢加载与异常场景
+
+| 文件 | 目的 | 预期 |
+| --- | --- | --- |
+| `images/slow-decode-6144x4096.jpg` | 25 MP 高细节渐进式 JPEG，给解码施压 | 显示统一加载态后出现图片 |
+| `archives/slow-many-entries.zip` | 25 万条目，给枚举和建树施压 | 显示统一加载态后可展开目录树 |
+| `markdown/slow-syntax.md` | 约 4 MiB 的重复表格/富语法，给 Markdown 解析施压 | 显示统一加载态后出现渲染文档 |
+| `markdown/large-near-limit.md` | 接近当前 8 MiB 上限 | 可以预览 |
+| `markdown/large-over-limit.md` | 超过当前 8 MiB 上限 | 明确显示无法预览 |
+| `archives/password-header.7z`、`archives/password-header.rar` | 文件头加密 | 直接提示无法预览，不要求输入密码 |
+| `archives/password-content.*`、`archives/password-aes.zip`、`archives/password-zipcrypto.zip` | 仅内容加密、目录可见 | 显示目录树，不要求输入密码 |
+| `images/corrupt-truncated.png`、`archives/corrupt-truncated.*` | 损坏文件 | 显示失败状态，常驻进程继续正常工作 |
+
+慢样张制造真实解码或解析工作，不人为睡眠。是否超过加载提示的约 150 毫秒阈值取决于机器、缓存和调度；验收时应同时观察加载中切换/关闭是否迅速，以及旧结果是否误入新页面。大尺寸图片和接近上限的 Markdown 用于观察内存、布局和关闭后的残留任务。GIF/WebP 动画目前显示首帧；空 ZIP 应显示空状态。
+
+## 生成与校验
+
+在仓库根目录运行：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\test\generate.ps1
 ```
 
-脚本会使用本机 Python 生成基础图片、Markdown 和 ZIP 文件；如果本机可找到 7-Zip 或 WinRAR 命令行工具，还会生成 7Z、加密 ZIP 和 RAR5 文件。
+需要 Python 与 Pillow。ZIP/图片/Markdown 由 Python 生成；7Z 和加密 ZIP 使用 7-Zip，RAR 使用 WinRAR。默认保留已有压缩包以维持提交样张的字节稳定；加 `-RegenerateArchives` 才重建它们，此时必须有 7-Zip 与 WinRAR。缺少压缩工具时，脚本会保留并校验仓库已提交的对应样张；若样张也不存在则失败，不会写出不完整清单。可传入 `-Python <路径>`，或用 `-DownloadTools` 在本机下载命令行工具。生成中间文件位于忽略的 `out/test-fixture-work/`，工具下载位于忽略的 `test/.tools/`，都不属于样张。
 
-如果缺少 7-Zip 或 WinRAR，可允许脚本下载官方命令行工具到 `test/.tools`：
+只校验现有文件而不重新生成大样张：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\test\generate.ps1 -DownloadTools
+python .\test\generate.py --verify
 ```
 
-`test/.tools` 不纳入 Git。
-
-## 加密压缩包密码
-
-所有加密压缩包样本使用同一个测试密码；当前预览不会要求输入它，此信息仅供样本生成和外部工具核对：
-
-```text
-PreviewAll-Test-123!
-```
-
-## 文件分类
-
-- `images/`：图片预览测试文件，覆盖 PNG、JPEG/JPG、TIFF/TIF、BMP、WebP、ICO、SVG、GIF（显示首帧）、透明通道、EXIF 旋转、渐进式 JPEG、多页 TIFF、损坏文件、9000x9000 大内存图片和 20000x2000 超宽图片。
-- `archives/`：压缩包预览测试文件，覆盖 ZIP、7Z、RAR5、内容加密、文件头加密、Unicode/嵌套路径、空文件、大量条目、空压缩包和损坏压缩包。
-- `markdown/`：Markdown 预览测试文件，覆盖常见 Markdown 语法、本地图片引用、原始 HTML、表格、任务列表、代码块、Unicode、超长行、UTF-8 BOM、接近 8 MiB 限制的大文件和超过 8 MiB 限制的大文件。
-
-## 预期行为
-
-- 三类预览的标题栏都应显示 PreviewAll 图标、文件名和右侧默认应用打开按钮。
-- 普通图片应能加载；滚轮应缩放图片，拖动应能平移放大的图片。GIF/WebP 动画样本当前只显示首帧。
-- 大尺寸图片用于验证图片预览的内存占用和加载稳定性。
-- 损坏图片和损坏压缩包应显示加载失败状态。
-- 普通压缩包应显示可展开、收起的目录树。
-- 加密内容压缩包若能直接列出目录，应显示文件列表。
-- 文件头加密压缩包应直接提示无法预览，不弹出密码输入界面。
-- `markdown/large-near-limit.md` 应能加载。
-- `images/slow-decode-6144x4096.jpg`、`archives/slow-many-entries.zip` 和 `markdown/slow-syntax.md` 用于分别验证三类预览在耗时加载期间显示统一加载态，完成后切换到内容页；加载态应居中、清晰，无左上角白块。具体等待时间随硬件而变。
-- Markdown 文件应显示渲染后的内容；`markdown/large-over-limit.md` 按当前 8 MiB 限制应显示加载失败。
-
-请在正式资源管理器预览窗格中选择这些样本验收；启动和扩展名注册步骤见 [`docs/development.md`](../docs/development.md)。连续切换三类文件、在慢样本仍显示加载态时切换或关闭，以及在多个预览窗格中并存，是本项目的重点验收场景。
+校验会逐项比对大小与 SHA-256、检测清单外样张，并检查 `switching/` 是否与当前注册扩展名一一对应。样张生成规则见 [AGENTS.md](AGENTS.md)。加密样张的统一测试密码为 `PreviewAll-Test-123!`；预览流程不会要求输入密码。

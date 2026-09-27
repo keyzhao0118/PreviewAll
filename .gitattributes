@@ -1,1 +1,3 @@
 test/markdown/* text eol=lf
+test/switching/*.md text eol=lf
+test/switching/*.markdown text eol=lf

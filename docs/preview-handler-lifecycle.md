@@ -6,7 +6,7 @@
 
 - 使用 Release 版 `PreviewAll.exe` 和已注册的 `PreviewAllHandler.dll`；托盘已启用图片、压缩包和 Markdown 扩展名。通过资源管理器预览窗格连续选择测试文件，包含同类型和跨类型切换。
 - 将六个样本放在同一目录，顺序是 PNG、JPEG、ZIP、7Z、Markdown、较慢的 Markdown，并多轮正向、反向选择。另有一组在 `test/archives` 内切换的记录。
-- 可从仓库样本重建同一目录：把 `test/images/png-alpha.png`、`test/images/jpeg-baseline.jpg`、`test/archives/plain.zip`、`test/archives/plain.7z`、`test/markdown/rich-syntax.md`、`test/markdown/slow-syntax.md` 依次复制为 `out/com-trace-fixtures/01-image.png` 至 `06-markdown-slow.md`。`out` 是本地构建目录，不作为仓库资产提交。
+- 仓库现有 `test/switching/`，按 `01`–`15` 名称排序覆盖全部已注册扩展名并交错放置三类预览，可直接用于新的调用链跟踪。本文的基线数据仍来自当时放在 `out/com-trace-fixtures/` 的六个样本（PNG、JPEG、ZIP、7Z、Markdown、较慢的 Markdown）；`out` 不作为仓库资产提交。
 - 临时插桩记录 Handler 的构造、`Initialize`、`SetWindow`、`DoPreview`、`Unload`、析构，以及 PreviewAll 接收 `CREATE` / `CLOSE` 的起止。每行记录 `GetTickCount64` 毫秒值、PID、线程 ID、Handler 对象地址和 HWND；两进程向同一文件追加完整行。时间戳只有毫秒精度，同一毫秒内以日志行序观察先后。
 - 基线使用原有异步 `CLOSE`：Handler 等命令写入本地套接字，但不等 PreviewAll 执行 `close()`。临时日志和测试样本保存在忽略构建产物的 `out/` 下；本页保留必要的汇总和代表性事件。
 

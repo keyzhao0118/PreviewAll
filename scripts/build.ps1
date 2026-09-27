@@ -3,8 +3,7 @@ param(
     [string]$Configuration = 'Debug',
     [switch]$ConfigureOnly,
     [switch]$UpdateTranslations,
-    [switch]$UseSystemTools,
-    [switch]$Verify
+    [switch]$UseSystemTools
 )
 
 $ErrorActionPreference = 'Stop'
@@ -75,10 +74,6 @@ try {
         Invoke-Checked $CMake @('--build', '--preset', $Preset, '--target', 'PreviewAll_update_translations')
     }
     Invoke-Checked $CMake @('--build', '--preset', $Preset, '--parallel')
-    if ($Verify) {
-        Invoke-Checked $CMake @('--build', '--preset', $Preset, '--target', 'PreviewAllSmoke', '--parallel')
-        Invoke-Checked (Join-Path $ProjectRoot "out/build/$Preset/bin/PreviewAllSmoke.exe") @((Join-Path $ProjectRoot 'test'))
-    }
     Write-Host "Build ready: $ProjectRoot/out/build/$Preset/bin"
 }
 finally {

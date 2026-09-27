@@ -161,11 +161,11 @@ void CPreviewAllHandler::resizePreview()
 
 HRESULT CPreviewAllHandler::Unload()
 {
-	if (m_hwndPreview)
-	{
-		PreviewAllRequester::postCloseCmd(m_hwndPreview);
-		m_hwndPreview = nullptr;
-	}
+	if (!m_hwndPreview)
+		return S_OK;
+	if (!PreviewAllRequester::sendCloseCmd(m_hwndPreview))
+		return E_FAIL;
+	m_hwndPreview = nullptr;
 	return S_OK;
 }
 

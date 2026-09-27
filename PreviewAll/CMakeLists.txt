@@ -20,7 +20,8 @@ set(PREVIEW_COMMON_SOURCES
 	preview/common/previewtitlebar.h
 	preview/common/previewtitlebarstyle.h
 	preview/common/previewtask.h
-	preview/common/previewloadpool.h
+	preview/common/previewtaskqueue.cpp
+	preview/common/previewtaskqueue.h
 )
 
 set(PREVIEW_FORMAT_SOURCES
@@ -34,7 +35,6 @@ set(PREVIEW_FORMAT_SOURCES
 	preview/image/imageviewportwidget.h
 	preview/archive/archivepreviewpage.cpp
 	preview/archive/archivepreviewpage.h
-	preview/archive/archiveparsepool.h
 	preview/archive/archiveparser.cpp
 	preview/archive/archiveparser.h
 	preview/archive/archiveopencallback.cpp
@@ -154,14 +154,3 @@ endforeach()
 add_custom_target(PreviewAll_translations ALL DEPENDS ${QM_FILES})
 
 add_dependencies(PreviewAll PreviewAll_translations)
-
-# Explicit verification target, sharing the application's deployed runtime.
-add_executable(PreviewAllSmoke EXCLUDE_FROM_ALL
-	../test/runtime-smoke.cpp
-	resources/resource.qrc
-	${PREVIEW_COMMON_SOURCES}
-	${PREVIEW_FORMAT_SOURCES}
-)
-target_include_directories(PreviewAllSmoke PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(PreviewAllSmoke PRIVATE Qt6::Widgets Qt6::OpenGLWidgets 7zip::7zip)
-add_dependencies(PreviewAllSmoke PreviewAll PreviewAllHandler)

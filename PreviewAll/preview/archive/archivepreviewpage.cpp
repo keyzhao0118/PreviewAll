@@ -1,7 +1,6 @@
 #include "archivepreviewpage.h"
 #include "archiveparser.h"
 #include "archivetreewidget.h"
-#include "archiveparsepool.h"
 #include <QVBoxLayout>
 
 ArchivePreviewPage::ArchivePreviewPage(const QString& filePath, QWidget* parent)
@@ -19,7 +18,7 @@ void ArchivePreviewPage::startPreview()
 	m_tree = nullptr;
 	m_archiveParser = QSharedPointer<ArchiveParser>::create(filePath());
 	const QSharedPointer<ArchiveParser> parser = m_archiveParser;
-	m_loadTask.start(previewArchivePool(), this,
+	if (!m_loadTask.start(this,
 		[parser](const std::atomic_bool&) { return parser->parseArchive(); },
 		[this](ArchiveParser::ParseResult result) {
 			switch (result)
@@ -40,7 +39,9 @@ void ArchivePreviewPage::startPreview()
 				break;
 			}
 		},
-		[parser] { parser->stopParse(); });
+		PreviewTaskQueue::Lane::Blocking,
+		[parser] { parser->stopParse(); }))
+		emit failed(tr("Preview is busy. Please try again."));
 }
 
 void ArchivePreviewPage::showPreviewPage()

@@ -1,55 +1,64 @@
 #include "previewallrequester.h"
+#include <QDeadlineTimer>
 #include <QLocalSocket>
 #include <QDebug>
+#include <optional>
 
 namespace
 {
 
-	const QString s_previewAllSocketName = "PreviewAllSocket_{0A869132-411F-41ED-9CD7-47659A55569F}";
+	const QString SocketName = "PreviewAllSocket_{0A869132-411F-41ED-9CD7-47659A55569F}";
+	constexpr int CreateTimeoutMs = 30000;
+	constexpr int CloseTimeoutMs = 3000;
 
+	std::optional<QByteArray> sendRequest(const QByteArray& command, int timeoutMs)
+	{
+		QDeadlineTimer deadline(timeoutMs);
+		QLocalSocket socket;
+		socket.connectToServer(SocketName);
+		if (!socket.waitForConnected(deadline.remainingTime()))
+		{
+			qWarning() << "PreviewAll IPC connect failed:" << socket.errorString();
+			return std::nullopt;
+		}
+		if (socket.write(command) != command.size())
+			return std::nullopt;
+		while (socket.bytesToWrite() > 0)
+		{
+			if (!socket.waitForBytesWritten(deadline.remainingTime()) && socket.bytesToWrite() > 0)
+				return std::nullopt;
+		}
+		while (!socket.canReadLine())
+		{
+			if (!socket.waitForReadyRead(deadline.remainingTime()))
+			{
+				qWarning() << "PreviewAll IPC response failed:" << socket.errorString();
+				return std::nullopt;
+			}
+		}
+		const QByteArray response = socket.readLine().trimmed();
+		socket.disconnectFromServer();
+		return response;
+	}
 }
 
 HWND PreviewAllRequester::sendCreateCmd(HWND hwndParent, const QString& filePath)
 {
-	HWND hwndPreview = nullptr;
-	QLocalSocket socket;
-	socket.connectToServer(s_previewAllSocketName);
-	if (!socket.waitForConnected())
-	{
-		const QLocalSocket::LocalSocketError err = socket.error();
-		const QString errStr = socket.errorString();
-		qWarning().nospace()
-			<< "PreviewAllRequester::sendCreateCmd - connectToServer failed. "
-			<< "socketName=\"" << s_previewAllSocketName << "\", "
-			<< "errorCode=" << static_cast<int>(err) << ", "
-			<< "errorString=\"" << errStr << "\"";
-		return hwndPreview;
-	}
-
-	QString encodedPath = filePath.toUtf8().toBase64();
-	QString command = QString("CREATE %1 %2\n").arg((qulonglong)hwndParent).arg(encodedPath);
-	socket.write(command.toUtf8());
-	socket.flush();
-
-	if (socket.waitForReadyRead())
-	{
-		QByteArray response = socket.readLine().trimmed();
-		hwndPreview = HWND(response.toULongLong());
-	}
-	socket.disconnectFromServer();
-
-	return hwndPreview;
+	const QByteArray command = "CREATE " + QByteArray::number(reinterpret_cast<qulonglong>(hwndParent))
+		+ ' ' + filePath.toUtf8().toBase64() + '\n';
+	const auto response = sendRequest(command, CreateTimeoutMs);
+	if (!response)
+		return nullptr;
+	bool validHwnd = false;
+	const quint64 hwndValue = response->toULongLong(&validHwnd);
+	return validHwnd ? reinterpret_cast<HWND>(hwndValue) : nullptr;
 }
 
-void PreviewAllRequester::postCloseCmd(HWND hwnd)
+bool PreviewAllRequester::sendCloseCmd(HWND hwndPreview)
 {
-	QLocalSocket socket;
-	socket.connectToServer(s_previewAllSocketName);
-	if (socket.waitForConnected())
-	{
-		socket.write(QString("CLOSE %1\n").arg((qulonglong)hwnd).toUtf8());
-		socket.flush();
-		socket.waitForBytesWritten();
-		socket.disconnectFromServer();
-	}
+	if (!hwndPreview)
+		return true;
+	const QByteArray hwndValue = QByteArray::number(reinterpret_cast<qulonglong>(hwndPreview));
+	const auto response = sendRequest("CLOSE " + hwndValue + '\n', CloseTimeoutMs);
+	return response && *response == "CLOSED " + hwndValue;
 }

@@ -15,6 +15,7 @@ public:
 	explicit MarkdownPreviewPage(const QString& filePath, QWidget* parent = nullptr);
 	~MarkdownPreviewPage() override = default;
 	void startPreview() override;
+	void cancelPreview() override { m_loadTask.cancel(); }
 
 private:
 	enum class LoadError

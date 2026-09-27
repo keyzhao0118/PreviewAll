@@ -15,6 +15,7 @@ public:
 	~ArchivePreviewPage() override = default;
 
 	void startPreview() override;
+	void cancelPreview() override { m_loadTask.cancel(); }
 
 private:
 	void showPreviewPage();

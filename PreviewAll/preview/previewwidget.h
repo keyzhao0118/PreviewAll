@@ -14,6 +14,7 @@ class PreviewWidget : public QWidget
 public:
 	explicit PreviewWidget(const QString& filePath, QWidget* parent = nullptr);
 	~PreviewWidget() override = default;
+	void cancelPreview();
 
 private:
 	PreviewContentStack* m_content = nullptr;

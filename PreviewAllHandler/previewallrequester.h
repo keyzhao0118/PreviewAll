@@ -7,5 +7,5 @@ class PreviewAllRequester
 {
 public:
 	static HWND sendCreateCmd(HWND hwndParent, const QString& filePath);
-	static void postCloseCmd(HWND hwnd);
+	static bool sendCloseCmd(HWND hwndPreview);
 };

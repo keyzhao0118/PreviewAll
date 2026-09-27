@@ -45,10 +45,4 @@ PreviewAll-Test-123!
 - `images/slow-decode-6144x4096.jpg`、`archives/slow-many-entries.zip` 和 `markdown/slow-syntax.md` 用于分别验证三类预览在耗时加载期间显示统一加载态，完成后切换到内容页；加载态应居中、清晰，无左上角白块。具体等待时间随硬件而变。
 - Markdown 文件应显示渲染后的内容；`markdown/large-over-limit.md` 按当前 8 MiB 限制应显示加载失败。
 
-基础语法解析和 Markdown 异步加载还会由 `PreviewAllSmoke.exe` 自动检查；完整本地构建与验证命令见 [`docs/development.md`](../docs/development.md)。
-
-需要重现耗时加载时，可运行以下较慢的验收模式。它会依次加载上述三个慢样本，输出耗时，并检查加载提示出现后内容可见；压缩包样本还会检查文件夹按需展开。
-
-```powershell
-& .\out\build\x64-release\bin\PreviewAllSmoke.exe (Resolve-Path .\test).Path --slow
-```
+请在正式资源管理器预览窗格中选择这些样本验收；启动和扩展名注册步骤见 [`docs/development.md`](../docs/development.md)。连续切换三类文件、在慢样本仍显示加载态时切换或关闭，以及在多个预览窗格中并存，是本项目的重点验收场景。

@@ -1,5 +1,4 @@
 #include "imagepreviewpage.h"
-#include "preview/common/previewloadpool.h"
 
 #include <QImageReader>
 #include <QDebug>
@@ -43,7 +42,7 @@ void ImagePreviewPage::startPreview()
 	const QString path = filePath();
 	QImageReader::setAllocationLimit(imageAllocationLimitMb);
 	struct LoadResult { QImage image; QString error; };
-	m_loadTask.start(previewLoadPool(), this, [path](const std::atomic_bool&) {
+	if (!m_loadTask.start(this, [path](const std::atomic_bool&) {
 		LoadResult result;
 		QImageReader reader(path);
 		reader.setAutoTransform(true);
@@ -64,5 +63,6 @@ void ImagePreviewPage::startPreview()
 		}
 		m_imageViewPort->setImage(std::move(result.image));
 		emit ready();
-	});
+	}))
+		emit failed(tr("Preview is busy. Please try again."));
 }

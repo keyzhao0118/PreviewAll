@@ -69,7 +69,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; ================================================================
 ; ★ Package everything in bin/ recursively
 ; ================================================================
-Source: "{#BinDir}\*"; DestDir: "{app}"; Excludes: "PreviewAllSmoke.*,*.ilk,*.exp,*.lib,*.pdb"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#BinDir}\*"; DestDir: "{app}"; Excludes: "*.ilk,*.exp,*.lib,*.pdb"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 ; Start menu

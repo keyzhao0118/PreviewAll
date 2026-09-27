@@ -33,3 +33,9 @@ PreviewWidget::PreviewWidget(const QString& filePath, QWidget* parent)
 	connect(m_page, &PreviewPage::failed, m_content, &PreviewContentStack::showError);
 	m_page->startPreview();
 }
+
+void PreviewWidget::cancelPreview()
+{
+	if (m_page)
+		m_page->cancelPreview();
+}

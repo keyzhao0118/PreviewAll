@@ -1,5 +1,4 @@
 #include "markdownpreviewpage.h"
-#include "preview/common/previewloadpool.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -153,7 +152,7 @@ void MarkdownPreviewPage::startPreview()
 		std::shared_ptr<MarkdownDocumentPayload> document;
 		LoadError error = LoadError::None;
 	};
-	m_loadTask.start(previewLoadPool(), this,
+	if (!m_loadTask.start(this,
 		[filePath, styleSheet, baseUrl](const std::atomic_bool& cancelled) {
 		LoadResult result;
 		QFileInfo fileInfo(filePath);
@@ -208,7 +207,8 @@ void MarkdownPreviewPage::startPreview()
 			emit empty(tr("The Markdown file is empty."));
 		else
 			emit ready();
-	});
+	}))
+		emit failed(tr("Preview is busy. Please try again."));
 }
 
 void MarkdownPreviewPage::showLoadError(LoadError error)

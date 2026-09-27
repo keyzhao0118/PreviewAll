@@ -1,8 +1,7 @@
 #include "previewallapplication.h"
 #include "previewallregister.h"
 #include "preview/previewwidget.h"
-#include "preview/archive/archiveparsepool.h"
-#include "preview/common/previewloadpool.h"
+#include "preview/common/previewtaskqueue.h"
 #include <QLocalSocket>
 #include <QGuiApplication>
 #include <QLocale>
@@ -78,8 +77,7 @@ PreviewAllApplication::PreviewAllApplication(int& argc, char** argv)
 PreviewAllApplication::~PreviewAllApplication()
 {
 	m_previews.clear();
-	previewLoadPool().waitForDone();
-	previewArchivePool().waitForDone();
+	PreviewTaskQueue::instance().waitForDone();
 }
 
 void PreviewAllApplication::initTranslations()
@@ -123,7 +121,9 @@ HWND PreviewAllApplication::handleCreateCmd(HWND hwndParent, const QString& file
 
 	HWND hwndPreview = reinterpret_cast<HWND>(previewWidget->winId());
 	hostWindow.reset(QWindow::fromWinId(reinterpret_cast<WId>(hwndParent)));
-	if (!hostWindow || !previewWidget->windowHandle())
+	if (!hostWindow)
+		return nullptr;
+	if (!previewWidget->windowHandle())
 		return nullptr;
 	previewWidget->windowHandle()->setParent(hostWindow.data());
 	if (GetParent(hwndPreview) != hwndParent)
@@ -148,13 +148,28 @@ HWND PreviewAllApplication::handleCreateCmd(HWND hwndParent, const QString& file
 	return hwndPreview;
 }
 
-void PreviewAllApplication::handleCloseCmd(HWND hwndPreview)
+void PreviewAllApplication::handleCloseCmd(HWND hwndPreview, QLocalSocket* clientSocket)
 {
 	EmbeddedPreview preview = m_previews.take(hwndPreview);
-	if (!preview.widget)
-		return;
-	RemoveWindowSubclass(hwndPreview, previewWindowProc, s_previewSubclassId);
-	preview.widget->close();
+	if (preview.widget)
+	{
+		// Invalidate queued work and results immediately; running decoders may
+		// finish later and are never joined on the IPC/UI thread.
+		preview.widget->cancelPreview();
+		RemoveWindowSubclass(hwndPreview, previewWindowProc, s_previewSubclassId);
+		preview.widget->close();
+
+		// close() hides the page. Retain its native child until the waiting
+		// preview host has read the acknowledgement and disconnected, so native
+		// destruction cannot synchronously notify the blocked host thread.
+		connect(clientSocket, &QLocalSocket::disconnected, this,
+			[preview = std::move(preview)]() mutable {
+				preview.widget.clear();
+				preview.hostWindow.clear();
+			});
+	}
+	clientSocket->write("CLOSED " + QByteArray::number(reinterpret_cast<qulonglong>(hwndPreview)) + '\n');
+	clientSocket->flush();
 }
 
 QSharedPointer<PreviewWidget> PreviewAllApplication::createPreviewWidget(const QString& filePath)
@@ -178,27 +193,33 @@ void PreviewAllApplication::onReadyRead()
 	if (!clientSocket)
 		return;
 
-	QByteArray line = clientSocket->readLine().trimmed();
-	QStringList parts = QString::fromUtf8(line).split(' ');
-	if (parts.isEmpty())
-		return;
-
-	QString command = parts[0];
-	if (command == "CREATE" && parts.size() == 3)
+	while (clientSocket->canReadLine())
 	{
-		HWND hwndParent = reinterpret_cast<HWND>(parts[1].toULongLong());
-		QString filePath = QByteArray::fromBase64(parts[2].toUtf8());
-
-		HWND hwndPreview = handleCreateCmd(hwndParent, filePath);
-
-		QByteArray response = QByteArray::number((qulonglong)hwndPreview) + "\n";
-		clientSocket->write(response);
-		clientSocket->flush();
-	}
-	else if (command == "CLOSE" && parts.size() == 2)
-	{
-		HWND hwndPreview = reinterpret_cast<HWND>(parts[1].toULongLong());
-		handleCloseCmd(hwndPreview);
+		const QStringList parts = QString::fromUtf8(clientSocket->readLine().trimmed()).split(' ');
+		if (parts.size() == 3 && parts[0] == "CREATE")
+		{
+			bool validParent = false;
+			const quint64 parentId = parts[1].toULongLong(&validParent);
+			const QString filePath = QByteArray::fromBase64(parts[2].toUtf8());
+			const HWND created = validParent && parentId
+				? handleCreateCmd(reinterpret_cast<HWND>(parentId), filePath)
+				: nullptr;
+			clientSocket->write(QByteArray::number(reinterpret_cast<qulonglong>(created)) + '\n');
+			clientSocket->flush();
+		}
+		else if (parts.size() == 2 && parts[0] == "CLOSE")
+		{
+			bool validHwnd = false;
+			const quint64 hwndValue = parts[1].toULongLong(&validHwnd);
+			if (validHwnd && hwndValue)
+				handleCloseCmd(reinterpret_cast<HWND>(hwndValue), clientSocket);
+			else
+				clientSocket->write("ERROR\n");
+		}
+		else
+		{
+			clientSocket->write("ERROR\n");
+		}
 	}
 
 }

@@ -4,35 +4,50 @@
 <context>
     <name>ArchivePreviewPage</name>
     <message>
-        <location filename="../preview/archive/archivepreviewpage.cpp" line="27"/>
+        <location filename="../preview/archive/archivepreviewpage.cpp" line="28"/>
         <source>The archive is empty.</source>
         <translation>压缩包为空。</translation>
     </message>
     <message>
-        <location filename="../preview/archive/archivepreviewpage.cpp" line="32"/>
+        <location filename="../preview/archive/archivepreviewpage.cpp" line="33"/>
         <source>Cannot preview an archive with encrypted headers.</source>
         <translation>无法预览文件头加密的压缩包。</translation>
     </message>
     <message>
-        <location filename="../preview/archive/archivepreviewpage.cpp" line="35"/>
+        <location filename="../preview/archive/archivepreviewpage.cpp" line="36"/>
         <source>Failed to load archive</source>
         <translation>压缩文件加载失败</translation>
+    </message>
+    <message>
+        <location filename="../preview/archive/archivepreviewpage.cpp" line="44"/>
+        <source>Preview is busy. Please try again.</source>
+        <translation>预览任务繁忙，请重试。</translation>
     </message>
 </context>
 <context>
     <name>ImagePreviewPage</name>
     <message>
-        <location filename="../preview/image/imagepreviewpage.cpp" line="62"/>
+        <location filename="../preview/image/imagepreviewpage.cpp" line="61"/>
         <source>Failed to load image</source>
         <translation>图片加载失败</translation>
+    </message>
+    <message>
+        <location filename="../preview/image/imagepreviewpage.cpp" line="67"/>
+        <source>Preview is busy. Please try again.</source>
+        <translation>预览任务繁忙，请重试。</translation>
     </message>
 </context>
 <context>
     <name>MarkdownPreviewPage</name>
     <message>
-        <location filename="../preview/markdown/markdownpreviewpage.cpp" line="208"/>
+        <location filename="../preview/markdown/markdownpreviewpage.cpp" line="207"/>
         <source>The Markdown file is empty.</source>
         <translation>Markdown 文件为空。</translation>
+    </message>
+    <message>
+        <location filename="../preview/markdown/markdownpreviewpage.cpp" line="211"/>
+        <source>Preview is busy. Please try again.</source>
+        <translation>预览任务繁忙，请重试。</translation>
     </message>
     <message>
         <location filename="../preview/markdown/markdownpreviewpage.cpp" line="217"/>

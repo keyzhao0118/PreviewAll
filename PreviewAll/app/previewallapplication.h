@@ -8,6 +8,7 @@
 #include <Windows.h>
 
 class PreviewWidget;
+class QLocalSocket;
 
 class PreviewAllApplication  : public QApplication
 {
@@ -22,7 +23,7 @@ public:
 
 private:
 	HWND handleCreateCmd(HWND hwndParent, const QString& filePath);
-	void handleCloseCmd(HWND hwndPreview);
+	void handleCloseCmd(HWND hwndPreview, QLocalSocket* clientSocket);
 	QSharedPointer<PreviewWidget> createPreviewWidget(const QString& filePath);
 
 private slots:

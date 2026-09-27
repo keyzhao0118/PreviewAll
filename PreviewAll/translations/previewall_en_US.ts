@@ -4,35 +4,50 @@
 <context>
     <name>ArchivePreviewPage</name>
     <message>
-        <location filename="../preview/archive/archivepreviewpage.cpp" line="27"/>
+        <location filename="../preview/archive/archivepreviewpage.cpp" line="28"/>
         <source>The archive is empty.</source>
         <translation>The archive is empty.</translation>
     </message>
     <message>
-        <location filename="../preview/archive/archivepreviewpage.cpp" line="32"/>
+        <location filename="../preview/archive/archivepreviewpage.cpp" line="33"/>
         <source>Cannot preview an archive with encrypted headers.</source>
         <translation>Cannot preview an archive with encrypted headers.</translation>
     </message>
     <message>
-        <location filename="../preview/archive/archivepreviewpage.cpp" line="35"/>
+        <location filename="../preview/archive/archivepreviewpage.cpp" line="36"/>
         <source>Failed to load archive</source>
         <translation>Failed to load archive</translation>
+    </message>
+    <message>
+        <location filename="../preview/archive/archivepreviewpage.cpp" line="44"/>
+        <source>Preview is busy. Please try again.</source>
+        <translation>Preview is busy. Please try again.</translation>
     </message>
 </context>
 <context>
     <name>ImagePreviewPage</name>
     <message>
-        <location filename="../preview/image/imagepreviewpage.cpp" line="62"/>
+        <location filename="../preview/image/imagepreviewpage.cpp" line="61"/>
         <source>Failed to load image</source>
         <translation>Failed to load image</translation>
+    </message>
+    <message>
+        <location filename="../preview/image/imagepreviewpage.cpp" line="67"/>
+        <source>Preview is busy. Please try again.</source>
+        <translation>Preview is busy. Please try again.</translation>
     </message>
 </context>
 <context>
     <name>MarkdownPreviewPage</name>
     <message>
-        <location filename="../preview/markdown/markdownpreviewpage.cpp" line="208"/>
+        <location filename="../preview/markdown/markdownpreviewpage.cpp" line="207"/>
         <source>The Markdown file is empty.</source>
         <translation>The Markdown file is empty.</translation>
+    </message>
+    <message>
+        <location filename="../preview/markdown/markdownpreviewpage.cpp" line="211"/>
+        <source>Preview is busy. Please try again.</source>
+        <translation>Preview is busy. Please try again.</translation>
     </message>
     <message>
         <location filename="../preview/markdown/markdownpreviewpage.cpp" line="217"/>

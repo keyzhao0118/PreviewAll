@@ -12,6 +12,7 @@ class PreviewPage : public QWidget
 public:
 	~PreviewPage() override = default;
 	virtual void startPreview() = 0;
+	virtual void cancelPreview() = 0;
 
 signals:
 	void loading();

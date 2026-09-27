@@ -11,6 +11,7 @@ public:
 	explicit ImagePreviewPage(const QString& filePath, QWidget* parent = nullptr);
 	~ImagePreviewPage() override = default;
 	void startPreview() override;
+	void cancelPreview() override { m_loadTask.cancel(); }
 
 private:
 	PreviewTask m_loadTask;

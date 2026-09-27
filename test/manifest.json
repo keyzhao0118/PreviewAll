@@ -29,7 +29,7 @@
       "scenario": "ZIP AES-256 encryption",
       "path": "archives/password-aes.zip",
       "category": "archive",
-      "expected": "password prompt then tree preview",
+      "expected": "tree preview without password prompt",
       "bytes": 224260,
       "sha256": "29b6c77dd23d48d554ab3d0a65f2dbb5bffe15cd9f027ebc2cf1060e4db4b21f"
     },
@@ -37,7 +37,7 @@
       "scenario": "7Z encrypted content, visible headers",
       "path": "archives/password-content.7z",
       "category": "archive",
-      "expected": "password prompt then tree preview",
+      "expected": "tree preview without password prompt",
       "bytes": 7137,
       "sha256": "8ef21ca39e1137a59271532defc283c745903c12c453bf5e38f1e57935558c50"
     },
@@ -45,7 +45,7 @@
       "scenario": "RAR5 encrypted content, visible headers",
       "path": "archives/password-content.rar",
       "category": "archive",
-      "expected": "password prompt then tree preview",
+      "expected": "tree preview without password prompt",
       "bytes": 183040,
       "sha256": "9379e0ec5c54f955bef462ea2b3f5df58a8a6665dcaf7fde3562bd70ba643320"
     },
@@ -53,7 +53,7 @@
       "scenario": "7Z encrypted content and headers",
       "path": "archives/password-header.7z",
       "category": "archive",
-      "expected": "password prompt before file list",
+      "expected": "cannot preview without password prompt",
       "bytes": 7168,
       "sha256": "4dfa972145f6c43b20020fd7ba8da10ea80fbb7691a25bbb8f350801094761f9"
     },
@@ -61,7 +61,7 @@
       "scenario": "RAR5 encrypted content and headers",
       "path": "archives/password-header.rar",
       "category": "archive",
-      "expected": "password prompt before file list",
+      "expected": "cannot preview without password prompt",
       "bytes": 209294,
       "sha256": "93fb64806c319188587bce8d9503f33b43fb63c387404db27b9e62ff60e48f5a"
     },
@@ -69,7 +69,7 @@
       "scenario": "ZIP legacy ZipCrypto encryption",
       "path": "archives/password-zipcrypto.zip",
       "category": "archive",
-      "expected": "password prompt then tree preview",
+      "expected": "tree preview without password prompt",
       "bytes": 186108,
       "sha256": "98fa1f664d6e21b7fd144e5484a4db0493baa58552c0e8366def29c657e389dc"
     },
@@ -96,6 +96,14 @@
       "expected": "tree preview",
       "bytes": 139471,
       "sha256": "d31612c66291139023908f5217acde073f97868fb0321b1386a589b45219659f"
+    },
+    {
+      "path": "archives/slow-many-entries.zip",
+      "category": "archive",
+      "scenario": "ZIP with 250,000 entries in 250 folders",
+      "expected": "visible loading state then expandable tree",
+      "bytes": 36136679,
+      "sha256": "520c351ac4b4a5dcbfab05ccfdcde39c8bc0559c8c4a5387450279e24bfaaafc"
     },
     {
       "path": "archives/unicode-nested.zip",
@@ -234,6 +242,14 @@
       "sha256": "dd36ae7350fea03a19eb039ca31f13cdc41b61dba1d5624133fc0c8d20f762ed"
     },
     {
+      "path": "images/slow-decode-6144x4096.jpg",
+      "category": "image",
+      "scenario": "25 MP high-detail progressive JPEG",
+      "expected": "visible loading state then image preview",
+      "bytes": 18563860,
+      "sha256": "f328d9ff4f20f7a77c2a6deef2aa2bb20a27a5fc79759ea7f189f3650d89f924"
+    },
+    {
       "path": "images/tiff-deflate.tif",
       "category": "image",
       "scenario": "Compressed TIFF",
@@ -304,6 +320,14 @@
       "expected": "rendered preview",
       "bytes": 1271,
       "sha256": "0b3384252cccbc2a31fc6b111e8f39cd2a322bcb649d320e0c7a3e92394ad250"
+    },
+    {
+      "path": "markdown/slow-syntax.md",
+      "category": "markdown",
+      "scenario": "Approximately 4 MiB of repeated rich syntax",
+      "expected": "visible loading state then rendered preview",
+      "bytes": 4194173,
+      "sha256": "0484bb868ee11b88724208bbbeb5325a87a42d86eaab52b740102568d7b3daa7"
     },
     {
       "path": "markdown/utf8-bom.markdown",

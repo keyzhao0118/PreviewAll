@@ -11,47 +11,59 @@ set(CMAKE_AUTOUIC ON)
 find_package(Qt6 COMPONENTS Widgets Network OpenGLWidgets Svg LinguistTools REQUIRED)
 find_package(7zip CONFIG REQUIRED)
 
+set(PREVIEW_COMMON_SOURCES
+	preview/common/previewpage.cpp
+	preview/common/previewpage.h
+	preview/common/previewcontentstack.cpp
+	preview/common/previewcontentstack.h
+	preview/common/previewtitlebar.cpp
+	preview/common/previewtitlebar.h
+	preview/common/previewtitlebarstyle.h
+	preview/common/previewtask.h
+	preview/common/previewloadpool.h
+)
+
+set(PREVIEW_FORMAT_SOURCES
+	preview/previewwidget.cpp
+	preview/previewwidget.h
+	preview/previewpagefactory.cpp
+	preview/previewpagefactory.h
+	preview/image/imagepreviewpage.cpp
+	preview/image/imagepreviewpage.h
+	preview/image/imageviewportwidget.cpp
+	preview/image/imageviewportwidget.h
+	preview/archive/archivepreviewpage.cpp
+	preview/archive/archivepreviewpage.h
+	preview/archive/archiveparsepool.h
+	preview/archive/archiveparser.cpp
+	preview/archive/archiveparser.h
+	preview/archive/archiveopencallback.cpp
+	preview/archive/archiveopencallback.h
+	preview/archive/instreamwrapper.cpp
+	preview/archive/instreamwrapper.h
+	preview/archive/archivetree.cpp
+	preview/archive/archivetree.h
+	preview/archive/archivetreewidget.cpp
+	preview/archive/archivetreewidget.h
+	preview/archive/archivetreewidgetitem.cpp
+	preview/archive/archivetreewidgetitem.h
+	preview/archive/guiddef.cpp
+	preview/markdown/markdownpreviewpage.cpp
+	preview/markdown/markdownpreviewpage.h
+)
+
 add_executable(PreviewAll WIN32
 	resources/resource.qrc
 	resources/app.rc
-
 	main.cpp
-	previewallmenu.h
-	previewallmenu.cpp
-
-	previewallapplication.cpp
-	previewallapplication.h
-	previewallregister.cpp
-	previewallregister.h
-	previewtitlebar.cpp
-	previewtitlebar.h
-	previewtitlebarstyle.h
-	previewloadpool.h
-
-	previewarchive/guiddef.cpp
-	previewarchive/archiveparser.cpp
-	previewarchive/archiveparser.h
-	previewarchive/archiveopencallback.cpp
-	previewarchive/archiveopencallback.h
-	previewarchive/instreamwrapper.cpp
-	previewarchive/instreamwrapper.h
-	previewarchive/archivetree.cpp
-	previewarchive/archivetree.h
-	previewarchive/archivetreewidget.cpp
-	previewarchive/archivetreewidget.h
-	previewarchive/archivetreewidgetitem.cpp
-	previewarchive/archivetreewidgetitem.h
-	previewarchive/archivepreviewwidget.cpp
-	previewarchive/archivepreviewwidget.h
-
-	previewimage/imageviewerwidget.cpp
-	previewimage/imageviewerwidget.h
-	previewimage/imageviewportwidget.cpp
-	previewimage/imageviewportwidget.h
-
-	previewmd/markdownpreviewwidget.cpp
-	previewmd/markdownpreviewwidget.h
-
+	app/previewallapplication.cpp
+	app/previewallapplication.h
+	app/previewallmenu.cpp
+	app/previewallmenu.h
+	app/previewallregister.cpp
+	app/previewallregister.h
+	${PREVIEW_COMMON_SOURCES}
+	${PREVIEW_FORMAT_SOURCES}
 )
 
 target_include_directories(PreviewAll
@@ -147,21 +159,9 @@ add_dependencies(PreviewAll PreviewAll_translations)
 add_executable(PreviewAllSmoke EXCLUDE_FROM_ALL
 	../test/runtime-smoke.cpp
 	resources/resource.qrc
-	previewtitlebar.cpp
-	previewmd/markdownpreviewwidget.cpp
-	previewmd/markdownpreviewwidget.h
-	previewarchive/archivepreviewwidget.cpp
-	previewarchive/archivepreviewwidget.h
-	previewarchive/archivetreewidget.cpp
-	previewarchive/archivetreewidget.h
-	previewarchive/archivetreewidgetitem.cpp
-	previewarchive/archivetreewidgetitem.h
-	previewarchive/archiveparser.cpp
-	previewarchive/archiveopencallback.cpp
-	previewarchive/archivetree.cpp
-	previewarchive/instreamwrapper.cpp
-	previewarchive/guiddef.cpp
+	${PREVIEW_COMMON_SOURCES}
+	${PREVIEW_FORMAT_SOURCES}
 )
 target_include_directories(PreviewAllSmoke PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(PreviewAllSmoke PRIVATE Qt6::Widgets 7zip::7zip)
+target_link_libraries(PreviewAllSmoke PRIVATE Qt6::Widgets Qt6::OpenGLWidgets 7zip::7zip)
 add_dependencies(PreviewAllSmoke PreviewAll PreviewAllHandler)

@@ -103,6 +103,20 @@ def generate_images(root: Path) -> list[dict]:
     records.append(record(output / "large-panorama-20000x2000.jpg", "image", "Very wide 160 MB decoded image", "dimension-constrained preview"))
     del panorama
 
+    # Repeat a deterministic high-entropy tile so JPEG decoding, rather than
+    # disk I/O alone, keeps the loading state visible on a typical machine.
+    tile_size = (1024, 1024)
+    tile = Image.frombytes("RGB", tile_size,
+                           hashlib.shake_256(b"PreviewAll slow JPEG fixture").digest(3 * 1024 * 1024))
+    slow_image = Image.new("RGB", (6144, 4096))
+    for y in range(0, 4096, tile_size[1]):
+        for x in range(0, 6144, tile_size[0]):
+            slow_image.paste(tile, (x, y))
+    slow_image.save(output / "slow-decode-6144x4096.jpg", quality=87, progressive=True)
+    records.append(record(output / "slow-decode-6144x4096.jpg", "image",
+                          "25 MP high-detail progressive JPEG", "visible loading state then image preview"))
+    del slow_image, tile
+
     good = (output / "png-rgb.png").read_bytes()
     (output / "corrupt-truncated.png").write_bytes(good[: len(good) // 3])
     records.append(record(output / "corrupt-truncated.png", "image", "Truncated PNG", "load failure"))
@@ -144,6 +158,12 @@ def generate_base_archives(root: Path) -> list[dict]:
     with zipfile.ZipFile(output / "empty.zip", "w"):
         pass
     records.append(record(output / "empty.zip", "archive", "Empty ZIP", "empty tree preview"))
+    with zipfile.ZipFile(output / "slow-many-entries.zip", "w", zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
+        for index in range(250000):
+            folder = index // 1000
+            archive.writestr(f"folder-{folder:03d}/entry-{index:06d}.txt", f"entry {index}\n")
+    records.append(record(output / "slow-many-entries.zip", "archive",
+                          "ZIP with 250,000 entries in 250 folders", "visible loading state then expandable tree"))
     return records
 
 
@@ -225,6 +245,18 @@ def write_sized_markdown(path: Path, target_size: int) -> None:
         stream.write("End of fixture.\n")
 
 
+def write_slow_markdown(path: Path, target_size: int) -> None:
+    block = ("## Section with a table and formatting\n\n"
+             "A paragraph with **bold**, *italic*, `code`, and [link](https://example.invalid/).\n\n"
+             "| Name | Value |\n|:--|--:|\n| Alpha | 42 |\n| Beta | 84 |\n\n"
+             "> A short quote.\n\n")
+    with path.open("w", encoding="utf-8", newline="\n") as stream:
+        stream.write("# Slow Markdown parsing fixture\n\n")
+        while stream.tell() + len(block) < target_size:
+            stream.write(block)
+        stream.write("End of fixture.\n")
+
+
 def generate_markdown(root: Path) -> list[dict]:
     output = root / "markdown"
     output.mkdir(parents=True, exist_ok=True)
@@ -237,6 +269,9 @@ def generate_markdown(root: Path) -> list[dict]:
     records.append(record(output / "long-line.md", "markdown", "Single 128 KiB line", "rendered preview"))
     write_sized_markdown(output / "large-near-limit.md", 7 * MIB + 512 * 1024)
     records.append(record(output / "large-near-limit.md", "markdown", "Approximately 7.5 MiB", "successful load"))
+    write_slow_markdown(output / "slow-syntax.md", 4 * MIB)
+    records.append(record(output / "slow-syntax.md", "markdown",
+                          "Approximately 4 MiB of repeated rich syntax", "visible loading state then rendered preview"))
     write_sized_markdown(output / "large-over-limit.md", 9 * MIB)
     records.append(record(output / "large-over-limit.md", "markdown", "Over current 8 MiB limit", "intentional load failure"))
     return records

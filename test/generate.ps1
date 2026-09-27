@@ -91,10 +91,10 @@ $extra = [Collections.Generic.List[object]]::new()
 if ($SevenZip) {
     $sevenZipCases = @(
         @{ Name='plain.7z'; Args=@('a','-t7z','-mx=5','-y') ; Scenario='Plain 7Z'; Expected='tree preview' },
-        @{ Name='password-content.7z'; Args=@('a','-t7z','-mx=5',"-p$Password",'-mhe=off','-y'); Scenario='7Z encrypted content, visible headers'; Expected='password prompt then tree preview' },
-        @{ Name='password-header.7z'; Args=@('a','-t7z','-mx=5',"-p$Password",'-mhe=on','-y'); Scenario='7Z encrypted content and headers'; Expected='password prompt before file list' },
-        @{ Name='password-aes.zip'; Args=@('a','-tzip','-mx=5',"-p$Password",'-mem=AES256','-y'); Scenario='ZIP AES-256 encryption'; Expected='password prompt then tree preview' },
-        @{ Name='password-zipcrypto.zip'; Args=@('a','-tzip','-mx=5',"-p$Password",'-mem=ZipCrypto','-y'); Scenario='ZIP legacy ZipCrypto encryption'; Expected='password prompt then tree preview' }
+        @{ Name='password-content.7z'; Args=@('a','-t7z','-mx=5',"-p$Password",'-mhe=off','-y'); Scenario='7Z encrypted content, visible headers'; Expected='tree preview without password prompt' },
+        @{ Name='password-header.7z'; Args=@('a','-t7z','-mx=5',"-p$Password",'-mhe=on','-y'); Scenario='7Z encrypted content and headers'; Expected='cannot preview without password prompt' },
+        @{ Name='password-aes.zip'; Args=@('a','-tzip','-mx=5',"-p$Password",'-mem=AES256','-y'); Scenario='ZIP AES-256 encryption'; Expected='tree preview without password prompt' },
+        @{ Name='password-zipcrypto.zip'; Args=@('a','-tzip','-mx=5',"-p$Password",'-mem=ZipCrypto','-y'); Scenario='ZIP legacy ZipCrypto encryption'; Expected='tree preview without password prompt' }
     )
     foreach ($case in $sevenZipCases) {
         $destination = Join-Path $ArchiveRoot $case.Name
@@ -105,14 +105,28 @@ if ($SevenZip) {
     New-CorruptCopy (Join-Path $ArchiveRoot 'plain.7z') (Join-Path $ArchiveRoot 'corrupt-truncated.7z')
     $extra.Add(@{path=(Join-Path $ArchiveRoot 'corrupt-truncated.7z'); category='archive'; scenario='Truncated 7Z'; expected='load failure'})
 } else {
-    Write-Warning '7z.exe was not found; encrypted ZIP and 7Z fixtures were skipped. Use -DownloadTools.'
+    Write-Warning '7z.exe was not found; existing 7Z and encrypted ZIP fixtures were retained. Use -DownloadTools to regenerate them.'
+    $existingSevenZipCases = @(
+        @{ Name='plain.7z'; Scenario='Plain 7Z'; Expected='tree preview' },
+        @{ Name='password-content.7z'; Scenario='7Z encrypted content, visible headers'; Expected='tree preview without password prompt' },
+        @{ Name='password-header.7z'; Scenario='7Z encrypted content and headers'; Expected='cannot preview without password prompt' },
+        @{ Name='password-aes.zip'; Scenario='ZIP AES-256 encryption'; Expected='tree preview without password prompt' },
+        @{ Name='password-zipcrypto.zip'; Scenario='ZIP legacy ZipCrypto encryption'; Expected='tree preview without password prompt' },
+        @{ Name='corrupt-truncated.7z'; Scenario='Truncated 7Z'; Expected='load failure' }
+    )
+    foreach ($case in $existingSevenZipCases) {
+        $destination = Join-Path $ArchiveRoot $case.Name
+        if (Test-Path $destination) {
+            $extra.Add(@{path=$destination; category='archive'; scenario=$case.Scenario; expected=$case.Expected})
+        }
+    }
 }
 
 if ($Rar) {
     $rarCases = @(
         @{ Name='plain-rar5.rar'; Args=@('a','-idq','-r','-ma5'); Scenario='Plain RAR5'; Expected='tree preview' },
-        @{ Name='password-content.rar'; Args=@('a','-idq','-r','-ma5',"-p$Password"); Scenario='RAR5 encrypted content, visible headers'; Expected='password prompt then tree preview' },
-        @{ Name='password-header.rar'; Args=@('a','-idq','-r','-ma5',"-hp$Password"); Scenario='RAR5 encrypted content and headers'; Expected='password prompt before file list' }
+        @{ Name='password-content.rar'; Args=@('a','-idq','-r','-ma5',"-p$Password"); Scenario='RAR5 encrypted content, visible headers'; Expected='tree preview without password prompt' },
+        @{ Name='password-header.rar'; Args=@('a','-idq','-r','-ma5',"-hp$Password"); Scenario='RAR5 encrypted content and headers'; Expected='cannot preview without password prompt' }
     )
     foreach ($case in $rarCases) {
         $destination = Join-Path $ArchiveRoot $case.Name

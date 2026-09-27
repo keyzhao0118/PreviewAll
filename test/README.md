@@ -20,7 +20,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\test\generate.ps1 -Downloa
 
 ## 加密压缩包密码
 
-所有加密压缩包使用同一个测试密码：
+所有加密压缩包样本使用同一个测试密码；当前预览不会要求输入它，此信息仅供样本生成和外部工具核对：
 
 ```text
 PreviewAll-Test-123!
@@ -39,9 +39,16 @@ PreviewAll-Test-123!
 - 大尺寸图片用于验证图片预览的内存占用和加载稳定性。
 - 损坏图片和损坏压缩包应显示加载失败状态。
 - 普通压缩包应显示可展开、收起的目录树。
-- 加密内容压缩包应能看到文件列表，但读取内容时需要密码。
-- 文件头加密压缩包在列出文件前就应要求密码。
+- 加密内容压缩包若能直接列出目录，应显示文件列表。
+- 文件头加密压缩包应直接提示无法预览，不弹出密码输入界面。
 - `markdown/large-near-limit.md` 应能加载。
+- `images/slow-decode-6144x4096.jpg`、`archives/slow-many-entries.zip` 和 `markdown/slow-syntax.md` 用于分别验证三类预览在耗时加载期间显示统一加载态，完成后切换到内容页；加载态应居中、清晰，无左上角白块。具体等待时间随硬件而变。
 - Markdown 文件应显示渲染后的内容；`markdown/large-over-limit.md` 按当前 8 MiB 限制应显示加载失败。
 
 基础语法解析和 Markdown 异步加载还会由 `PreviewAllSmoke.exe` 自动检查；完整本地构建与验证命令见 [`docs/development.md`](../docs/development.md)。
+
+需要重现耗时加载时，可运行以下较慢的验收模式。它会依次加载上述三个慢样本，输出耗时，并检查加载提示出现后内容可见；压缩包样本还会检查文件夹按需展开。
+
+```powershell
+& .\out\build\x64-release\bin\PreviewAllSmoke.exe (Resolve-Path .\test).Path --slow
+```

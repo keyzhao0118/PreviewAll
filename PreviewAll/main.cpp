@@ -1,9 +1,7 @@
-#include "previewallapplication.h"
-#include "previewallmenu.h"
-#include "previewallregister.h"
-#include "previewarchive/archivepreviewwidget.h"
-#include "previewimage/imageviewerwidget.h"
-#include "previewmd/markdownpreviewwidget.h"
+#include "app/previewallapplication.h"
+#include "app/previewallmenu.h"
+#include "app/previewallregister.h"
+#include "preview/previewwidget.h"
 #include <QFileInfo>
 #include <QDebug>
 #include <QSystemTrayIcon>
@@ -53,19 +51,7 @@ int main(int argc, char* argv[])
 		const QFileInfo file(arguments[previewIndex + 1]);
 		if (!file.isFile())
 			return EXIT_FAILURE;
-		const QString suffix = "." + file.suffix();
-		QWidget* preview = nullptr;
-		if (PreviewAllRegister::imageExtList.contains(suffix, Qt::CaseInsensitive))
-			preview = new ImageViewerWidget(file.absoluteFilePath());
-		else if (PreviewAllRegister::archiveExtList.contains(suffix, Qt::CaseInsensitive))
-			preview = new ArchivePreviewWidget(file.absoluteFilePath());
-		else if (PreviewAllRegister::markdownExtList.contains(suffix, Qt::CaseInsensitive))
-			preview = new MarkdownPreviewWidget(file.absoluteFilePath());
-		if (!preview)
-		{
-			qWarning() << "Unsupported preview file:" << file.absoluteFilePath();
-			return EXIT_FAILURE;
-		}
+		QWidget* preview = new PreviewWidget(file.absoluteFilePath());
 		preview->setAttribute(Qt::WA_DeleteOnClose);
 		preview->setWindowFlags(Qt::Window);
 		preview->setWindowTitle("PreviewAll - " + file.fileName());

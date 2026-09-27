@@ -7,7 +7,4 @@
 		<file>branch-open.svg</file>
 		<file>chevron-right.svg</file>
 	</qresource>
-	<qresource prefix="/gif">
-		<file>loading.gif</file>
-	</qresource>
 </RCC>

@@ -8,13 +8,19 @@
 | --- | --- |
 | `PreviewAll` / `PreviewAll.exe` | Qt Widgets 托盘程序；管理文件扩展名注册、预览窗口、翻译与用户设置 |
 | `PreviewAllHandler` / `PreviewAllHandler.dll` | COM `IPreviewHandler`、`IInitializeWithFile`、`IObjectWithSite`、`IOleWindow` 实现，由 Windows 预览宿主加载 |
-| `PreviewAll/previewtitlebar.*` | 三种预览共用的标题栏；显示 PreviewAll 图标、文件名，并用 `QDesktopServices` 调用系统默认关联打开原文件 |
-| `PreviewAll/previewimage` | 工作线程使用 `QImageReader` 解码，`QOpenGLWidget` 绘图；支持滚轮缩放和拖动 |
-| `PreviewAll/previewarchive` | 动态加载 `7zip.dll` 的 `CreateObject`，使用 7-Zip COM 接口枚举文件树；树形目录按需展开 |
-| `PreviewAll/previewmd` | 工作线程读取并解析 Markdown，Qt `QTextBrowser` 显示结果；文件大小上限 8 MiB |
+| `PreviewAll/main.cpp`、`PreviewAll/app` | 程序入口、Qt 进程生命周期、托盘菜单、扩展名注册与预览窗口嵌入；不分派格式 |
+| `PreviewAll/preview/common` | 格式内容页基类 `PreviewPage`、统一标题栏与状态栈、`PreviewTask` 和有界线程池 |
+| `PreviewAll/preview/previewwidget.*` | 唯一宿主窗口 `PreviewWidget`，组合公共控件和格式内容页 |
+| `PreviewAll/preview/previewpagefactory.*` | 后缀到格式内容页的分派，以及托盘注册共用的扩展名目录 |
+| `PreviewAll/preview/image` | 工作线程使用 `QImageReader` 解码，`QOpenGLWidget` 绘图；支持滚轮缩放和拖动 |
+| `PreviewAll/preview/archive` | 动态加载 `7zip.dll` 的 `CreateObject`，使用 7-Zip COM 接口枚举文件树；树形目录按需展开 |
+| `PreviewAll/preview/markdown` | 工作线程读取并解析 Markdown，Qt `QTextBrowser` 显示结果；文件大小上限 8 MiB |
+| `PreviewAll/resources`、`PreviewAll/translations` | Qt 资源、Windows 程序图标和中英文翻译 |
 | `installer/setup.iss` | Inno Setup 安装包，递归打包 Release 的 `bin`，写入 COM 注册信息 |
 | `test` | 已提交的手工测试样本和 Python / PowerShell 再生成脚本 |
 | `docs/index.html` | 静态介绍页面，不参与 C++ 构建 |
+
+预览代码的依赖方向为 `app → preview/PreviewWidget → preview/previewpagefactory → preview/{image,archive,markdown} → preview/common`。`PreviewWidget` 只通过工厂获得内容页，不判断具体格式；`PreviewAllHandler` 是独立的 COM 目标，只通过 IPC 与主程序交互。新格式在 `PreviewAll/preview` 下新增同级目录，并加入工厂和 CMake 的 `PREVIEW_FORMAT_SOURCES`，主程序与 Smoke 验收共用这份清单。
 
 创建调用链为：资源管理器 → Windows COM 预览宿主 → Handler DLL → `QLocalSocket` → 托盘程序的 `QLocalServer` → 对应 Qt 预览组件。
 通信协议只有 `CREATE` 和 `CLOSE`，文件路径使用 UTF-8 + Base64，窗口句柄使用十进制字符串。
@@ -22,7 +28,7 @@
 
 当前实际注册的扩展名如下：图片 `.png`、`.jpg`、`.jpeg`、`.tif`、`.tiff`、`.bmp`、`.webp`、`.ico`、`.svg`、`.gif`；压缩包 `.zip`、`.rar`、`.7z`；Markdown `.md`、`.markdown`。三个预览共用同一个标题栏，内容区分别只提供图片缩放/拖动、压缩包树形目录和 Markdown 渲染。
 
-图片解码与 Markdown 文件读取/语法解析共用一个最多 2 个线程的后台池；关闭窗格会标记任务取消，排队任务开始前会跳过，完成结果只在窗格仍存在时回到 UI。压缩包解析使用独立的最多 2 个线程的池，因为加密文件头可能等待用户输入密码；关闭预览会唤醒等待中的解析器并停止后续条目处理。底层 7-Zip 正在打开文件时无法被中断，因此该次调用返回前仍占用一个解析槽位。GIF/WebP 动画文件目前显示首帧。
+图片解码与 Markdown 文件读取/语法解析共用一个最多 2 个线程的后台池；压缩包解析使用独立的最多 2 个线程的池。三类内容页继承 `PreviewPage`，并通过各自的 `PreviewTask` 管理任务：关闭窗格会标记取消，排队任务开始前会跳过，完成结果只在页面仍存活且任务未取消时回到 UI。解析压缩包遇到加密文件头会直接结束并显示无法预览，不再等待密码输入。底层 7-Zip 正在打开文件时无法被中断，因此该次调用返回前仍占用一个解析槽位。GIF/WebP 动画文件目前显示首帧。`PreviewWidget` 使用 `PreviewContentStack` 统一加载态，短时间内完成时不显示加载动画。
 
 Markdown 使用 Qt 6 `QTextDocument::setMarkdown` 的 GitHub dialect，文件读取和文档生成均放在工作线程，完成后再把文档交给 UI 线程中的 `QTextBrowser`。内嵌图片随窗格宽度缩小，长代码行在窄窗格中折行。运行时 smoke 检查标题、粗体、列表的基础解析、文档线程归属及窄窗格中的横向溢出；这不是完整的 CommonMark/GFM 兼容性验收，暂不宣称支持所有扩展语法。
 
@@ -62,7 +68,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build.ps1 -Configu
 
 `-UseSystemTools` 复用本机 CMake、Visual Studio 附带的 Ninja、`C:\Program Files\7-Zip` 和 Git for Windows 附带的 Perl；保留这些工具的 PATH，避免 vcpkg 额外下载构建工具。
 新机器若没有这些工具，可省略该参数，由 vcpkg 自动获取其指定版本。
-`-Verify` 会构建并运行 `PreviewAllSmoke.exe`：检查 Handler DLL 导出、图片解码插件和样本解码、Markdown 基础语法、异步文档线程归属与窄窗格布局、ZIP/7Z/RAR 与加密 7Z 解析、翻译加载。验证不写注册表；该测试程序不进入安装包。
+`-Verify` 会构建并运行 `PreviewAllSmoke.exe`：检查 Handler DLL 导出、图片解码插件、共用加载态、图片与 Markdown 页面异步加载、Markdown 基础语法与窄窗格布局、ZIP/7Z/RAR 目录解析、文件头加密直接拒绝、排队及运行任务取消、翻译加载。验证不写注册表；该测试程序不进入安装包。
 
 所有自动生成内容都位于 Git 忽略的 `out`：
 
@@ -94,6 +100,12 @@ cmake --build --preset x64-debug --target PreviewAll_update_translations
 # 编辑 PreviewAll/translations/*.ts 后再构建
 ```
 
+## 新预览类型的共用流程
+
+新预览类型继承 `PreviewPage`，只创建自己的内容控件并实现 `startPreview()`。`PreviewWidget` 是唯一无边框宿主窗口，统一创建 `PreviewTitleBar` 与 `PreviewContentStack`。工厂根据后缀创建内容页，`PreviewWidget` 先注册页面、连接状态信号，再调用 `startPreview()`。把只含文件路径、配置等值类型数据的工作函数交给类型页持有的 `PreviewTask::start(pool, receiver, worker, complete)`；`worker` 在有界线程池中执行，`complete` 只在页面仍存活且任务未取消时回到 UI 线程。页面销毁时 `PreviewTask` 自动取消；同一页面重新加载前调用 `start` 会先取消旧任务。解析器若有等待操作，可传入第五个 `unblock` 回调，让取消时唤醒它。取消不会强行终止已经进入第三方库的调用。
+
+格式页通过 `loading`、`ready`、`empty`、`failed` 信号报告状态，由 `PreviewWidget` 切换内容栈；完成或失败都会停止加载动画，约 150 毫秒内完成的任务不会出现动画。不支持的后缀仍创建公共窗口并显示说明，系统只注册已支持的扩展名。扩展名列表与页面分派统一维护在 `previewpagefactory.cpp`。工作线程不能访问 Qt 页面控件，解析大型目录后的 UI 填充也需要分批或按需进行。压缩包树目前仅建立根目录条目，展开文件夹时才填充其直接子项。新增类型的资源预算、样本和资源管理器验收要求见根目录 `AGENTS.md`。
+
 ## 调试预览组件
 
 无需注册 COM、启动托盘或安装到系统，直接运行：
@@ -104,7 +116,7 @@ cmake --build --preset x64-debug --target PreviewAll_update_translations
 & .\out\build\x64-debug\bin\PreviewAll.exe --preview .\test\markdown\rich-syntax.md
 ```
 
-该入口显示独立、可关闭的窗口；在 Visual Studio 中可将上述参数设为调试参数。它绕过注册表和托盘初始化，仍使用实际的三个预览组件。
+该入口显示独立、可关闭的 `PreviewWidget`；在 Visual Studio 中可将上述参数设为调试参数。它绕过注册表和托盘初始化，仍使用正式入口相同的格式工厂与三个内容页。
 更多测试样本和密码见 `test/README.md`。独立预览通过不代表 Explorer / COM 集成已经验证。
 
 ## 资源管理器集成调试

@@ -111,16 +111,8 @@ cmake --build --preset x64-debug --target PreviewAll_update_translations
 
 ## 调试预览组件
 
-无需注册 COM、启动托盘或安装到系统，直接运行：
-
-```powershell
-& .\out\build\x64-debug\bin\PreviewAll.exe --preview .\test\images\png-alpha.png
-& .\out\build\x64-debug\bin\PreviewAll.exe --preview .\test\archives\plain.7z
-& .\out\build\x64-debug\bin\PreviewAll.exe --preview .\test\markdown\rich-syntax.md
-```
-
-该入口显示独立、可关闭的 `PreviewWidget`；在 Visual Studio 中可将上述参数设为调试参数。它绕过注册表和托盘初始化，仍使用正式入口相同的格式工厂与三个内容页。
-更多测试样本和密码见 `test/README.md`。独立预览通过不代表 Explorer / COM 集成已经验证。
+预览内容页不提供脱离资源管理器宿主环境的独立入口，因此这里没有无需注册即可打开单个文件的调试命令。调试配置时让同目录 Handler DLL 的注册指向正在调试的 `bin`，再在资源管理器中打开预览窗格；注册路径的检查与写入见下一节。
+更多测试样本和密码见 `test/README.md`。任何绕过 Explorer / COM 集成的预览都不构成验收。
 
 ## 资源管理器集成调试
 

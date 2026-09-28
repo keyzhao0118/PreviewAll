@@ -1,0 +1,44 @@
+{
+  "date": "2026-09-28",
+  "qpc_frequency": 10000000,
+  "os_build": "26200.9457",
+  "os_display_version": "25H2",
+  "architecture": "x64",
+  "source_commit": "d5427ae6279c6e33d41f4e21989bcf6943a57ed3",
+  "exe": "out/build/x64-release/bin/PreviewAll.exe",
+  "handler": "out/build/x64-release/bin/PreviewAllHandler.dll",
+  "fixture_directory": "test/switching",
+  "threading_model": "Apartment",
+  "disable_low_il_process_isolation": 1,
+  "exe_sha256": "e97b6f32e7bba15d898fec8fe5d1e2b00af63ca22ee449a76fba40c172e9d7e9",
+  "handler_sha256": "f9898db210fd3beaebc60c45d4a4010b8a86d67a505aa1348b173a3bcd7001cb",
+  "event_count": 2382,
+  "phases": [
+    {
+      "first_line": 1,
+      "last_line": 1494,
+      "procedure": "01 to 15 to 01; 01/04/07/01; 02/05/08/02; 03/06/03. User confirmed all pages appeared.",
+      "name": "normal_and_same_type"
+    },
+    {
+      "first_line": 1495,
+      "last_line": 1496,
+      "procedure": "Reference maintenance only.",
+      "name": "idle"
+    },
+    {
+      "first_line": 1497,
+      "last_line": 2346,
+      "procedure": "User performed rapid switching, closed and reopened Explorer, ending on 01-image.png. The trace contains two completed object lifetimes and one new live instance; individual UI operations were not timestamped.",
+      "name": "rapid_switching_and_window_reopening"
+    },
+    {
+      "procedure": "Additional SetRect events and user-confirmed closure of the last test Explorer window. Third instance released normally.",
+      "first_line": 2347,
+      "name": "remaining_resize_events_and_final_window_close",
+      "last_line": 2382
+    }
+  ],
+  "normalization": "Repository paths made relative with forward slashes; empty detail replaced with a dash. Other fields and event order retained.",
+  "restored_handler_sha256": "f2c48f3f4ce0a8e2f4f3c924138a1d01b93784a1ca7b4e831cf3447a8ef8c91b"
+}

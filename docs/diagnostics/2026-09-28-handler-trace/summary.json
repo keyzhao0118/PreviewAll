@@ -1,0 +1,173 @@
+{
+  "lines": 2382,
+  "instances": [
+    {
+      "pid": 9040,
+      "instance": 2701072351123,
+      "address": "19f86848af0",
+      "threads": [
+        2564
+      ],
+      "constructors": 1,
+      "destructors": 1,
+      "preview_count": 48,
+      "external_unloads": 48,
+      "extensions": [
+        ".7z",
+        ".bmp",
+        ".gif",
+        ".ico",
+        ".jpeg",
+        ".jpg",
+        ".markdown",
+        ".md",
+        ".png",
+        ".rar",
+        ".svg",
+        ".tif",
+        ".tiff",
+        ".webp",
+        ".zip"
+      ],
+      "parents": [
+        "462580"
+      ],
+      "first_line": 1,
+      "last_line": 1842,
+      "zero_releases": [
+        {
+          "line": 1838,
+          "tick": 2996642504653,
+          "pid": 9040,
+          "tid": 2564,
+          "instance": 2701072351123,
+          "address": "19f86848af0",
+          "event": "Release",
+          "hwnd": 0,
+          "result": "0",
+          "detail": "test/switching/01-image.png"
+        }
+      ],
+      "unfinished_calls": [],
+      "destructor_thread": 2564,
+      "destructor_line": 1839,
+      "last_external_unload_to_destructor_ms": 77.3717
+    },
+    {
+      "pid": 70792,
+      "instance": 2997009766594,
+      "address": "2085340e8c0",
+      "threads": [
+        70772
+      ],
+      "constructors": 1,
+      "destructors": 1,
+      "preview_count": 6,
+      "external_unloads": 6,
+      "extensions": [
+        ".gif",
+        ".png",
+        ".svg",
+        ".zip"
+      ],
+      "parents": [
+        "5114576"
+      ],
+      "first_line": 1843,
+      "last_line": 2196,
+      "zero_releases": [
+        {
+          "line": 2192,
+          "tick": 2997133054559,
+          "pid": 70792,
+          "tid": 70772,
+          "instance": 2997009766594,
+          "address": "2085340e8c0",
+          "event": "Release",
+          "hwnd": 0,
+          "result": "0",
+          "detail": "test/switching/01-image.png"
+        }
+      ],
+      "unfinished_calls": [],
+      "destructor_thread": 70772,
+      "destructor_line": 2193,
+      "last_external_unload_to_destructor_ms": 35.2986
+    },
+    {
+      "pid": 68124,
+      "instance": 2997214770862,
+      "address": "2b533d83410",
+      "threads": [
+        62664
+      ],
+      "constructors": 1,
+      "destructors": 1,
+      "preview_count": 1,
+      "external_unloads": 1,
+      "extensions": [
+        ".png"
+      ],
+      "parents": [
+        "8915510"
+      ],
+      "first_line": 2197,
+      "last_line": 2382,
+      "zero_releases": [
+        {
+          "line": 2378,
+          "tick": 2998643767701,
+          "pid": 68124,
+          "tid": 62664,
+          "instance": 2997214770862,
+          "address": "2b533d83410",
+          "event": "Release",
+          "hwnd": 0,
+          "result": "0",
+          "detail": "test/switching/01-image.png"
+        }
+      ],
+      "unfinished_calls": [],
+      "destructor_thread": 62664,
+      "destructor_line": 2379,
+      "last_external_unload_to_destructor_ms": 23.3112
+    }
+  ],
+  "events": {
+    "construct": 3,
+    "QueryInterface.begin": 300,
+    "AddRef": 546,
+    "QueryInterface.end": 300,
+    "Release": 549,
+    "Initialize.begin": 55,
+    "Initialize.end": 55,
+    "SetSite.begin": 110,
+    "SetSite.end": 110,
+    "SetWindow.begin": 55,
+    "SetWindow.end": 55,
+    "DoPreview.begin": 55,
+    "DoPreview.end": 55,
+    "SetRect.begin": 6,
+    "SetRect.end": 6,
+    "Unload.begin": 58,
+    "Unload.end": 58,
+    "destruct.begin": 3,
+    "destruct.end": 3
+  },
+  "transitions": 52,
+  "transitions_by_kind": {
+    "image->archive": 9,
+    "archive->markdown": 3,
+    "markdown->image": 3,
+    "archive->image": 8,
+    "image->image": 20,
+    "image->markdown": 2,
+    "markdown->archive": 2,
+    "archive->archive": 3,
+    "markdown->markdown": 2
+  },
+  "nonserial_or_missing_unload": [],
+  "failed_preview": [],
+  "failed_unload": [],
+  "scope_errors": []
+}

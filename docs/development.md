@@ -24,6 +24,9 @@
 
 创建调用链为：资源管理器 → Windows COM 预览宿主 → Handler DLL → `QLocalSocket` → 托盘程序的 `QLocalServer` → 对应 Qt 预览组件。
 通信协议只有 `CREATE` 和 `CLOSE`，文件路径使用 UTF-8 + Base64，窗口句柄使用十进制字符串。`CREATE` 返回预览页 HWND；Handler 在 `Unload` 时发送 `CLOSE <HWND>`，等到 `CLOSED <HWND>` 才认为该页面已调用 `close()` 且后台任务已取消。此确认不等待工作线程或原生子窗口销毁。真实资源管理器的切换调用链和线程观测见 [preview-handler-lifecycle.md](preview-handler-lifecycle.md)。
+
+本机实测中，同一窗格连续切换这三类格式会复用同一 Handler，并在其原线程先完成 `Unload` 再初始化下一文件；Handler 在引用计数归零时才析构，关闭并重开资源管理器后可以创建新实例和新线程。页面取消必须在 `Unload` 对应的关闭流程中完成，不能依赖 Handler 析构。此观察不能推广成多窗格的全局串行保证。
+
 当前实现按先 `SetWindow`、后 `DoPreview` 的流程工作：Handler 记录宿主窗口和预览区域，托盘程序通过 `QWindow::fromWinId` 包装宿主 HWND，再用 `QWindow::setParent` 建立 Qt 与 Win32 一致的父子窗口关系。宿主调用 `SetRect` 时，Handler 在临时的 Per-Monitor v2 DPI 上下文中把宿主提供的物理像素矩形同步给子窗口，然后恢复原线程上下文；拖动分隔线只走这一条尺寸更新路径。跨不同缩放屏幕时，Qt 会处理子窗口的 `WM_DPICHANGED_AFTERPARENT` 并更新原生 DPI；托盘程序随后按资源管理器顶层宿主窗口所在显示器同步外部父 `QWindow` 的 `QScreen`，让 Qt 子窗口的字体和布局使用新屏幕的缩放比例，最后按宿主客户区尺寸对齐一次。不能用预览子窗格自身的显示器归属判断，因为向左拖动时，资源管理器 DPI 已经切换，而子窗格的大部分区域可能仍留在原屏幕。普通移动、Qt 的 Resize/Move 事件和分隔线拖动均不触发额外校正，也不增加 IPC。
 
 当前实际注册的扩展名如下：图片 `.png`、`.jpg`、`.jpeg`、`.tif`、`.tiff`、`.bmp`、`.webp`、`.ico`、`.svg`、`.gif`；压缩包 `.zip`、`.rar`、`.7z`；Markdown `.md`、`.markdown`。三个预览共用同一个标题栏，内容区分别只提供图片缩放/拖动、压缩包树形目录和 Markdown 渲染。

@@ -163,8 +163,13 @@ HRESULT CPreviewAllHandler::Unload()
 {
 	if (!m_hwndPreview)
 		return S_OK;
-	if (!PreviewAllRequester::sendCloseCmd(m_hwndPreview))
-		return E_FAIL;
+
+	// The close notification decides how much the tray's own state can be
+	// trusted; it never decides whether the page is still valid. Once the
+	// request has been sent the page is invalid whatever comes back, so the
+	// handle is always cleared. Keeping it would let GetWindow() report an HWND
+	// whose page is gone, and would make a later Unload repeat the close.
+	PreviewAllRequester::sendCloseCmd(m_hwndPreview);
 	m_hwndPreview = nullptr;
 	return S_OK;
 }

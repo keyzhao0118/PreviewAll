@@ -23,7 +23,7 @@
 预览代码的依赖方向为 `app → preview/PreviewWidget → preview/previewpagefactory → preview/{image,archive,markdown} → preview/common`。`PreviewWidget` 只通过工厂获得内容页，不判断具体格式；`PreviewAllHandler` 是独立的 COM 目标，只通过 IPC 与主程序交互。新格式在 `PreviewAll/preview` 下新增同级目录，并加入工厂和 CMake 的 `PREVIEW_FORMAT_SOURCES`。
 
 创建调用链为：资源管理器 → Windows COM 预览宿主 → Handler DLL → `QLocalSocket` → 托盘程序的 `QLocalServer` → 对应 Qt 预览组件。
-通信协议只有 `CREATE` 和 `CLOSE`，文件路径使用 UTF-8 + Base64，窗口句柄使用十进制字符串。`CREATE` 返回预览页 HWND；Handler 在 `Unload` 时发送 `CLOSE <HWND>`，等到 `CLOSED <HWND>` 才认为该页面已调用 `close()` 且后台任务已取消。此确认不等待工作线程或原生子窗口销毁。真实资源管理器的切换调用链和线程观测见 [preview-handler-lifecycle.md](preview-handler-lifecycle.md)。
+通信协议只有 `CREATE` 和 `CLOSE`，文件路径使用 UTF-8 + Base64，窗口句柄使用十进制字符串。`CREATE` 返回预览页 HWND；Handler 在 `Unload` 时发送 `CLOSE <HWND>`，整个连接、发送和回复过程最多等待 250 ms。收到 `CLOSED <HWND>` 才表示该页面已调用 `close()` 且后台任务已取消；此确认不等待工作线程或原生子窗口销毁。无论确认成功、超时或通信失败，Handler 都清空本地 HWND 并返回；超时和失败会记录警告，不能据此认定托盘已处理关闭。真实资源管理器的切换调用链和线程观测见 [preview-handler-lifecycle.md](preview-handler-lifecycle.md)。
 
 本机实测中，同一窗格连续切换这三类格式会复用同一 Handler，并在其原线程先完成 `Unload` 再初始化下一文件；Handler 在引用计数归零时才析构，关闭并重开资源管理器后可以创建新实例和新线程。页面取消必须在 `Unload` 对应的关闭流程中完成，不能依赖 Handler 析构。此观察不能推广成多窗格的全局串行保证。
 
@@ -118,6 +118,12 @@ cmake --build --preset x64-debug --target PreviewAll_update_translations
 
 不带参数运行 `PreviewAll.exe` 会检查同目录 Handler DLL 的注册路径；当前实现检查 HKCU 和 HKLM，若 HKLM 已指向当前 DLL，则会尝试直接补写 HKCU，仍缺失时才请求 UAC 并启动 `--register-preview-handler` 子进程。
 首次启动时三类文件预览默认关闭：必须在托盘菜单中分别勾选“图片预览”“压缩包预览”“Markdown 预览”，才会将对应扩展名的预览处理程序写入当前交互用户的 HKCU。勾选状态保存在用户设置中，后续启动时自动恢复并重新注册；退出时删除这些扩展名绑定。菜单以蓝色勾选图标表示已启用。
+
+托盘“退出”在 UI 线程调用 `QCoreApplication::exit(0)`，结束 Qt 事件循环。随后 `main` 注销扩展名绑定，`PreviewAllApplication` 析构时释放预览页、取消页面任务，并等待残余工作结束。这里不能直接连接 `quit()`：嵌入后的预览页在 `QWidget` 层仍是顶层窗口，但对应的 `QWindow` 已是宿主的子窗口；Qt 的默认退出流程尝试调用 `QWindow::close()`，子窗口拒绝此调用，仍可见的页面使退出请求被忽略。`exit(0)` 仍保留正常的析构和任务收尾，不强行终止线程或进程。
+
+退出回归应在真实资源管理器中分别覆盖：无预览页、三类样本已显示、慢样本正在加载，以及多个预览窗格同时打开。点击托盘“退出”后检查页面释放、进程结束、重新启动后仍能预览。若线程正在执行不可中断的第三方解码或打开调用，程序仍需等该次调用返回；这与 Qt 在退出入口忽略请求是不同问题。
+
+本次退出修复已有包含活动嵌入页的正常收尾日志，证据及未覆盖的验收范围见 [托盘退出诊断记录](diagnostics/2026-10-01-tray-exit/README.md)。
 
 正式验收应先运行 Release 托盘进程并勾选对应类型，再在资源管理器中启用“预览窗格”并选择 `test` 中的样本。
 调试不同配置时，注册路径需要指向正在调试的 `bin`。

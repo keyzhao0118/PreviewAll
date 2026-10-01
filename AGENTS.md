@@ -4,8 +4,9 @@
 
 ## 先理解现有边界
 
-- `PreviewAllHandler` 是运行在 Windows 预览宿主中的 COM 桥接层：接收文件路径、宿主 HWND 和矩形，向常驻的 `PreviewAll.exe` 发送 `CREATE` / `CLOSE`，并在 `SetRect` 中同步预览子窗口尺寸。`CREATE` 返回预览页 HWND，`CLOSE` 用该 HWND 同步确认页面已调用 `close()` 且任务已取消；不要等待后台工作或原生窗口销毁。这里不要做文件解析或渲染。
+- `PreviewAllHandler` 是运行在 Windows 预览宿主中的 COM 桥接层：接收文件路径、宿主 HWND 和矩形，向常驻的 `PreviewAll.exe` 发送 `CREATE` / `CLOSE`，并在 `SetRect` 中同步预览子窗口尺寸。`CREATE` 返回预览页 HWND；`CLOSE` 用该 HWND 同步等待最多 250 ms，收到确认才表示页面已调用 `close()` 且任务已取消。无论确认成功、超时或通信失败，`Unload` 都清空本地 HWND；超时不能视作页面已关闭。不要等待后台工作或原生窗口销毁。这里不要做文件解析或渲染。
 - `PreviewAll/app` 负责 Qt 进程生命周期、托盘菜单、扩展名注册和窗口嵌入，不判断预览格式。`PreviewAll/preview/previewwidget.*` 是唯一嵌入宿主的无边框窗口，统一持有 `PreviewTitleBar` 与 `PreviewContentStack`；`PreviewAll/preview/common/PreviewPage` 是其内部的格式内容页基类。新增类型继承 `PreviewPage`，不另造窗口管理、IPC、类型专属标题栏或内容状态栈。
+- 托盘退出在 UI 线程用 `QCoreApplication::exit(0)` 结束事件循环，由应用析构统一释放页面、取消任务并等待残余工作。嵌入页的 `QWindow` 是子窗口，Qt 的默认 `quit()` 关闭流程可能忽略退出请求；不要改回直接连接 `quit()`，也不要强行终止工作线程代替正常收尾。
 - 目前接入的类型位于 `PreviewAll/preview/image`、`PreviewAll/preview/archive`、`PreviewAll/preview/markdown`。`PreviewAll/preview/previewpagefactory.cpp` 是后缀到内容页的唯一分派入口，也向扩展名注册和托盘菜单提供列表。三类页面使用 `PreviewTask` 后台任务契约。构建和验收方式见 `docs/development.md`。
 - `PreviewTask` 只管理单次加载的取消、页面存活校验和 UI 结果回传；`PreviewTaskQueue` 统一管理有界并发与等待队列。默认的 `Responsive` 通道供图片和 Markdown 使用；可能卡在第三方库调用中的压缩包解析使用独立的 `Blocking` 通道。两条通道各最多执行 2 项、等待 16 项，取消的排队任务在调度时清除。新增类型按任务的可中断性选择通道，不自行建立线程或线程池。
 

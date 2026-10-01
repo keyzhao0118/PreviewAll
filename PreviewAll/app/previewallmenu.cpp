@@ -47,7 +47,12 @@ void PreviewAllMenu::initUi()
 
 void PreviewAllMenu::initConnect()
 {
-	connect(m_actExit, &QAction::triggered, qApp, &QCoreApplication::quit);
+	connect(m_actExit, &QAction::triggered, qApp, [] {
+		// Embedded previews are top-level QWidgets backed by child QWindows.
+		// QApplication::quit() cannot close them through QWindow::close().
+		// Leave the event loop; application teardown releases pages and tasks.
+		QCoreApplication::exit(0);
+	});
 	connect(m_actHelp, &QAction::triggered, this, &PreviewAllMenu::showHelpPage);
 	connect(m_actImagePreview, &QAction::toggled, this, [this](bool checked) {
 		updateCheckIcon(m_actImagePreview, checked);
